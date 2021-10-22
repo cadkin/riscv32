@@ -1,0 +1,117 @@
+AUIPC rd, imm[31:12]
+    Builds pc-relative addresses and uses the U-type format.
+    Forms a 32-bit offset from the 20-bit U-immediate.
+    Fills in the lowest 12 bits with zeros.
+    Places the result in register rd.
+    Supports two-instruction sequences to access arbitrary offsets from the PC for both control-flow transfers and data accesses.
+        Combination of an AUIPC and the 12-bit immediate in a JALR can transfer control to any 32-bit PC-relative address.
+        AUIPC plus the 12-bit immediate offset in regular load or store instructions can access any 32-bit PC-relative data address.
+    
+ADDI rd, rs1, imm[11:0]
+    C equivalent: rd = rs1 + imm.
+    Signed addition.
+    Adds the sign-extended 12-bit immediate to register rs1.
+    Arithmetic overflow is ignored and the result is simply the low XLEN bits of the result.
+    If one operand’s sign is known, overflow checking requires only a single branch after the addition.
+    ADDI rd, rs1, 0 is used to implement the MV rd, rs1 assembler pseudoinstruction.
+
+JAL rd, imm[20|10:1|11|19:12] (offset)
+    Jump and link instruction.
+    Uses the J-type format, where the J-immediate encodes a signed offset in multiples of 2 bytes.
+    The offset is sign-extended and added to the address of the jump instruction to form the jump target address.
+    Jumps can therefore target a ±1 MiB range.
+    Stores the address of the instruction following the jump (pc+4) into register rd.
+    The standard software calling convention uses x1 as the return address register and x5 as an alternate link register.
+    Generates an instruction-address-misaligned exception if the target address is not aligned to a four-byte boundary.
+    Should push the return address onto a return-address stack (RAS) only when rd=x1/x5.
+
+J imm[20|10:1|11|19:12] (offset)
+    Plain unconditional jump.
+    Assembler pseudoinstruction.
+    Encoded as a JAL with rd=x0.
+    Should always be used for unconditional branches instead of a conditional branch instruction with an always-true condition
+    Jumps are also PC-relative and support a much wider offset range than branches, and will not pollute conditional-branch prediction tables.
+
+SW rs1, rs2
+    Stores 32-bit value from the low bits of register rs2 to memory.
+
+LI rd, imm
+    Load immediate.
+
+LW rd, rs1
+    Loads a 32-bit value from memory into rd.
+
+RET
+    Return from subroutine.
+    Assembler pseudoinstruction.
+    Base instruction: jalr x0, 0(x1).
+
+LUI rd, imm
+    Load upper immediate.
+    Used to build 32-bit constants and uses the U-type format.
+    Places the U-immediate value in the top 20 bits of the destination register rd.
+    Fills in the lowest 12 bits with zeros.
+
+NOP
+    No operation
+    Advances the pc and increments any applicable performance counters.
+    Does not change any other architecturally visible states.
+    Encoded as ADDI x0, x0, 0.
+    Used to align code segments to microarchitecturally significant address boundaries.
+    Used to leave space for inline code modifications.
+    Canonical NOP encoding defined to allow microarchitectural optimizations as well as for more readable disassembly output.
+    ADDI was chosen for the NOP encoding as this is most likely to take fewest resources to execute across a range of systems (if not optimized away in decode).
+    The instruction only reads one register.
+
+BLEZ rs, offset
+    Branch if ≤ zero.
+    Assembler pseudoinstruction.
+    Base instruction: bge x0, rs, offset.
+
+zero - Hard-wired zero
+
+ra - Return address
+sp - Stack pointer
+gp - Global pointer
+tp - Thread pointer
+
+t0 - Temporary/alternate link register
+t1 - Temporary
+t2 - Temporary
+t3 - Temporary
+t4 - Temporary
+t5 - Temporary
+t6 - Temporary
+
+a0 - Function argument/return value
+a1 - Function argument/return value
+a2 - Function argument
+a3 - Function argument
+a4 - Function argument
+a5 - Function argument
+a6 - Function argument
+a7 - Function argument
+
+s0/fp - Saved register/frame pointer
+s1    - Saved register
+s2    - Saved register
+s3    - Saved register
+s4    - Saved register
+s5    - Saved register
+s6    - Saved register
+s7    - Saved register
+s8    - Saved register
+s9    - Saved register
+s10   - Saved register
+s11   - Saved register
+
+32 bits in a word
+4 bytes in a word
+8 bits in a byte
+Each register is 32 bits wide
+Offset moves by bytes
+
+char  - 1 byte (8-bit)
+short - 2 bytes (16-bit)
+int   - 4 bytes (32-bit)
+long  - 8 bytes (64-bit)

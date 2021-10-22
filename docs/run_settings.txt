@@ -1,0 +1,17 @@
+Synthesis: 
+	Enable retiming (right below directive) 
+
+Implementation:
+	Enable opt_design
+	Set Directive to ExploreWithRemap (optional)
+	
+	Set place_design Directivev to ExtraTimingOpt (optional)
+	
+	Enable Post-Palce Phys Opt Design (phys_opt_design)
+	Set Directive to AlternateFlowWithRetiming (optional)
+
+	Set route_design Directive to HigherDelayCost (optional)
+
+	Enable Post-Route Phys Opt Design (phys_opt_design)
+	
+	

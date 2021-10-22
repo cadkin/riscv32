@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_rvtop_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_rvtop" />
+            <top_module name="vcomponents" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="3182000000fs"></ZoomStartTime>
+      <ZoomEndTime time="3365600001fs"></ZoomEndTime>
+      <Cursor1Time time="3335000000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="81"></NameColumnWidth>
+      <ValueColumnWidth column_width="66"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="31" />
+   <wvobject type="logic" fp_name="/tb_rvtop/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_rvtop/Rst">
+      <obj_property name="ElementShortName">Rst</obj_property>
+      <obj_property name="ObjectShortName">Rst</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_rvtop/debug">
+      <obj_property name="ElementShortName">debug</obj_property>
+      <obj_property name="ObjectShortName">debug</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_rvtop/rx">
+      <obj_property name="ElementShortName">rx</obj_property>
+      <obj_property name="ObjectShortName">rx</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_rvtop/prog">
+      <obj_property name="ElementShortName">prog</obj_property>
+      <obj_property name="ObjectShortName">prog</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/debug_input">
+      <obj_property name="ElementShortName">debug_input[4:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_input[4:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_rvtop/tx">
+      <obj_property name="ElementShortName">tx</obj_property>
+      <obj_property name="ObjectShortName">tx</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_rvtop/clk_out">
+      <obj_property name="ElementShortName">clk_out</obj_property>
+      <obj_property name="ObjectShortName">clk_out</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/sev_out">
+      <obj_property name="ElementShortName">sev_out[6:0]</obj_property>
+      <obj_property name="ObjectShortName">sev_out[6:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/an">
+      <obj_property name="ElementShortName">an[7:0]</obj_property>
+      <obj_property name="ObjectShortName">an[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/led">
+      <obj_property name="ElementShortName">led[15:0]</obj_property>
+      <obj_property name="ObjectShortName">led[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/key">
+      <obj_property name="ElementShortName">key[95:0]</obj_property>
+      <obj_property name="ObjectShortName">key[95:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u1/pres_addr">
+      <obj_property name="ElementShortName">pres_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">pres_addr[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_rvtop/dut/rv_core/u2/u3/hz">
+      <obj_property name="ElementShortName">hz</obj_property>
+      <obj_property name="ObjectShortName">hz</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u3/ALUop1">
+      <obj_property name="ElementShortName">ALUop1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ALUop1[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u3/ALUop2">
+      <obj_property name="ElementShortName">ALUop2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ALUop2[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u3/alures">
+      <obj_property name="ElementShortName">alures[31:0]</obj_property>
+      <obj_property name="ObjectShortName">alures[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u4/MEM_WB_memres">
+      <obj_property name="ElementShortName">MEM_WB_memres[31:0]</obj_property>
+      <obj_property name="ObjectShortName">MEM_WB_memres[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u5/bus/WB_res">
+      <obj_property name="ElementShortName">WB_res[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WB_res[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_rvtop/dut/rv_core/u4/bus/MEM_WB_regwrite">
+      <obj_property name="ElementShortName">MEM_WB_regwrite</obj_property>
+      <obj_property name="ObjectShortName">MEM_WB_regwrite</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u0/bus/MEM_WB_rd">
+      <obj_property name="ElementShortName">MEM_WB_rd[4:0]</obj_property>
+      <obj_property name="ObjectShortName">MEM_WB_rd[4:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u1/bus/ins">
+      <obj_property name="ElementShortName">ins[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ins[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u0/bus/adr_rs1">
+      <obj_property name="ElementShortName">adr_rs1[4:0]</obj_property>
+      <obj_property name="ObjectShortName">adr_rs1[4:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u4/bus/EX_MEM_dout_rs2">
+      <obj_property name="ElementShortName">EX_MEM_dout_rs2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_MEM_dout_rs2[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_rvtop/dut/rv_core/u4/ctrl_fwd">
+      <obj_property name="ElementShortName">ctrl_fwd</obj_property>
+      <obj_property name="ObjectShortName">ctrl_fwd</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u4/memforward">
+      <obj_property name="ElementShortName">memforward[31:0]</obj_property>
+      <obj_property name="ObjectShortName">memforward[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u4/bus/WB_res">
+      <obj_property name="ElementShortName">WB_res[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WB_res[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u3/dut/sel_fw1">
+      <obj_property name="ElementShortName">sel_fw1[1:0]</obj_property>
+      <obj_property name="ObjectShortName">sel_fw1[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u3/dut/sel_fw2">
+      <obj_property name="ElementShortName">sel_fw2[1:0]</obj_property>
+      <obj_property name="ObjectShortName">sel_fw2[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u3/dut/rs1">
+      <obj_property name="ElementShortName">rs1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rs1[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_rvtop/dut/rv_core/u3/dut/rs2">
+      <obj_property name="ElementShortName">rs2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rs2[31:0]</obj_property>
+   </wvobject>
+</wave_config>
