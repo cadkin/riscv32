@@ -53,10 +53,6 @@ entity gh_uart_16550 is
 		D       : in std_logic_vector(7 downto 0);
 		
 		sRX	    : in std_logic;
-		CTSn    : in std_logic := '1';
-		DSRn    : in std_logic := '1';
-		RIn     : in std_logic := '1';
-		DCDn    : in std_logic := '1';
 		
 		sTX     : out std_logic;
 		DTRn    : out std_logic;
@@ -255,23 +251,13 @@ END COMPONENT;
 	signal ITR3   : std_logic;
 	
 	signal DCTS     : std_logic;
-	signal CTSn_RE  : std_logic;
-	signal CTSn_FE  : std_logic;
-	signal iDCTS    : std_logic;
 	signal iLOOP    : std_logic;
 	
 	signal DDSR     : std_logic;
-	signal DSRn_RE  : std_logic;
-	signal DSRn_FE  : std_logic;
-	signal iDDSR    : std_logic;
 
 	signal TERI    : std_logic;
-	signal RIn_RE  : std_logic;
 		
 	signal DDCD     : std_logic;
-	signal DCDn_RE  : std_logic;
-	signal DCDn_FE  : std_logic;
-	signal iDDCD    : std_logic;
 
 	signal RD_MSR   : std_logic;
 	signal MSR_CLR  : std_logic;
@@ -400,93 +386,56 @@ U2 : gh_jkff
 ---- Modem Status Register Bits --------------
 ----------------------------------------------
 
-U3 : gh_edge_det 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		d => CTSn,
-		sre => CTSn_RE,
-		sfe => CTSn_FE);
-		
-	iDCTS <= CTSn_RE or CTSn_FE;
-
 U4 : gh_jkff 
 	PORT MAP (
 		clk => clk,
 		rst => rst,
-		j => iDCTS,
+		j => '0', -- TODO Optimize out '0' inputs (becomes D-ff w/ K as enable)
 		k => MSR_CLR,
 		Q => DCTS);
 	
 	MSR(0) <= DCTS;
 
-U5 : gh_edge_det 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		d => DSRn,
-		sre => DSRn_RE,
-		sfe => DSRn_FE);
-		
-	iDDSR <= DSRn_RE or DSRn_FE;
-
 U6 : gh_jkff 
 	PORT MAP (
 		clk => clk,
 		rst => rst,
-		j => iDDSR,
+		j => '0',
 		k => MSR_CLR,
 		Q => DDSR);
 	
 	MSR(1) <= DDSR;
-
-U7 : gh_edge_det 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		d => RIn,
-		sre => RIn_RE);
 		
 U8 : gh_jkff 
 	PORT MAP (
 		clk => clk,
 		rst => rst,
-		j => RIn_RE,
+		j => '0',
 		k => MSR_CLR,
 		Q => TERI);
 	
 	MSR(2) <= TERI;
-	
-U9 : gh_edge_det 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		d => DCDn,
-		sre => DCDn_RE,
-		sfe => DCDn_FE);
-		
-	iDDCD <= DCDn_RE or DCDn_FE;
 
 U10 : gh_jkff 
 	PORT MAP (
 		clk => clk,
 		rst => rst,
-		j => iDDCD,
+		j => '0',
 		k => MSR_CLR,
 		Q => DDCD);
 	
 	MSR(3) <= DDCD;
 	
-	iMSR(4) <= (not CTSn) when (iLOOP = '0') else
+	iMSR(4) <= '0' when (iLOOP = '0') else
 	            MCR(1);
 	
-	iMSR(5) <= (not DSRn) when (iLOOP = '0') else
+	iMSR(5) <= '0' when (iLOOP = '0') else
 	            MCR(0);
 	
-	iMSR(6) <= (not RIn) when (iLOOP = '0') else
+	iMSR(6) <= '0' when (iLOOP = '0') else
 	            MCR(2);
 	
-	iMSR(7) <= (not DCDn) when (iLOOP = '0') else
+	iMSR(7) <= '0' when (iLOOP = '0') else
 	            MCR(3);
   
 	RD_MSR <= '0' when ((CS = '0') or (WR = '1')) else
@@ -784,6 +733,7 @@ U29 : gh_UART_Tx_8bit
 		read => TF_RD);
 
 	sTX <= isTX;
+
 		
 --------------------------------------------------
 ---- Receive FIFO ----------------------------------

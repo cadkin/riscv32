@@ -1,0 +1,577 @@
+# //  Questa Sim-64
+# //  Version 2020.3 linux_x86_64 Jul 12 2020
+# //
+# //  Copyright 1991-2020 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# ** Warning: License feature 'msimviewer' will expire in 10 days.
+# Loading project Cache_Project_presyn
+# reading /sw/mentor/pkgs/questasim/2020.3/linux_x86_64/../modelsim.ini
+# Loading project uart_behav
+# Compile of gh_baud_rate_gen.vhd was successful.
+# Compile of gh_binary2gray.vhd was successful.
+# Compile of gh_counter_down_ce_ld.vhd was successful.
+# Compile of gh_counter_down_ce_ld_tc.vhd was successful.
+# Compile of gh_counter_integer_down.vhd was successful.
+# Compile of gh_DECODE_3to8.vhd was successful.
+# Compile of gh_edge_det.vhd was successful.
+# Compile of gh_edge_det_XCD.vhd was successful.
+# Compile of gh_fifo_async16_rcsr_wf.vhd was successful.
+# Compile of gh_fifo_async16_sr.vhd was successful.
+# Compile of gh_gray2binary.vhd was successful.
+# Compile of gh_jkff.vhd was successful.
+# Compile of gh_parity_gen_Serial.vhd was successful.
+# Compile of gh_register_ce.vhd was successful.
+# Compile of gh_shift_reg_PL_sl.vhd was successful.
+# Compile of gh_shift_reg_se_sl.vhd was successful.
+# Compile of gh_uart_16550.vhd was successful.
+# Compile of gh_uart_Rx_8bit.vhd was successful.
+# Compile of gh_uart_Tx_8bit.vhd was successful.
+# Compile of tb_uart.sv was successful.
+# 20 compiles, 0 failed with no errors.
+vsim work.tb_uart
+# vsim work.tb_uart 
+# Start time: 13:05:42 on Jan 18,2021
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Warning: License feature 'msimhdlsim' will expire in 10 days.
+# Loading sv_std.std
+# Loading work.tb_uart(fast)
+# ** Warning: License feature 'msimhdlmix' will expire in 10 days.
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.std_logic_arith(body)
+# Loading ieee.std_logic_unsigned(body)
+# Loading work.gh_uart_16550(a)#1
+# ** Error: (vsim-3061) Too many Verilog port connections.
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut File: /home/gbruner/UART_test/src/tb_uart.sv Line: 21
+# Loading work.gh_uart_tx_8bit(a)#1
+# Loading work.gh_fifo_async16_rcsr_wf(a)#1
+# Loading work.gh_uart_rx_8bit(a)#1
+# Error loading design
+# End time: 13:05:43 on Jan 18,2021, Elapsed time: 0:00:01
+# Errors: 1, Warnings: 5
+# Compile of gh_baud_rate_gen.vhd was successful.
+# Compile of gh_binary2gray.vhd was successful.
+# Compile of gh_counter_down_ce_ld.vhd was successful.
+# Compile of gh_counter_down_ce_ld_tc.vhd was successful.
+# Compile of gh_counter_integer_down.vhd was successful.
+# Compile of gh_DECODE_3to8.vhd was successful.
+# Compile of gh_edge_det.vhd was successful.
+# Compile of gh_edge_det_XCD.vhd was successful.
+# Compile of gh_fifo_async16_rcsr_wf.vhd was successful.
+# Compile of gh_fifo_async16_sr.vhd was successful.
+# Compile of gh_gray2binary.vhd was successful.
+# Compile of gh_jkff.vhd was successful.
+# Compile of gh_parity_gen_Serial.vhd was successful.
+# Compile of gh_register_ce.vhd was successful.
+# Compile of gh_shift_reg_PL_sl.vhd was successful.
+# Compile of gh_shift_reg_se_sl.vhd was successful.
+# Compile of gh_uart_16550.vhd was successful.
+# Compile of gh_uart_Rx_8bit.vhd was successful.
+# Compile of gh_uart_Tx_8bit.vhd was successful.
+# Compile of tb_uart.sv was successful.
+# 20 compiles, 0 failed with no errors.
+vsim work.tb_uart -voptargs=+acc
+# vsim work.tb_uart -voptargs="+acc" 
+# Start time: 13:07:07 on Jan 18,2021
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-143) Recognized 1 FSM in architecture body "gh_uart_Rx_8bit(a)".
+# ** Note: (vopt-143) Recognized 1 FSM in architecture body "gh_uart_Tx_8bit(a)".
+# ** Warning: License feature 'msimhdlsim' will expire in 10 days.
+# Loading sv_std.std
+# Loading work.tb_uart(fast)
+# ** Warning: License feature 'msimhdlmix' will expire in 10 days.
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.gh_uart_16550(a)#1
+# Loading work.gh_jkff(a)#1
+# Loading work.gh_edge_det(a)#1
+# Loading work.gh_register_ce(a)#1
+# Loading work.gh_decode_3to8(a)#1
+# Loading work.gh_register_ce(a)#2
+# Loading work.gh_register_ce(a)#3
+# Loading ieee.std_logic_arith(body)
+# Loading ieee.std_logic_unsigned(body)
+# Loading work.gh_baud_rate_gen(a)#1
+# Loading work.gh_counter_down_ce_ld(a)#1
+# Loading work.gh_fifo_async16_sr(a)#1
+# Loading work.gh_uart_tx_8bit(a)#1
+# Loading work.gh_counter_integer_down(a)#1
+# Loading work.gh_shift_reg_pl_sl(a)#1
+# Loading work.gh_counter_integer_down(a)#2
+# Loading work.gh_parity_gen_serial(a)#1
+# Loading work.gh_fifo_async16_rcsr_wf(a)#1
+# Loading work.gh_binary2gray(a)#1
+# Loading work.gh_gray2binary(a)#1
+# Loading work.gh_uart_rx_8bit(a)#1
+# Loading work.gh_shift_reg_se_sl(a)#1
+# Loading work.gh_edge_det_xcd(a)#1
+# Loading work.gh_counter_down_ce_ld_tc(a)#1
+add wave -position end  sim:/tb_uart/clk
+add wave -position end  sim:/tb_uart/rst
+add wave -position end  sim:/tb_uart/CS
+add wave -position end  sim:/tb_uart/WR
+add wave -position end  sim:/tb_uart/ADD
+add wave -position end  sim:/tb_uart/D
+add wave -position end  sim:/tb_uart/sRX
+add wave -position end  sim:/tb_uart/CTSn
+add wave -position end  sim:/tb_uart/DSRn
+add wave -position end  sim:/tb_uart/RIn
+add wave -position end  sim:/tb_uart/DCDn
+add wave -position end  sim:/tb_uart/sTX
+add wave -position end  sim:/tb_uart/DTRn
+add wave -position end  sim:/tb_uart/RTSn
+add wave -position end  sim:/tb_uart/OUT1n
+add wave -position end  sim:/tb_uart/OUT2n
+add wave -position end  sim:/tb_uart/TXRDYn
+add wave -position end  sim:/tb_uart/RXRDYn
+add wave -position end  sim:/tb_uart/IRQ
+add wave -position end  sim:/tb_uart/B_CLK
+add wave -position end  sim:/tb_uart/RD
+add wave -position end  sim:/tb_uart/DCDN
+run 100ns
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: CONV_INTEGER: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, and it has been converted to 0.
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: CONV_INTEGER: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, and it has been converted to 0.
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/u27
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/u27
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/u27
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 2  Instance: /tb_uart/dut/u27
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 4  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 4  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 5  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 5  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 6  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 6  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 7  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 7  Instance: /tb_uart/dut/U31
+# Compile of gh_baud_rate_gen.vhd was successful.
+# Compile of gh_binary2gray.vhd was successful.
+# Compile of gh_counter_down_ce_ld.vhd was successful.
+# Compile of gh_counter_down_ce_ld_tc.vhd was successful.
+# Compile of gh_counter_integer_down.vhd was successful.
+# Compile of gh_DECODE_3to8.vhd was successful.
+# Compile of gh_edge_det.vhd was successful.
+# Compile of gh_edge_det_XCD.vhd was successful.
+# Compile of gh_fifo_async16_rcsr_wf.vhd was successful.
+# Compile of gh_fifo_async16_sr.vhd was successful.
+# Compile of gh_gray2binary.vhd was successful.
+# Compile of gh_jkff.vhd was successful.
+# Compile of gh_parity_gen_Serial.vhd was successful.
+# Compile of gh_register_ce.vhd was successful.
+# Compile of gh_shift_reg_PL_sl.vhd was successful.
+# Compile of gh_shift_reg_se_sl.vhd was successful.
+# Compile of gh_uart_16550.vhd was successful.
+# Compile of gh_uart_Rx_8bit.vhd was successful.
+# Compile of gh_uart_Tx_8bit.vhd was successful.
+# Compile of tb_uart.sv was successful.
+# 20 compiles, 0 failed with no errors.
+restart -f
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# Loading sv_std.std
+# Loading work.tb_uart(fast)
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.gh_uart_16550(a)#1
+# Loading work.gh_jkff(a)#1
+# Loading work.gh_edge_det(a)#1
+# Loading work.gh_register_ce(a)#1
+# Loading work.gh_decode_3to8(a)#1
+# Loading work.gh_register_ce(a)#2
+# Loading work.gh_register_ce(a)#3
+# Loading ieee.std_logic_arith(body)
+# Loading ieee.std_logic_unsigned(body)
+# Loading work.gh_baud_rate_gen(a)#1
+# Loading work.gh_counter_down_ce_ld(a)#1
+# Loading work.gh_fifo_async16_sr(a)#1
+# Loading work.gh_uart_tx_8bit(a)#1
+# Loading work.gh_counter_integer_down(a)#1
+# Loading work.gh_shift_reg_pl_sl(a)#1
+# Loading work.gh_counter_integer_down(a)#2
+# Loading work.gh_parity_gen_serial(a)#1
+# Loading work.gh_fifo_async16_rcsr_wf(a)#1
+# Loading work.gh_binary2gray(a)#1
+# Loading work.gh_gray2binary(a)#1
+# Loading work.gh_uart_rx_8bit(a)#1
+# Loading work.gh_shift_reg_se_sl(a)#1
+# Loading work.gh_edge_det_xcd(a)#1
+# Loading work.gh_counter_down_ce_ld_tc(a)#1
+run 100ns
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: CONV_INTEGER: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, and it has been converted to 0.
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: CONV_INTEGER: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, and it has been converted to 0.
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/u27
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/u27
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/u27
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 2  Instance: /tb_uart/dut/u27
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 4  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 4  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 5  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 5  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 6  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 6  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 7  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 7  Instance: /tb_uart/dut/U31
+# Compile of gh_baud_rate_gen.vhd was successful.
+# Compile of gh_binary2gray.vhd was successful.
+# Compile of gh_counter_down_ce_ld.vhd was successful.
+# Compile of gh_counter_down_ce_ld_tc.vhd was successful.
+# Compile of gh_counter_integer_down.vhd was successful.
+# Compile of gh_DECODE_3to8.vhd was successful.
+# Compile of gh_edge_det.vhd was successful.
+# Compile of gh_edge_det_XCD.vhd was successful.
+# Compile of gh_fifo_async16_rcsr_wf.vhd was successful.
+# Compile of gh_fifo_async16_sr.vhd was successful.
+# Compile of gh_gray2binary.vhd was successful.
+# Compile of gh_jkff.vhd was successful.
+# Compile of gh_parity_gen_Serial.vhd was successful.
+# Compile of gh_register_ce.vhd was successful.
+# Compile of gh_shift_reg_PL_sl.vhd was successful.
+# Compile of gh_shift_reg_se_sl.vhd was successful.
+# Compile of gh_uart_16550.vhd was successful.
+# Compile of gh_uart_Rx_8bit.vhd was successful.
+# Compile of gh_uart_Tx_8bit.vhd was successful.
+# Compile of tb_uart.sv failed with 3 errors.
+# 20 compiles, 1 failed with 3 errors.
+# Compile of tb_uart.sv failed with 3 errors.
+# Compile of gh_baud_rate_gen.vhd was successful.
+# Compile of gh_binary2gray.vhd was successful.
+# Compile of gh_counter_down_ce_ld.vhd was successful.
+# Compile of gh_counter_down_ce_ld_tc.vhd was successful.
+# Compile of gh_counter_integer_down.vhd was successful.
+# Compile of gh_DECODE_3to8.vhd was successful.
+# Compile of gh_edge_det.vhd was successful.
+# Compile of gh_edge_det_XCD.vhd was successful.
+# Compile of gh_fifo_async16_rcsr_wf.vhd was successful.
+# Compile of gh_fifo_async16_sr.vhd was successful.
+# Compile of gh_gray2binary.vhd was successful.
+# Compile of gh_jkff.vhd was successful.
+# Compile of gh_parity_gen_Serial.vhd was successful.
+# Compile of gh_register_ce.vhd was successful.
+# Compile of gh_shift_reg_PL_sl.vhd was successful.
+# Compile of gh_shift_reg_se_sl.vhd was successful.
+# Compile of gh_uart_16550.vhd was successful.
+# Compile of gh_uart_Rx_8bit.vhd was successful.
+# Compile of gh_uart_Tx_8bit.vhd was successful.
+# Compile of tb_uart.sv was successful.
+# 20 compiles, 0 failed with no errors.
+restart -f
+# ** Note: (vsim-12125) Error and warning message counts have been reset to '0' because of 'restart'.
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# Loading sv_std.std
+# Loading work.tb_uart(fast)
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading work.gh_uart_16550(a)#1
+# Loading work.gh_jkff(a)#1
+# Loading work.gh_edge_det(a)#1
+# Loading work.gh_register_ce(a)#1
+# Loading work.gh_decode_3to8(a)#1
+# Loading work.gh_register_ce(a)#2
+# Loading work.gh_register_ce(a)#3
+# Loading ieee.std_logic_arith(body)
+# Loading ieee.std_logic_unsigned(body)
+# Loading work.gh_baud_rate_gen(a)#1
+# Loading work.gh_counter_down_ce_ld(a)#1
+# Loading work.gh_fifo_async16_sr(a)#1
+# Loading work.gh_uart_tx_8bit(a)#1
+# Loading work.gh_counter_integer_down(a)#1
+# Loading work.gh_shift_reg_pl_sl(a)#1
+# Loading work.gh_counter_integer_down(a)#2
+# Loading work.gh_parity_gen_serial(a)#1
+# Loading work.gh_fifo_async16_rcsr_wf(a)#1
+# Loading work.gh_binary2gray(a)#1
+# Loading work.gh_gray2binary(a)#1
+# Loading work.gh_uart_rx_8bit(a)#1
+# Loading work.gh_shift_reg_se_sl(a)#1
+# Loading work.gh_edge_det_xcd(a)#1
+# Loading work.gh_counter_down_ce_ld_tc(a)#1
+run 150ns
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: CONV_INTEGER: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, and it has been converted to 0.
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: CONV_INTEGER: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, and it has been converted to 0.
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/U28
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/u27
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/u27
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/u27
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 2  Instance: /tb_uart/dut/u27
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 4  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 4  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 5  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 5  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 6  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 6  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 7  Instance: /tb_uart/dut/U31
+# ** Warning: There is an 'U'|'X'|'W'|'Z'|'-' in an arithmetic operand, the result will be 'X'(es).
+#    Time: 0 ns  Iteration: 7  Instance: /tb_uart/dut/U31
+run 500ns
+run 1us
+quit -sim
+# End time: 13:23:41 on Jan 18,2021, Elapsed time: 0:16:34
+# Errors: 0, Warnings: 34
+# reading /sw/mentor/pkgs/questasim/2020.3/linux_x86_64/../modelsim.ini
+# Loading project glnet_sim
+# Compile of uart_glnet.v was successful.
+# Compile of tb_uart.sv was successful.
+# Compile of stdlib_tsmc65_ccs_20200703.v was successful.
+# 3 compiles, 0 failed with no errors.
+vsim -voptargs=+acc work.tb_uart
+# vsim -voptargs="+acc" work.tb_uart 
+# Start time: 13:26:07 on Jan 18,2021
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Warning: License feature 'msimhdlsim' will expire in 10 days.
+# Loading sv_std.std
+# Loading work.tb_uart(fast)
+# Loading work.gh_uart_16550(fast)
+# Loading work.ffthq_x1(fast)
+# ** Error (suppressible): (vsim-3009) [TSCALE] - Module 'tb_uart' does not have a timeunit/timeprecision specification in effect, but other modules do.
+#    Time: 0 ns  Iteration: 0  Instance: /tb_uart/dut/\U28/ram_mem_reg[0][0]  File: /research/pdk/libraries/tsmc_65/UTK/characterization-data-versions/stdlib_tsmc65-liberate-generated-20200703/verilog/stdlib_tsmc65_ccs_20200703.v
+# Loading work.ffr_x1(fast)
+# Loading work.inv_x1(fast)
+# Loading work.nor2_x1(fast)
+# Loading work.nand3_x1(fast)
+# Loading work.nand2_x1(fast)
+# Loading work.nand4_x1(fast)
+# Loading work.oai2bb1_x1(fast)
+# Loading work.nand2b_x1(fast)
+# Loading work.mxi2_x1(fast)
+# Loading work.aoi2bb2_x1(fast)
+# Loading work.aoi21_x1(fast)
+# Loading work.oai21_x1(fast)
+# Loading work.nor3_x1(fast)
+# Loading work.nand4b_x1(fast)
+# Loading work.aoi22_x1(fast)
+# Loading work.nor3b_x1(fast)
+# Loading work.nand3b_x1(fast)
+# Loading work.and2_x1(fast)
+# Loading work.oai22_x1(fast)
+# Loading work.addf_x1(fast)
+# Loading work.nor2b_x1(fast)
+# Loading work.oai2bb2_x1(fast)
+# Loading work.or2_x1(fast)
+# Error loading design
+# End time: 13:26:08 on Jan 18,2021, Elapsed time: 0:00:01
+# Errors: 1, Warnings: 6
+# Compile of tb_uart.sv was successful.
+vsim -voptargs=+acc tb_uart
+# vsim -voptargs="+acc" tb_uart 
+# Start time: 13:27:28 on Jan 18,2021
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# ** Warning: License feature 'msimhdlsim' will expire in 10 days.
+# Loading sv_std.std
+# Loading work.tb_uart(fast)
+# Loading work.gh_uart_16550(fast)
+# Loading work.ffthq_x1(fast)
+# Loading work.ffr_x1(fast)
+# Loading work.inv_x1(fast)
+# Loading work.nor2_x1(fast)
+# Loading work.nand3_x1(fast)
+# Loading work.nand2_x1(fast)
+# Loading work.nand4_x1(fast)
+# Loading work.oai2bb1_x1(fast)
+# Loading work.nand2b_x1(fast)
+# Loading work.mxi2_x1(fast)
+# Loading work.aoi2bb2_x1(fast)
+# Loading work.aoi21_x1(fast)
+# Loading work.oai21_x1(fast)
+# Loading work.nor3_x1(fast)
+# Loading work.nand4b_x1(fast)
+# Loading work.aoi22_x1(fast)
+# Loading work.nor3b_x1(fast)
+# Loading work.nand3b_x1(fast)
+# Loading work.and2_x1(fast)
+# Loading work.oai22_x1(fast)
+# Loading work.addf_x1(fast)
+# Loading work.nor2b_x1(fast)
+# Loading work.oai2bb2_x1(fast)
+# Loading work.or2_x1(fast)
+add wave -position end  sim:/tb_uart/clk
+add wave -position end  sim:/tb_uart/rst
+add wave -position end  sim:/tb_uart/CS
+add wave -position end  sim:/tb_uart/WR
+add wave -position end  sim:/tb_uart/ADD
+add wave -position end  sim:/tb_uart/D
+add wave -position end  sim:/tb_uart/sRX
+add wave -position end  sim:/tb_uart/CTSn
+add wave -position end  sim:/tb_uart/DSRn
+add wave -position end  sim:/tb_uart/RIn
+add wave -position end  sim:/tb_uart/DCDn
+add wave -position end  sim:/tb_uart/sTX
+add wave -position end  sim:/tb_uart/DTRn
+add wave -position end  sim:/tb_uart/RTSn
+add wave -position end  sim:/tb_uart/OUT1n
+add wave -position end  sim:/tb_uart/OUT2n
+add wave -position end  sim:/tb_uart/TXRDYn
+add wave -position end  sim:/tb_uart/RXRDYn
+add wave -position end  sim:/tb_uart/IRQ
+add wave -position end  sim:/tb_uart/B_CLK
+add wave -position end  sim:/tb_uart/RD
+add wave -position end  sim:/tb_uart/DCDN
+run 150ns
+run 1500ns
+# End time: 13:35:49 on Jan 18,2021, Elapsed time: 0:08:21
+# Errors: 0, Warnings: 2

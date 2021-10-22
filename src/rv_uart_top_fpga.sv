@@ -69,7 +69,7 @@ endinterface
 interface mmio_bus (
         input logic clk, Rst, rx,// uart_clk,
         input logic [4:0] debug_input,
-				input logic BR_clk,
+		input logic BR_clk,
         output logic tx,
         input logic spi_miso,
         output logic spi_mosi, spi_cs, spi_sck
@@ -156,56 +156,56 @@ module rv_uart_top(
     input  logic rst_n,
 
     //FPGA Debugging
-//    input  logic debug,
-//    input  logic [4:0] debug_input,
-//    output logic [6:0] sev_out,
-//    output logic [7:0] an,
-//    output logic [15:0] led,
+    input  logic debug,
+    input  logic [4:0] debug_input,
+    output logic [6:0] sev_out,
+    output logic [7:0] an,
+    output logic [15:0] led,
 
     //UART
     input  logic rx,
     output logic tx,
 
     //Scanchain (disable for FPGA testing)
-    input  logic scan_en,
-    input  logic scan_in,
-    input  logic scan_clk,
-    output logic scan_out,
+//    input  logic scan_en,
+//    input  logic scan_in,
+//    input  logic scan_clk,
+//    output logic scan_out,
 
     //SPI
     input  logic miso,
-    output logic mosi, cs,
-    output logic spi_clk
+    output logic mosi, cs
+//    output logic spi_clk // commented out to generate bitstream on FPGA
 );
 
 	logic prog;
     logic [31:0] debug_output;
     logic [3:0]  seg_cur, seg_nxt;
-    logic        clk_rv, clk_spi, clk_uart;
+    logic        clk_50M, clk_12M, clk_115k;
     logic clk_7seg;
     logic addr_dn, addr_up;
     logic Rst;
     logic rst_in, rst_last;
 
     // Comment out for FPGA testing
-	logic [4:0] debug_input;
-	logic debug;
-	assign debug = 0;
-	assign debug_input = 5'b00000;
-	logic [6:0] sev_out;
-	logic [7:0] an;
-	logic [15:0] led;
-    assign Rst = !rst_n;
+//    logic [4:0] debug_input;
+//    logic debug;
+//    assign debug = 0;
+//    assign debug_input = 5'b00000;
+//    logic [6:0] sev_out;
+//    logic [7:0] an;
+//    logic [15:0] led;
+//    assign Rst = !rst_n;
 
     // Include for FPGA testing
-//    logic scan_en;
-//    logic scan_in;
-//    logic scan_clk;
-//    logic scan_out;
-//    assign scan_en = 0;
-//    assign scan_in = 0;
-//    assign scan_clk = 0;
-//    assign Rst = !rst_n;
+    logic scan_en;
+    logic scan_in;
+    logic scan_clk;
+    logic scan_out;
+    assign scan_en = 0;
+    assign scan_in = 0;
+    assign scan_clk = 0;
+    assign Rst = !rst_n;
 
     // Debug Output Driving
     assign led = {12'h0, rbus.stack_mismatch, mbus.RAS_ena, rbus.trapping, rbus.uart_IRQ};
@@ -223,7 +223,7 @@ module rv_uart_top(
 	assign spi_miso = miso;
 	assign mosi = spi_mosi;
 	assign cs = spi_cs;
-	assign spi_clk = clk_spi;
+//	assign spi_clk = clk_spi; // commented out to generate bitstream on FPGA
 
     //Scanchain
 	assign prog = scan_en;
@@ -240,8 +240,8 @@ module rv_uart_top(
 
     riscv_bus rbus(.clk(clk_rv), .*);
     mmio_bus mbus(
-        .clk(clk_spi), .Rst(Rst), .rx(rx),
-        .debug_input(debug_input), .tx(tx), .BR_clk(clk_uart),
+        .clk(clk_rv), .Rst(Rst), .rx(rx),
+        .debug_input(debug_input), .tx(tx), .BR_clk(clk),
         .spi_miso(spi_miso), .spi_mosi(spi_mosi),
         .spi_cs(spi_cs), .spi_sck(spi_sck));
 

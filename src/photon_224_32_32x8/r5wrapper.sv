@@ -61,10 +61,4 @@ module photon_core(main_bus bus);
         end
     end
     
-    // TODO Add instr. for bus.ins
-    // TODO EX_MEM_lwhres for reading results
-    // TODO ID_EX_lwhsel for running hash and writing inputs
-    // TODO Add lwh_ready to main_bus
-    //      Also EX_MEM_lwh_ready and MEM_WB_lwh_ready
-    
 endmodule

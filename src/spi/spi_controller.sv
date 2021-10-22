@@ -60,8 +60,7 @@ module spi_controller(
     logic mosi_RD, mosi_WR;
     logic mosi_empty, mosi_full; 
     logic mosi_avail; 
-    logic mosi_ignore_response;
-    logic [8:0] mosi_din, mosi_dout; 
+    logic [7:0] mosi_din, mosi_dout; 
     
     logic miso_RD;
     logic miso_empty, miso_full;
@@ -75,15 +74,15 @@ module spi_controller(
     logic ctrl_state; 
     
     spi_master spi0(clk, spi_en, mosi_data_i, miso_data_o, spi_data_ready, cs, sck, mosi, miso);
-    gh_fifo_sync_sr #(.add_width(4), .data_width(9)) mosi_fifo(clk, rst, rst, mosi_WR, mosi_RD, mosi_din, mosi_dout, mosi_empty, mosi_full); 
-    gh_fifo_sync_sr #(.add_width(4), .data_width(8)) miso_fifo(clk, rst, rst, (spi_data_ready & ~mosi_ignore_response), miso_RD, miso_din, miso_dout, miso_empty, miso_full); 
+    gh_fifo_sync_sr #(.add_width(4), .data_width(8)) mosi_fifo(clk, rst, rst, mosi_WR, mosi_RD, mosi_din, mosi_dout, mosi_empty, mosi_full); 
+    gh_fifo_sync_sr #(.add_width(4), .data_width(8)) miso_fifo(clk, rst, rst, spi_data_ready, miso_RD, miso_din, miso_dout, miso_empty, miso_full); 
     
     assign mosi_avail = ~mosi_empty;
     assign miso_avail = ~miso_empty;
 //    assign mosi_data_i = mosi_dout; 
     assign miso_din = miso_data_o; 
     assign mosi_WR = wr;
-    assign mosi_din = {ignore_response, din}; 
+    assign mosi_din = din; // {ignore_response, din}; 
     assign buffer_empty = mosi_empty;
     assign buffer_full = mosi_full;
     assign data_avail = miso_avail;
@@ -104,7 +103,7 @@ module spi_controller(
     		mosi_RD <= 0; 
 //    		miso_RD = 0; 
     		spi_en <= 0; 
-    		mosi_ignore_response <= 1;
+    		//mosi_ignore_response <= 1;
     		mosi_data_i <= 0;
 //    		dout <= 0;
     	end else begin
@@ -113,7 +112,7 @@ module spi_controller(
     			mosi_RD <= 1; 
     			spi_en <= 1;
     			mosi_data_i <= mosi_dout[7:0];
-    			mosi_ignore_response <= mosi_dout[8];
+    			//mosi_ignore_response <= mosi_dout[8];
     		end else if (ctrl_state & spi_data_ready) begin
     			if (mosi_empty) begin
     				ctrl_state <= 0;
@@ -121,7 +120,7 @@ module spi_controller(
     			end else begin
     				mosi_RD <= 1; 
     				mosi_data_i <= mosi_dout[7:0];
-    				mosi_ignore_response <= mosi_dout[8];
+    				//mosi_ignore_response <= mosi_dout[8];
     			end
     		end else begin
     			mosi_RD <= 0;

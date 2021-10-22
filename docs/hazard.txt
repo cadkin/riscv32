@@ -1,0 +1,76 @@
+
+hazard.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00010000 <_start>:
+   10000:	00001117          	auipc	sp,0x1                      // 
+   10004:	10010113          	addi	sp,sp,256 # 11100 <_sp0>    //
+   10008:	00000097          	auipc	ra,0x0                      //
+   1000c:	00c08093          	addi	ra,ra,12 # 10014 <_endloop> //
+   10010:	060000ef          	jal	ra,10070 <main>               //
+
+
+00010014 <_endloop>:
+   10014:	0000006f          	j	10014 <_endloop>
+
+
+00010018 <nothing>:
+   10018:	ff010113          	addi	sp,sp,-16 // Sets stack pointer to end of stack. (allocates 4 words on the stack).
+   1001c:	00812623          	sw	s0,12(sp)    // Stores main's frame pointer at start of stack.
+   10020:	01010413          	addi	s0,sp,16  // Sets frame pointer to start of new stack.
+   10024:	00100793          	li	a5,1         // Sets 1 to be returned.
+   10028:	00078513          	mv	a0,a5        // Moves 1 to a0 to be returned.
+   1002c:	00c12403          	lw	s0,12(sp)    // Loads main's frame pointer back.
+   10030:	01010113          	addi	sp,sp,16  // Moves stack pointer back to main's stack.
+   10034:	00008067          	ret             // Return from function.
+
+
+00010038 <print>:
+   10038:	fd010113          	addi	sp,sp,-48
+   1003c:	02812623          	sw	s0,44(sp)
+   10040:	03010413          	addi	s0,sp,48
+   10044:	fca42e23          	sw	a0,-36(s0)
+   10048:	aaaaa7b7          	lui	a5,0xaaaaa
+   1004c:	00878793          	addi	a5,a5,8 # aaaaa008 <_sp0+0xaaa98f08>
+   10050:	fef42623          	sw	a5,-20(s0)
+   10054:	fec42783          	lw	a5,-20(s0)
+   10058:	fdc42703          	lw	a4,-36(s0)
+   1005c:	00e7a023          	sw	a4,0(a5)
+   10060:	00000013          	nop
+   10064:	02c12403          	lw	s0,44(sp)
+   10068:	03010113          	addi	sp,sp,48
+   1006c:	00008067          	ret
+
+
+00010070 <main>:
+   10070:	fe010113          	addi	sp,sp,-32            // Sets stack pointer to end of stack. (allocates 4 words on the stack).
+   10074:	00112e23          	sw	ra,28(sp)               // Stores return address at start of stack.
+   10078:	00812c23          	sw	s0,24(sp)               // Stores frame pointer at 2nd from start of stack.
+   1007c:	02010413          	addi	s0,sp,32             // Sets frame pointer to start of stack.
+
+   10080:	00100793          	li	a5,1                    // int num = 1; (temp register).
+   10084:	fef42623          	sw	a5,-20(s0)              // Stores num into memory.
+
+   10088:	fe042423          	sw	zero,-24(s0)            // Initializes i in memory to 0.
+
+   1008c:	f8dff0ef          	jal	ra,10018 <nothing>   // nothing();
+   10090:	fea42223          	sw	a0,-28(s0)              // int temp = nothing(); (store in memory).
+
+   10094:	fe042423          	sw	zero,-24(s0)            // Initializes i in memory to 0.
+
+   10098:	0180006f          	j	100b0 <main+0x40>       // Check conditional of for loop before starting.
+   1009c:	00200793          	   li	a5,2                    // num = 2; (temp register)
+   100a0:	fef42623          	   sw	a5,-20(s0)              // Stores num into memory.
+
+   100a4:	fe842783          	   lw	a5,-24(s0)              // Loads i into temp register to be modified.
+   100a8:	00178793          	   addi	a5,a5,1              // i++
+   100ac:	fef42423          	   sw	a5,-24(s0)              // Stores i into memory.
+   100b0:	fe842783          	   lw	a5,-24(s0)              // Loads i into temp register to be checked.
+   100b4:	fef054e3          	blez	a5,1009c <main+0x2c> // Keep looping if i <= 0.
+
+   100b8:	fec42503          	lw	a0,-20(s0)              // Sets num as argument for print.
+   100bc:	f7dff0ef          	jal	ra,10038 <print>     // print(num);
+
+   100c0:	0000006f          	j	100c0 <main+0x50>       // while (1);

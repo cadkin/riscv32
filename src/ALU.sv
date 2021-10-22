@@ -62,7 +62,6 @@ module ALU
   input  logic        ID_EX_jalr,
   input  logic        ID_EX_auipc,
   input  logic        ID_EX_compare,
-  input logic [95:0] key,
   input logic [2:0] csrsel,
   output logic [31:0] res,
   output logic        comp_res, 
@@ -106,7 +105,6 @@ module ALU
     endcase
  end
 
-//    logic [95:0] key;
 
 //    ALU_chaos ac0(.a(a), .b(b), .opcode(alusel), .key(key), .y(s));
 
