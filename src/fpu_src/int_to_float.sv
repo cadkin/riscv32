@@ -14,6 +14,15 @@ module int_to_float(
 		logic [7:0]  z_r,z_e;
 		logic [23:0] z_m;
 		logic sign,guard, round_bit, sticky;;
+	logic       [2:0] state;
+	parameter 
+	    get_a         = 3'h0,
+        convert_0     = 3'h1,
+        convert_1     = 3'h2,
+        convert_2     = 3'h3,
+        round         = 3'h4,
+        pack          = 3'h5,
+        put_z         = 3'h6;
 		
 	//assign sign = input_a[31];
 	always @(posedge clk)
@@ -24,6 +33,7 @@ module int_to_float(
         s_input_a_ack <= 1;
         if (s_input_a_ack && input_a_stb) begin
           a <= input_a;
+		  s_output_z_stb <= 0;
           s_input_a_ack <= 0;
           state <= convert_0;
         end
@@ -89,10 +99,7 @@ module int_to_float(
       begin
         s_output_z_stb <= 1;
         s_output_z <= z;
-        if (s_output_z_stb && output_z_ack) begin
-          s_output_z_stb <= 0;
-          state <= get_a;
-        end
+        state <= get_a;
       end
 
     endcase
