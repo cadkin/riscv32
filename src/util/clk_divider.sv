@@ -1,5 +1,21 @@
 `timescale 1ns / 1ps
 
+/*
+ * Module: clkdiv
+ * Description: A simple clock divider module.
+ * Requires:
+ *  - none.
+ *
+ * Parameters:
+ *  - DIV: value to divide clock by.
+ *
+ * Ports:
+ *  Input:
+ *    - clk:     system clock
+ *    - rst:     system reset
+ *  Output:
+ *    - div_clk: divided clock signal
+ */
 module clkdiv #(parameter DIV = 2) (
     input logic clk,
     input logic rst,
