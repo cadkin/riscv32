@@ -7,7 +7,7 @@ module float_to_int(
         input logic rst,
 		input logic input_a_stb,output_z_ack,
 		input logic [31:0] input_a,
-		output logic input_a_ack,input_a_ack,
+		output logic input_a_ack,output_z_stb,
         output logic [31:0] output_z );
 
   logic   s_output_z_stb;

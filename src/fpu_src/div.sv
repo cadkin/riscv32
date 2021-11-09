@@ -133,13 +133,13 @@ module double_divider(
           z[22:0] <= 0;
           state <= put_z;
         //if a is zero return zero
-        end else if (($signed(a_e) == -127)) && (a_m == 0)) begin
+        end else if (($signed(a_e) == -127) && (a_m == 0)) begin
           z[31] <= a_s ^ b_s;
           z[30:23] <= 0;
           z[22:0] <= 0;
           state <= put_z;
            //if b is zero return NaN
-          if (($signed(b_e) == -127)) && (b_m == 0)) begin
+          if (($signed(b_e) == -127) && (b_m == 0)) begin
 			z[31] <= 1;
 			z[30:23] <= 255;
 			z[22] <= 1;
@@ -147,7 +147,7 @@ module double_divider(
             state <= put_z;
           end
         //if b is zero return inf
-        end else if (($signed(b_e) == -127)) && (b_m == 0)) begin
+        end else if (($signed(b_e) == -127) && (b_m == 0)) begin
           z[31] <= a_s ^ b_s;
           z[30:23] <= 255;
           z[22:0] <= 0;

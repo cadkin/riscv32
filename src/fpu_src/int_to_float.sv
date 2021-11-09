@@ -7,14 +7,15 @@ module int_to_float(
         input logic rst,
 		input logic input_a_stb,output_z_ack,
 		input logic [31:0] input_a,
-		output logic input_a_ack,input_a_ack,
+		output logic input_a_ack,output_z_stb,
         output logic [31:0] output_z );
 		
-		logic [31:0] a, z, value,;
+		logic [31:0] a, z, value,s_output_z;
 		logic [7:0]  z_r,z_e;
 		logic [23:0] z_m;
-		logic sign,guard, round_bit, sticky;;
-	logic       [2:0] state;
+		logic z_s,guard,s_input_a_ack,s_output_z_stb ,round_bit, sticky;
+	    logic       [2:0] state;
+	    
 	parameter 
 	    get_a         = 3'h0,
         convert_0     = 3'h1,
