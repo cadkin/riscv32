@@ -1,0 +1,4 @@
+Running: xsim.dir/FLE_sim_behav/xsimk -simmode gui -wdb FLE_sim_behav.wdb -simrunnum 0 -socket 53714
+Design successfully loaded
+Design Loading Memory Usage: 43268 KB (Peak: 43268 KB)
+Design Loading CPU Usage: 20 ms

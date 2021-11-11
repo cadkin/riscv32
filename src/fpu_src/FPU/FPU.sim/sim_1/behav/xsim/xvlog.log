@@ -1,4 +1,4 @@
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/tfowler6/riscv32/src/fpu_src/float_to_int.sv" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module float_to_int
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/tfowler6/riscv32/src/fpu_src/FPU/FPU.srcs/sim_1/new/float_to_int_sim.sv" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module float_to_int_sim
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/tfowler6/riscv32/src/fpu_src/FPU/FPU.srcs/sources_1/new/FLE.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module FLE
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/tfowler6/riscv32/src/fpu_src/FPU/FPU.srcs/sim_1/new/FLE_sim.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module FLE_sim
