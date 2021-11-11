@@ -2,7 +2,7 @@
 //Copyright (C) Jonathan P Dawson 2013
 //2013-12-12
 
-module float_to_int(
+module float_to_unsig_int(
 	input logic [31:0] input_a,
 	input logic clk,rst,
         output logic [31:0] output_z,
@@ -27,19 +27,20 @@ module float_to_int(
     case(state)
       unpack:
       begin
-        a_m[31:8] <= {1'b1, input_a[22 : 0]};
-        a_m[7:0] <= 0;
+        a_m[31:0] <= {1'b1, input_a[22 : 0],8'h00};
         a_e <= input_a[30 : 23] - 127;
         a_s <= input_a[31];
-        state <= special_cases;
+        if(rst == 0) begin
+	    state <= special_cases;
+	end
       end
 
       special_cases:
       begin
-        if ($signed(a_e) == -127) begin
+        if (($signed(a_e) == -127)||(a_s == 1)) begin
           z <= 0;
           state <= put_z;
-        end else if ($signed(a_e) > 31) begin
+        end else if ($signed(a_e) > 32) begin
           z <= 32'h80000000;
           state <= put_z;
         end else begin
@@ -56,7 +57,7 @@ module float_to_int(
           if (a_m[31]) begin
             z <= 32'h80000000;
           end else begin
-            z <= a_s ? -a_m : a_m;
+            z <= a_m;
           end
           state <= put_z;
         end

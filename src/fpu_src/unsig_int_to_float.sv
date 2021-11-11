@@ -8,13 +8,12 @@ module int_to_float(
 	output logic [31:0] output_z,
 	output logic output_z_stb);
 		
-	logic [31:0] a, z, value,;
+	logic [31:0] a, z, value;
 	logic [7:0]  z_r,z_e;
 	logic [23:0] z_m;
 	logic sign,guard, round_bit, sticky;
 	logic [2:0] state;
 	parameter 
-        convert_0     = 3'h1,
         convert_1     = 3'h2,
         convert_2     = 3'h3,
         round         = 3'h4,
@@ -25,39 +24,33 @@ module int_to_float(
 	always @(posedge clk)
 	begin
 	case(state)
-      convert_0:
-      begin
-        if ( a == 0 ) begin
-          z_s <= 0;
-          z_m <= 0;
-          z_e <= -127;
-          state <= pack;
-        end else begin
-          value <= a[31] ? -a : a;
-          z_s <= a[31];
-          state <= convert_1;
-        end
-      end
-
       convert_1:
       begin
-        z_e <= 31;
-        z_m <= value[31:8];
-        z_r <= value[7:0];
-        state <= convert_2;
+        if ( a == 0 ) begin
+          z_m <= 0;
+          z_e <= -127;
+	if(rst == 0) begin
+	   state <= pack;
+	end
+        end else begin
+          z_e <= 31;
+          value <= a[31:0];
+	if(rst == 0) begin
+	    state <= convert_2;
+	end
+        end
       end
 
       convert_2:
       begin
-        if (!z_m[23]) begin
+        if (!value[31]) begin
           z_e <= z_e - 1;
-          z_m <= z_m << 1;
-          z_m[0] <= z_r[7];
-          z_r <= z_r << 1;
+          value <= value << 1;
         end else begin
-          guard <= z_r[7];
-          round_bit <= z_r[6];
-          sticky <= z_r[5:0] != 0;
+	  z_m <= value[31:8];
+          guard <= value[7];
+          round_bit <= value[6];
+          sticky <= value[5:0] != 0;
           state <= round;
         end
       end
@@ -77,7 +70,7 @@ module int_to_float(
       begin
         z[22 : 0] <= z_m[22:0];
         z[30 : 23] <= z_e + 127;
-        z[31] <= z_s;
+        z[31] <= 0;
         state <= put_z;
       end
 
@@ -85,14 +78,14 @@ module int_to_float(
       begin
         s_output_z_stb <= 1;
         s_output_z <= z;
-        state <= convert_0;
+        state <= convert_1;
       end
 
     endcase
 
     if (rst == 1) begin
-      state <= get_a;
       s_output_z_stb <= 0;
+	state <= convert_1;
     end
 
   end

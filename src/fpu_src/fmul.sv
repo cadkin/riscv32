@@ -16,9 +16,7 @@ module multiplier(
   reg       s_input_b_ack;
 
   reg       [3:0] state;
-  parameter get_a         = 4'd0,
-            get_b         = 4'd1,
-            unpack        = 4'd2,
+  parameter unpack        = 4'd2,
             special_cases = 4'd3,
             normalise_a   = 4'd4,
             normalise_b   = 4'd5,
@@ -41,37 +39,17 @@ module multiplier(
   begin
 
     case(state)
-
-      get_a:
-      begin
-	s_output_z_stb <= 0;
-        s_input_a_ack <= 1;
-        if (s_input_a_ack && input_a_stb) begin
-          a <= input_a;
-          s_input_a_ack <= 0;
-          state <= get_b;
-        end
-      end
-
-      get_b:
-      begin
-        s_input_b_ack <= 1;
-        if (s_input_b_ack && input_b_stb) begin
-          b <= input_b;
-          s_input_b_ack <= 0;
-          state <= unpack;
-        end
-      end
-
       unpack:
       begin
-        a_m <= a[22 : 0];
-        b_m <= b[22 : 0];
-        a_e <= a[30 : 23] - 127;
-        b_e <= b[30 : 23] - 127;
-        a_s <= a[31];
-        b_s <= b[31];
-        state <= special_cases;
+        a_m <= input_a[22 : 0];
+        b_m <= input_b[22 : 0];
+        a_e <= input_a[30 : 23] - 127;
+        b_e <= input_b[30 : 23] - 127;
+        a_s <= input_a[31];
+        b_s <= input_b[31];
+        if(rst == 0) begin
+	    state <= special_cases;
+	end
       end
 
       special_cases:
@@ -233,21 +211,17 @@ module multiplier(
       begin
         s_output_z_stb <= 1;
         s_output_z <= z;
-          state <= get_a;
+        state <= unpack;
       end
 
     endcase
 
     if (rst == 1) begin
-      state <= get_a;
-      s_input_a_ack <= 0;
-      s_input_b_ack <= 0;
+      state <= unpack;
       s_output_z_stb <= 0;
     end
 
   end
-  assign input_a_ack = s_input_a_ack;
-  assign input_b_ack = s_input_b_ack;
   assign output_z_stb = s_output_z_stb;
   assign output_z = s_output_z;
 
