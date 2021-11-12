@@ -21,11 +21,8 @@
 
 
 module FMax(
-        input logic clk,
-        input logic rst,
 		input logic [31:0] input_a,
 		input logic [31:0] input_b,
-		output logic output_z_stb,
         output logic [31:0] output_z
     );
     
@@ -40,59 +37,48 @@ module FMax(
     assign  a_s = input_a[31];
     assign  b_s = input_b[31];
     
-    always @(posedge clk)
+    always_comb
          begin
       
             if(a_s == 1 && b_s == 0 ) begin
                 output_z = input_b;
-                output_z_stb = 1;
             end
             else if(b_s == 1 && a_s == 0 )  begin 
                 output_z = input_a;
-                output_z_stb = 1;
             
             end
             //check exp
             else if(a_e < b_e) begin
                 if(a_s == 0) begin
                     output_z = input_b;
-                    output_z_stb = 1;
                 end else begin
                     output_z = input_a;
-                    output_z_stb = 1;
                 end
             end
             else if(a_e > b_e) begin
                 if(a_s == 0) begin
                     output_z = input_a;
-                    output_z_stb = 1;
                 end else begin
                     output_z = input_b;
-                    output_z_stb = 1; 
                 end
             end
             //check m
             else if(a_m < b_m) begin
                 if(a_s == 0) begin
                     output_z = input_b;
-                    output_z_stb = 1;
                 end else begin
                     output_z = input_a;
-                    output_z_stb = 1;
                 end
             end
             else if(a_m > b_m) begin
                 if(a_s == 0) begin
                     output_z = input_a;
-                    output_z_stb = 1;
                 end else begin
                     output_z = input_b;
-                    output_z_stb = 1; 
                 end;
             end
             else begin
                 output_z = input_a;
-                output_z_stb = 1;
             end
          end
 endmodule

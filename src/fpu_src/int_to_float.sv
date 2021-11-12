@@ -47,11 +47,15 @@ module int_to_float(
           z_s <= 0;
           z_m <= 0;
           z_e <= -127;
-          state <= pack;
+		if(rst == 0) begin
+			state <= pack;
+		end
         end else begin
           value <= a[31] ? -a : a;
           z_s <= a[31];
-          state <= convert_1;
+		  if(rst == 0) begin
+			state <= convert_1;
+		end
         end
       end
 

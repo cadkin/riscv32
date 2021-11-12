@@ -34,13 +34,15 @@ module float_to_int(
   begin
 
     case(state)
-      unpack:
+      unpack: //convert the floating point encoding to manageble bits
       begin
         a_m[31:8] <= {1'b1, input_a[22 : 0]};
         a_m[7:0] <= 0;
         a_e <= input_a[30 : 23] - 127;
         a_s <= input_a[31];
-        state <= special_cases;
+        if(rst == 0) begin
+			state <= special_cases;
+		end
       end
 
       special_cases:

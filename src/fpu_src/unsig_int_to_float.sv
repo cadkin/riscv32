@@ -1,14 +1,16 @@
-//IEEE Floating Point Divider (Double Precision)
+// unsign Integer to IEEE Floating Point Converter (Single Precision)
 //Copyright (C) Jonathan P Dawson 2014
 //all combinational logic int to float
-
-module int_to_float(
+//modified by Jianjun Xu
+//Date 2021-11-11
+module unsig_int_to_float(
         input logic [31:0] input_a,
 	input logic clk,rst,
 	output logic [31:0] output_z,
 	output logic output_z_stb);
 		
-	logic [31:0] a, z, value;
+	logic [31:0] z; 
+	logic [32:0] value;
 	logic [7:0]  z_r,z_e;
 	logic [23:0] z_m;
 	logic sign,guard, round_bit, sticky;
@@ -26,7 +28,7 @@ module int_to_float(
 	case(state)
       convert_1:
       begin
-        if ( a == 0 ) begin
+        if ( input_a == 0 ) begin
           z_m <= 0;
           z_e <= -127;
 	if(rst == 0) begin
@@ -34,7 +36,7 @@ module int_to_float(
 	end
         end else begin
           z_e <= 31;
-          value <= a[31:0];
+          value <= {'b1,input_a[31:0]};
 	if(rst == 0) begin
 	    state <= convert_2;
 	end
@@ -43,7 +45,7 @@ module int_to_float(
 
       convert_2:
       begin
-        if (!value[31]) begin
+        if (!value[32]) begin
           z_e <= z_e - 1;
           value <= value << 1;
         end else begin
