@@ -9,12 +9,14 @@ module unsig_int_to_float(
 	output logic [31:0] output_z,
 	output logic output_z_stb);
 		
-	logic [31:0] z; 
+	logic [31:0] z,s_output_z; 
 	logic [32:0] value;
 	logic [7:0]  z_r,z_e;
 	logic [23:0] z_m;
-	logic sign,guard, round_bit, sticky;
+	logic sign,guard, round_bit, sticky,s_output_z_stb;
 	logic [2:0] state;
+	
+	
 	parameter 
         convert_1     = 3'h2,
         convert_2     = 3'h3,
@@ -36,7 +38,7 @@ module unsig_int_to_float(
 	end
         end else begin
           z_e <= 31;
-          value <= {'b1,input_a[31:0]};
+          value <= {1'b1,input_a[31:0]};
 	if(rst == 0) begin
 	    state <= convert_2;
 	end

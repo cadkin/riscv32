@@ -15,5 +15,6 @@ begin
      3'd2 : output_z[31] = input_a[31] ^ input_b[31];
      default : output_z[31] = input_a[31];
    endcase;
+end
    assign output_z[30:0] = input_a[30:0];
 endmodule
