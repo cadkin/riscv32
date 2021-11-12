@@ -148,6 +148,7 @@ interface mmio_bus (
     	input clk, Rst, cnt_zero,
     	output cnt_ovflw, cnt_dout
     );
+    // foobar
 
 endinterface
 

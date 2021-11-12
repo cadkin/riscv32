@@ -1,0 +1,4 @@
+Running: xsim.dir/int_to_flt_sim_behav/xsimk -simmode gui -wdb int_to_flt_sim_behav.wdb -simrunnum 0 -socket 56278
+Design successfully loaded
+Design Loading Memory Usage: 43276 KB (Peak: 43276 KB)
+Design Loading CPU Usage: 20 ms

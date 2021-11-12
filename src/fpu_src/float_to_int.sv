@@ -3,10 +3,19 @@
 //2013-12-12
 
 module float_to_int(
+<<<<<<< HEAD
 	input logic [31:0] input_a,
 	input logic clk,rst,
         output logic [31:0] output_z,
         output logic output_z_stb);
+=======
+        input logic clk,
+        input logic rst,
+		input logic input_a_stb,output_z_ack,
+		input logic [31:0] input_a,
+		output logic input_a_ack,output_z_stb,
+        output logic [31:0] output_z );
+>>>>>>> 3a08c8a0885b992c72d98fae174cd42dc8ff9dea
 
   logic   s_output_z_stb;
   logic   [31:0] s_output_z;

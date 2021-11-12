@@ -3,6 +3,7 @@
 //all combinational logic int to float
 
 module int_to_float(
+<<<<<<< HEAD
         input logic [31:0] input_a,
 	input logic clk,rst,
 	output logic [31:0] output_z,
@@ -13,6 +14,21 @@ module int_to_float(
 	logic [23:0] z_m;
 	logic sign,guard, round_bit, sticky;
 	logic [2:0] state;
+=======
+        input logic clk,
+        input logic rst,
+		input logic input_a_stb,output_z_ack,
+		input logic [31:0] input_a,
+		output logic input_a_ack,output_z_stb,
+        output logic [31:0] output_z );
+		
+		logic [31:0] a, z, value,s_output_z;
+		logic [7:0]  z_r,z_e;
+		logic [23:0] z_m;
+		logic z_s,guard,s_input_a_ack,s_output_z_stb ,round_bit, sticky;
+	    logic       [2:0] state;
+	    
+>>>>>>> 3a08c8a0885b992c72d98fae174cd42dc8ff9dea
 	parameter 
         convert_0     = 3'h1,
         convert_1     = 3'h2,

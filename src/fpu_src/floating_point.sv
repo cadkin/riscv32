@@ -36,6 +36,7 @@ module FPU
 
   logic [31:0] input_a,input_b; //temp input for fpu
   logic [31:0] output_add,output_mul,output_div,output_f2i,output_i2f,output_fsgnj,output_fmv;//temp result for fpu
+  logic [31:0] output_feq,
   logic enable_add,enable_mul,enable_div,enable_f2i,enable_i2f;
   logic clk_add,clk_mul,clk_div,clk_f2i,clk_i2f;
   logic out_stb_add,out_stb_mul,out_stb_div,out_stb_f2i,out_stb_i2f;
@@ -52,6 +53,7 @@ module FPU
   fsign_inject(input_a,input_b,sel,output_fsgnj);
   fmove(input_a,output_fmv);
 
+  FEQ(input_a,input_b,output_feq)
 always_comb
     if(rst == 1)begin
 	enable_add <= 1;
