@@ -1,7 +1,7 @@
 # compile verilog/system verilog design source files
 sv xil_defaultlib  \
 "../../../../../fdiv.sv" \
-"../../../../FPU.srcs/sim_1/new/sim_div.sv" \
+"../../../../../sim_div.sv" \
 
 # compile glbl module
 verilog xil_defaultlib "glbl.v"

@@ -20,45 +20,20 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module sim_div(input_a,
-               input_b,
-               input_a_stb,
-               input_b_stb,
-               output_z_ack,
-               clk,
-               rst,
-               output_z,
-               output_z_stb,
-               input_a_ack,
-               input_b_ack);
+module sim_div(  input reg  [31:0] input_a,input_b,
+  input reg  clk,rst,
+  output logic [31:0] output_z,
+  output logic output_z_stb);
   
-  input reg clk;
-  input reg    rst;
-
-  input reg  [31:0] input_a;
-  input reg    input_a_stb;
-  output    input_a_ack;
-
-  input reg  [31:0] input_b;
-  input reg    input_b_stb;
-  output    input_b_ack;
-
-  output    [31:0] output_z;
-  output    output_z_stb;
-  input     output_z_ack;
-
-  reg       s_output_z_stb;
-  reg       [31:0] s_output_z;
-  reg       s_input_a_ack;
-  reg       s_input_b_ack;
   
+
+
       always begin
         #3 clk = !clk;  
       end
                 
               
-      divider div(input_a, input_b, input_a_stb, input_b_stb, output_z_ack, clk, rst,
-        output_z, output_z_stb, input_a_ack, input_b_ack);
+      divider div(input_a,input_b, clk, rst, output_z, output_z_stb);
 
         
        initial begin
@@ -76,10 +51,7 @@ module sim_div(input_a,
             //set input b
             input_b = 32'h400ccccd;
             //set both stable
-            
-            #10
-            input_a_stb = 1;
-            input_b_stb = 1;
+           
             
             //wait
             #500;

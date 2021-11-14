@@ -21,27 +21,12 @@
 
 
 module FLE_sim(
-        input reg clk,
-        input reg rst,
 		input reg [31:0] input_a,
 		input reg [31:0] input_b,
-		output logic output_z_stb,
         output logic [31:0] output_z
     );
-        FLE flt1(clk, rst,input_a,input_b,output_z_stb, output_z);
-        always begin
-            #3 clk = !clk;  
-        end
-		
+        FLE flt1(input_a,input_b,output_z);
       initial begin
-            clk = 0;
-            rst = 1;
-            
-            #9;
-            
-            rst = 0;
-            
-            #18;
             
             input_b = 32'h40000000;
             input_a = 32'h40a9999a;
