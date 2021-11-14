@@ -21,20 +21,12 @@
 
 
 module int_to_flt_sim(
-        input reg clk,
-        input reg rst,
-		input reg input_a_stb,output_z_ack,
-		input reg [31:0] input_a,
-		output logic input_a_ack,output_z_stb,
-        output logic [31:0] output_z );
+        input reg [31:0] input_a,
+	   input reg clk,rst,
+	   output logic [31:0] output_z,
+	   output logic output_z_stb);
         
-        
-        logic [31:0] a, z, value;
-		logic [7:0]  z_r,z_e;
-		logic [23:0] z_m;
-		logic sign,guard, round_bit, sticky;
-		
-		int_to_float i_f(clk, rst,input_a_stb, output_z_ack, input_a, input_a_ack, output_z_stb, output_z);
+      int_to_float i_f(input_a, clk, rst, output_z, output_z_stb);
 		
       always begin
         #3 clk = !clk;  
@@ -51,9 +43,11 @@ module int_to_flt_sim(
             #18;
             
             input_a = 32'h00000002;
-            input_a_stb = 1;
             
-            #100;
+            #30;
+            
+            input_a = 32'hfffffff9;
+            #30;
             
       end;
       

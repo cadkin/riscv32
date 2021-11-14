@@ -21,15 +21,12 @@
 
 
 module float_to_int_sim(
-        input reg clk,
-        input reg rst,
-		input reg input_a_stb,output_z_ack,
-		input reg [31:0] input_a,
-		output logic input_a_ack,output_z_stb,
-        output logic [31:0] output_z 
-
-    );
-    		float_to_int f_i(clk, rst,input_a_stb, output_z_ack, input_a, input_a_ack, output_z_stb, output_z);
+	   input reg [31:0] input_a,
+	   input reg clk,rst,
+        output logic [31:0] output_z,
+        output logic output_z_stb);
+        
+      float_to_int f_i(input_a, clk, rst, output_z, output_z_stb);
 		
       always begin
         #3 clk = !clk;  
@@ -43,12 +40,17 @@ module float_to_int_sim(
             
             rst = 0;
             
-            #18;
+            #3;
             
             input_a = 32'h40000000;
-            input_a_stb = 1;
             
-            #100;
+            #20;
+            
+                        #18;
+            
+            input_a = 32'hc0e00000;
+            
+            #20;
             
       end;
 endmodule

@@ -1,7 +1,7 @@
 # compile verilog/system verilog design source files
 sv xil_defaultlib  \
 "../../../../../int_to_float.sv" \
-"../../../../FPU.srcs/sim_1/new/int_to_flt_sim.sv" \
+"../../../../../int_to_flt_sim.sv" \
 
 # compile glbl module
 verilog xil_defaultlib "glbl.v"

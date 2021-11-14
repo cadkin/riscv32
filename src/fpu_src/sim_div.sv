@@ -46,6 +46,7 @@ module sim_div(  input reg  [31:0] input_a,input_b,
             
             #18
             
+            //4.4/2.2
             //set input a
             input_a = 32'h408ccccd;
             //set input b
@@ -54,7 +55,8 @@ module sim_div(  input reg  [31:0] input_a,input_b,
            
             
             //wait
-            #500;
+            #100;
+
             
             //check output_z when output stable
             
