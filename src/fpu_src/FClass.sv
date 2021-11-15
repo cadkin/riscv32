@@ -29,7 +29,7 @@ module FClass(
     reg       a_s, b_s, z_s;
     
     assign  a_m = input_a[22 : 0];
-    assign  a_e = input_a[30 : 23] - 127;
+    assign  a_e = input_a[30 : 23];
     assign  a_s = input_a[31];
     
     always_comb 

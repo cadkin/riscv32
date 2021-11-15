@@ -4,7 +4,7 @@
 //modified by Jianjun Xu
 //Date 2021-11-11
 module unsig_int_to_float(
-        input logic [31:0] input_a,
+    input logic [31:0] input_a,
 	input logic clk,rst,
 	output logic [31:0] output_z,
 	output logic output_z_stb);
