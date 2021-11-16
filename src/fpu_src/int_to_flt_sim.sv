@@ -37,12 +37,11 @@ module int_to_flt_sim(
             rst = 1;
             
             #9;
+            input_a = 32'h00000002;
+            
+            #3;
             
             rst = 0;
-            
-            #18;
-            
-            input_a = 32'h00000002;
             
             #30;
             

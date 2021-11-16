@@ -41,19 +41,14 @@ module sim_div(  input reg  [31:0] input_a,input_b,
             rst = 1;
             
             #9;
-            
-            rst = 0;
-            
-            #18
-            
             //4.4/2.2
             //set input a
             input_a = 32'h408ccccd;
             //set input b
             input_b = 32'h400ccccd;
             //set both stable
-           
-            
+           #18
+            rst = 0;
             //wait
             #100;
 

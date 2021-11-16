@@ -22,10 +22,9 @@
 
 module mul_sim(
   input reg  [31:0] input_a,input_b,
-  input reg  input_a_stb,input_b_stb,output_z_ack,
   input reg  clk,rst,
   output logic [31:0] output_z,
-  output logic output_z_stb,input_a_ack,input_b_ack
+  output logic output_z_stb
 
     );
          always begin
@@ -50,9 +49,6 @@ module mul_sim(
             input_a = 32'h408ccccd;
             //set input b
             input_b = 32'h400ccccd;
-            //set both stable
-           input_a_stb =1;
-           input_b_stb =1;
             
             //wait
             #500;

@@ -5,10 +5,9 @@
 
 module multiplier(
   input logic  [31:0] input_a,input_b,
-  input logic  input_a_stb,input_b_stb,output_z_ack,
   input logic  clk,rst,
   output logic [31:0] output_z,
-  output logic output_z_stb,input_a_ack,input_b_ack);
+  output logic output_z_stb);
 
   reg       s_output_z_stb;
   reg       [31:0] s_output_z;
@@ -41,6 +40,7 @@ module multiplier(
     case(state)
       unpack:
       begin
+        s_output_z_stb <= 0;
         a_m <= input_a[22 : 0];
         b_m <= input_b[22 : 0];
         a_e <= input_a[30 : 23] - 127;

@@ -1,8 +1,9 @@
 Vivado Simulator 2020.2
 Copyright 1986-1999, 2001-2020 Xilinx, Inc. All Rights Reserved.
-Running: /sw/xilinx/pkgs/vivado/2020.2/Vivado/2020.2/bin/unwrapped/lnx64.o/xelab -wto 8b276f56865043e2b299f678c406824b --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot sign_inj_sim_behav xil_defaultlib.sign_inj_sim xil_defaultlib.glbl -log elaborate.log 
+Running: /sw/xilinx/pkgs/vivado/2020.2/Vivado/2020.2/bin/unwrapped/lnx64.o/xelab -wto 8b276f56865043e2b299f678c406824b --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot float_to_uint_sim_behav xil_defaultlib.float_to_uint_sim xil_defaultlib.glbl -log elaborate.log 
 Using 8 slave threads.
 Starting static elaboration
 Pass Through NonSizing Optimizer
+WARNING: [VRFC 10-3091] actual bit length 32 differs from formal bit length 1 for port 'output_z_ack' [/home/jxu48/research/riscv32/src/fpu_src/float_to_uint_sim.sv:29]
 Completed static elaboration
 INFO: [XSIM 43-4323] No Change in HDL. Linking previously generated obj files to create kernel

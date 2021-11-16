@@ -8,10 +8,10 @@ module int_to_float(
 	output logic [31:0] output_z,
 	output logic output_z_stb);
 		
-	logic [31:0] a, z, value;
+	logic [31:0] a, z, value,s_output_z;
 	logic [7:0]  z_r,z_e;
 	logic [23:0] z_m;
-	logic z_s;
+	logic z_s,s_output_z_stb;
 	logic sign,guard, round_bit, sticky;
 	logic [2:0] state;
 
@@ -29,6 +29,7 @@ module int_to_float(
 	case(state)
       convert_0:
       begin
+        s_output_z_stb <= 0;
         if ( a == 0 ) begin
           z_s <= 0;
           z_m <= 0;
@@ -97,7 +98,7 @@ module int_to_float(
     endcase
 
     if (rst == 1) begin
-      state <= get_a;
+      state <= convert_0;
       s_output_z_stb <= 0;
     end
 

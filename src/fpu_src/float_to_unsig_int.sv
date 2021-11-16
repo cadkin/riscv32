@@ -30,7 +30,8 @@ module float_to_unsig_int(
     case(state)
       unpack:
       begin
-        a_m[31:0] <= {1'b1, input_a[22 : 0],9'h000};
+        s_output_z_stb <= 0;
+        a_m[32:0] <= {1'b1, input_a[22 : 0],9'h000};
         a_e <= input_a[30 : 23] - 127;
         a_s <= input_a[31];
         if(rst == 0) begin

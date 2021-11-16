@@ -28,6 +28,7 @@ module float_to_int(
     case(state)
       unpack: //convert the floating point encoding to manageble bits
       begin
+        s_output_z_stb <= 0;
         a_m[31:8] <= {1'b1, input_a[22 : 0]};
         a_m[7:0] <= 0;
         a_e <= input_a[30 : 23] - 127;

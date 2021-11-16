@@ -38,12 +38,11 @@ module uint_to_float_sim(
             
             #9;
             
-            rst = 0;
-            
-            #18;
-            
             input_a = 32'h00000002;
+            #3;
             
+            rst = 0;
+
             #30;
             
             input_a = 32'hfffffff9;

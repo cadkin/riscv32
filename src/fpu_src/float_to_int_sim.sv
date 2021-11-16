@@ -37,12 +37,12 @@ module float_to_int_sim(
             rst = 1;
             
             #9;
+            input_a = 32'h40000000;
             
-            rst = 0;
             
             #3;
             
-            input_a = 32'h40000000;
+            rst = 0;
             
             #20;
             

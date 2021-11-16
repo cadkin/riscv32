@@ -35,15 +35,12 @@ module float_to_uint_sim(
       initial begin
             clk = 0;
             rst = 1;
-            
-            #9;
-            
-            rst = 0;
-            
             #3;
             
             input_a = 32'h40000000;
-            
+            #3;
+            rst = 0;
+   
             #20;
             
             input_a = 32'hc0e00000;

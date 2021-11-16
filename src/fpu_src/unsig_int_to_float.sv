@@ -30,6 +30,7 @@ module unsig_int_to_float(
 	case(state)
       convert_1:
       begin
+        s_output_z_stb <= 0;
         if ( input_a == 0 ) begin
           z_m <= 0;
           z_e <= -127;
