@@ -177,8 +177,8 @@ begin //fpu instuction selction
 		enable_sel <= 7;
       5'b10110 : //FCVT.S.W float_to_int
 		enable_sel <= 4; 
-      5'b10111 : //FCVT.S.WU unsign_int_to_float
-		enable_sel <= 6;
+      5'b10111 : //FCVT.S.WU float_to_unsign_int
+ 		enable_sel <= 6;
       default: begin 
 		enable_sel <= 0; 
 		fsign_sel <= 0;
@@ -262,7 +262,7 @@ begin
 			res <= output_f2i; 
 			enable_sel <= 0;
 		end
-      5'b10111 : //FCVT.S.WU unsign_int_to_float
+      5'b10111 : //FCVT.S.WU float_to_unsign_int
 		if(out_stb_f2ui ==0) stall_flag <= 1;
 		else begin stall_flag <= 0; 
 			res <= output_f2ui; 

@@ -15,23 +15,25 @@ module multiplier(
   reg       s_input_b_ack;
 
   reg       [3:0] state;
-  parameter unpack        = 4'd2,
-            special_cases = 4'd3,
-            normalise   = 4'd4,
-            multiply_0    = 4'd6,
-            multiply_1    = 4'd7,
-            normalise_1   = 4'd8,
-            normalise_2   = 4'd9,
-            round         = 4'd10,
-            pack          = 4'd11,
-            put_z         = 4'd12;
+  parameter unpack        = 4'd1,
+            special_cases = 4'd2,
+            normalise     = 4'd3,
+            multiply_0    = 4'd4,
+            align    	  = 4'd5,
+            add_0   	  = 4'd6,
+	    normalise_1   = 4'd7,
+            normalise_2   = 4'd8,
+            round         = 4'd9,
+            pack          = 4'd10,
+            put_z         = 4'd11;
 
   reg       [31:0] a, b, c, z;
-  reg       [23:0] a_m, b_m,c_m, z_m;
-  reg       [9:0] a_e, b_e, c_e, z_e;
-  reg       a_s, b_s,c_s, z_s;
+  reg       [23:0] a_m, b_m;
+  reg       [9:0] a_e, b_e, c_e,t_e, t_e;
+  reg       a_s, b_s,c_s,t_s, t_s;
   reg       guard, round_bit, sticky;
-  reg       [47:0] product;
+  reg       [47:0] t_m,c_m;
+  reg       [48:0] sum;
 
   always @(posedge clk)
   begin
@@ -42,7 +44,7 @@ module multiplier(
         s_output_z_stb <= 0;
         a_m <= input_a[22 : 0];
         b_m <= input_b[22 : 0];
-	c_m <= {input_c[22 : 0], 3'd0};
+	c_m <= {24'h000000,input_c[22 : 0]};
         a_e <= input_a[30 : 23] - 127;
         b_e <= input_b[30 : 23] - 127;
 	c_e <= input_c[30 : 23] - 127;
@@ -74,6 +76,13 @@ module multiplier(
             z[30:23] <= 255;
             z[22] <= 1;
             z[21:0] <= 0;
+          
+	//if c is inf and signs don't match return nan
+          end else if ((c_e == 128) && (a_s != c_s)) begin
+              z[31] <= c_s;
+              z[30:23] <= 255;
+              z[22] <= 1;
+              z[21:0] <= 0;
           end
           state <= put_z;
         //if b is inf return inf
@@ -87,19 +96,37 @@ module multiplier(
             z[30:23] <= 255;
             z[22] <= 1;
             z[21:0] <= 0;
+          //if c is inf and signs don't match return nan
+          end else if ((c_e == 128) && (b_s != c_s)) begin
+              z[31] <= c_s;
+              z[30:23] <= 255;
+              z[22] <= 1;
+              z[21:0] <= 0;
           end
           state <= put_z;
-        //if a is zero return zero
-        end else if (($signed(a_e) == -127) && (a_m == 0)) begin
-          z[31] <= a_s ^ b_s;
-          z[30:23] <= 0;
+	//if c is inf return inf
+        end else if (c_e == 128) begin
+          z[31] <= c_s;
+          z[30:23] <= 255;
           z[22:0] <= 0;
           state <= put_z;
-        //if b is zero return zero
+        //if a is zero return c
+        end else if (($signed(a_e) == -127) && (a_m == 0)) begin
+          z[31] <= c_s;
+          z[30:23] <= c_e[7:0] + 127;
+          z[22:0] <= c_m[26:3];
+          state <= put_z;
+        //if b is zero return c
         end else if (($signed(b_e) == -127) && (b_m == 0)) begin
-          z[31] <= a_s ^ b_s;
-          z[30:23] <= 0;
-          z[22:0] <= 0;
+          z[31] <= c_s;
+          z[30:23] <= c_e[7:0] + 127;
+          z[22:0] <= c_m[26:3];
+          state <= put_z;
+	//if a and b and c is zero return zero
+        end else if ((($signed(a_e) == -127) && (a_m == 0)) && (($signed(c_e) == -127) && (c_m == 0)) &&(($signed(b_e) == -127) && (b_m == 0))) begin
+          z[31] <= a_s ^ b_s & c_s;
+          z[30:23] <= c_e[7:0] + 127;
+          z[22:0] <= c_m[26:3];
           state <= put_z;
         end else begin
           //Denormalised Number
@@ -115,10 +142,10 @@ module multiplier(
             b_m[23] <= 1;
           end
 	  //Denormalised Number
-          if ($signed(b_e) == -127) begin
-            b_e <= -126;
+          if ($signed(c_e) == -127) begin
+            c_e <= -126;
           end else begin
-            b_m[23] <= 1;
+            c_m[23] <= 1;
           end
           state <= normalise;
         end
@@ -129,44 +156,64 @@ module multiplier(
         if (~a_m[23]) begin
           a_m <= a_m << 1;
           a_e <= a_e - 1;
-        end if (~b_m[23]) begin
+        if (~b_m[23]) begin
           b_m <= b_m << 1;
           b_e <= b_e - 1;
-        end else 
+        end else if (a_m[23]) begin
 	state <= multiply_0;
         end else begin
       end
 
       multiply_0:
       begin
-        z_s <= a_s ^ b_s;
-        z_e <= a_e + b_e + 1;
-        product <= a_m * b_m;
-        state <= multiply_1;
+        t_s <= a_s ^ b_s;
+        t_e <= a_e + b_e + 1;
+        t_m <= a_m * b_m;
+        state <= align;
       end
 
-      multiply_1:
+      align: //need some fix for overflow and underflow
       begin
-        z_m <= product[47:24];
-        guard <= product[23];
-        round_bit <= product[22];
-        sticky <= (product[21:0] != 0);
+        if ($signed(t_e) > $signed(c_e)) begin
+          c_e <= c_e + 1;
+          c_m <= c_m >> 1;
+          c_m[0] <= c_m[0] | c_m[1];
+        end else if ($signed(t_e) < $signed(c_e)) begin
+          t_e <= t_e + 1;
+          t_m <= t_m >> 1;
+          t_m[0] <= t_m[0] | t_m[1];
+        end else begin
+          state <= add_0;
+        end
+      end
+      add_0:
+      begin
+        z_e <= t_e;
+        if (t_s == c_s) begin
+          sum <= t_m + c_m;
+          z_s <= t_s;
+        end else begin
+          if (a_m >= c_m) begin
+            sum <= t_m - c_m;
+            z_s <= t_s;
+          end else begin
+            sum <= c_m - t_m;
+            z_s <= c_s;
+          end
+        end
         state <= normalise_1;
       end
 
-
-
-
-
       normalise_1:
       begin
-        if (z_m[23] == 0) begin
+        if (sum[48] == 0) begin
           z_e <= z_e - 1;
-          z_m <= z_m << 1;
-          z_m[0] <= guard;
-          guard <= round_bit;
-          round_bit <= 0;
+          sum <= sum << 1;
         end else begin
+	  z_m <= sum[48:25];
+	  guard <= product[24];
+          round_bit <= product[23];
+          sticky <= (product[22:0] != 0);
           state <= normalise_2;
         end
       end
@@ -195,16 +242,6 @@ module multiplier(
         state <= pack;
       end
 
-
-
-
-
-
-
-
-
-
-
       pack:
       begin
         z[22 : 0] <= z_m[22:0];
@@ -221,7 +258,6 @@ module multiplier(
         end
         state <= put_z;
       end
-
       put_z:
       begin
         s_output_z_stb <= 1;
