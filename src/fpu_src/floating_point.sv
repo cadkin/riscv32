@@ -35,13 +35,13 @@ module FPU
   output logic  comp_res);
 
   logic [31:0] input_a,input_b,input_c; //temp input for fpu
-  logic [31:0] output_add,output_mul,output_div,output_f2i,output_i2f,output_f2ui,output_ui2f,output_fsgnj,output_fmv;//temp result for fpu
+  logic [31:0] output_add,output_mul,output_div,output_mul_add,output_f2i,output_i2f,output_f2ui,output_ui2f,output_fsgnj,output_fmv;//temp result for fpu
   logic [31:0] output_class,output_feq,output_fle,output_flt,output_fmax,output_fmin;
-  logic enable_add,enable_mul,enable_div,enable_f2i,enable_i2f,enable_f2ui,enable_ui2f;
-  logic clk_add,clk_mul,clk_div,clk_f2i,clk_i2f,clk_f2ui,clk_ui2f;
-  logic out_stb_add,out_stb_mul,out_stb_div,out_stb_f2i,out_stb_f2ui,out_stb_i2f,out_stb_ui2f;
+  logic enable_add,enable_mul,enable_div,enable_mul_add,enable_f2i,enable_i2f,enable_f2ui,enable_ui2f;
+  logic clk_add,clk_mul,clk_div,clk_mul_add,clk_f2i,clk_i2f,clk_f2ui,clk_ui2f;
+  logic out_stb_add,out_stb_mul,out_stb_div,out_stb_mul_add,out_stb_f2i,out_stb_f2ui,out_stb_i2f,out_stb_ui2f;
   logic [3:0]enable_sel;
-  logic [1:0] fsign_sel;
+  logic [1:0] fsign_sel,fma_sel;
   logic stall_flag;
   
   //impermented using finate state machine.
@@ -53,7 +53,7 @@ module FPU
   float_to_unsig_int a5(input_a,clk_f2ui,enable_f2ui,output_f2ui,out_stb_f2ui);
   int_to_float a6(input_a,clk_i2f,enable_i2f,output_i2f,out_stb_i2f);
   unsig_int_to_float a7(input_a,clk_ui2f,enable_ui2f,output_ui2f,out_stb_i2uf);
-  
+  mul_adder a8 (input_a,input_b,input_c,fma_sel,clk_mul_add,enable_mul_add,output_mul_add,out_stb_mul_add);
   //impermented using combanatinal logic
   fsign_inject c1(input_a,input_b,fsign_sel,output_fsgnj);
   fmove c2(input_a,output_fmv);
@@ -82,13 +82,14 @@ begin
 
 
     if(g_rst == 1)begin
-	enable_add = 1;
-	enable_mul = 1;
-	enable_div = 1;
-	enable_f2i = 1;
-	enable_i2f = 1;
-	enable_f2ui = 1;
-	enable_ui2f = 1;
+	enable_add = 0;
+	enable_mul = 0;
+	enable_div = 0;
+	enable_f2i = 0;
+	enable_i2f = 0;
+	enable_f2ui = 0;
+	enable_ui2f = 0;
+	enable_mul_add = 0;
     end else begin
 	enable_add = 1;
 	enable_mul = 1;
@@ -97,6 +98,7 @@ begin
 	enable_i2f = 1;
 	enable_f2ui = 1;
 	enable_ui2f = 1;
+	enable_mul_add = 1;
 	case(enable_sel)
 	   4'd1 :  enable_add = 0;
 	   4'd2 :  enable_mul = 0;
@@ -105,6 +107,7 @@ begin
 	   4'd5 :  enable_i2f = 0;
 	   4'd6 :  enable_f2ui = 0;
 	   4'd7 :  enable_ui2f = 0;
+	   4'd8 :  enable_mul_add = 0;
 	   default: begin
 	   enable_add = 1;
 	   enable_mul = 1;
@@ -113,6 +116,7 @@ begin
 	   enable_i2f = 1;
 	   enable_f2ui = 1;
 	   enable_ui2f = 1;
+	   enable_mul_add = 1;
        end
         endcase   
      end
@@ -129,6 +133,7 @@ end
 assign   clk_add =  fp_clk; 
 assign   clk_mul =  fp_clk;
 assign   clk_div =  fp_clk;
+assign   clk_mul_add =  fp_clk;
 assign   clk_f2i =  fp_clk;
 assign   clk_i2f =  fp_clk;
 assign   clk_f2ui =  fp_clk;
@@ -151,8 +156,7 @@ begin //fpu instuction selction
 		enable_sel <= 2;
       5'b00011 : //fp fdiv
 		enable_sel <= 3;
-      5'b00100 : //fp fsqurt
-		enable_sel <= 3;
+      //5'b00100 : //fp fsqurt
       5'b00101 : //fp fsgnj.s
 		fsign_sel <= 1;
       5'b00110 : //fp fsgnjn
@@ -167,10 +171,22 @@ begin //fpu instuction selction
       //5'b01101 : //fp fmv.x.w  ;
       //5'b01110 : //fp fclass.s  ;
       //5'b01111 : //fp fmv.w.x  ;
-      //5'b10000 : //FMADD.S     ;
-      //5'b10001 : //FMSUB.S     ;
-      //5'b10010 : //FNMSUB.S   ;
-      //5'b10011 : //FNMADD.S  ;
+      5'b10000 : begin//FMADD.S     
+	       fma_sel<=0;
+	       enable_sel <= 8;
+	       end
+      5'b10001 : begin//FMSUB.S    
+	       fma_sel<=1; 
+	       enable_sel <= 8;
+	       end
+      5'b10010 : begin//FNMSUB.S   
+	       fma_sel<=2;
+	       enable_sel <= 8;
+	       end
+      5'b10011 : begin//FNMADD.S  
+	       fma_sel<=3;
+	       enable_sel <= 8;
+	       end
       5'b10100 : //FCVT.W.S int_to_float
 		enable_sel <= 5;
       5'b10101 : //FCVT.WU.S unsign_int_to_float
@@ -236,14 +252,30 @@ begin
 		res <= output_class;
       5'b01111 : //fp fmv.w.x
 		res <= output_fmv;
-      //5'b10000 : //FMADD.S  ;
-		
-      //5'b10001 : //FMSUB.S  ;
-		
-      //5'b10010 : //FNMSUB.S ;
-		
-      //5'b10011 : //FNMADD.S ;
-		
+      5'b10000 : //FMADD.S  ;
+		if(out_stb_mul_add ==0) stall_flag <= 1;
+		else begin stall_flag <= 0; 
+			res <= output_mul_add; 
+			enable_sel <= 0;
+		end
+      5'b10001 : //FMSUB.S  ;
+		if(out_stb_mul_add ==0) stall_flag <= 1;
+		else begin stall_flag <= 0; 
+			res <= output_mul_add; 
+			enable_sel <= 0;
+		end
+      5'b10010 : //FNMSUB.S ;
+		if(out_stb_mul_add ==0) stall_flag <= 1;
+		else begin stall_flag <= 0; 
+			res <= output_mul_add; 
+			enable_sel <= 0;
+		end
+      5'b10011 : //FNMADD.S ;
+		if(out_stb_mul_add ==0) stall_flag <= 1;
+		else begin stall_flag <= 0; 
+			res <= output_mul_add; 
+			enable_sel <= 0;
+		end
       5'b10100 : //FCVT.W.S int_to_float
 		if(out_stb_i2f ==0) stall_flag <= 1;
 		else begin stall_flag <= 0; 

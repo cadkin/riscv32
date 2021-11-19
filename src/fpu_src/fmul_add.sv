@@ -1,10 +1,12 @@
-//IEEE Floating Point Multiplier (Single Precision)
+//IEEE Floating Point Multiple adder (Single Precision)
 //Copyright (C) Jonathan P Dawson 2013
 //2013-12-12
-//
+//modified by Jianjun Xu
+//2021-11-18
 
-module multiplier(
-  input logic  [31:0] input_a,input_b,input_c
+module mul_adder(
+  input logic  [31:0] input_a,input_b,input_c,
+  input logic  [1:0] sel, //select between mul_add mul_sub neg_mul_add neg_mul_sub
   input logic  clk,rst,
   output logic [31:0] output_z,
   output logic output_z_stb);
@@ -21,16 +23,16 @@ module multiplier(
             multiply_0    = 4'd4,
             align    	  = 4'd5,
             add_0   	  = 4'd6,
-	    normalise_1   = 4'd7,
+	        normalise_1   = 4'd7,
             normalise_2   = 4'd8,
             round         = 4'd9,
             pack          = 4'd10,
             put_z         = 4'd11;
 
   reg       [31:0] a, b, c, z;
-  reg       [23:0] a_m, b_m;
-  reg       [9:0] a_e, b_e, c_e,t_e, t_e;
-  reg       a_s, b_s,c_s,t_s, t_s;
+  reg       [23:0] a_m, b_m,z_m;
+  reg       [9:0] a_e, b_e, c_e,t_e, z_e;
+  reg       a_s, b_s,c_s,t_s, z_s;
   reg       guard, round_bit, sticky;
   reg       [47:0] t_m,c_m;
   reg       [48:0] sum;
@@ -50,7 +52,7 @@ module multiplier(
 	c_e <= input_c[30 : 23] - 127;
         a_s <= input_a[31];
         b_s <= input_b[31];
-	c_s <= input_c[31];
+	c_s <= input_c[31]^ sel[0];//change add into a sub using sel bit 0
         if(rst == 0) begin
 	    state <= special_cases;
 	end
@@ -156,17 +158,18 @@ module multiplier(
         if (~a_m[23]) begin
           a_m <= a_m << 1;
           a_e <= a_e - 1;
+        end  
         if (~b_m[23]) begin
           b_m <= b_m << 1;
           b_e <= b_e - 1;
         end else if (a_m[23]) begin
-	state <= multiply_0;
-        end else begin
+	       state <= multiply_0;
+        end
       end
 
       multiply_0:
       begin
-        t_s <= a_s ^ b_s;
+        t_s <= a_s ^ b_s ^ sel[1]; //change the sign bit for add or sub
         t_e <= a_e + b_e + 1;
         t_m <= a_m * b_m;
         state <= align;
@@ -186,6 +189,7 @@ module multiplier(
           state <= add_0;
         end
       end
+      
       add_0:
       begin
         z_e <= t_e;
@@ -210,10 +214,10 @@ module multiplier(
           z_e <= z_e - 1;
           sum <= sum << 1;
         end else begin
-	  z_m <= sum[48:25];
-	  guard <= product[24];
-          round_bit <= product[23];
-          sticky <= (product[22:0] != 0);
+	      z_m <= sum[48:25];
+	      guard <= sum[24];
+          round_bit <= sum[23];
+          sticky <= (sum[22:0] != 0);
           state <= normalise_2;
         end
       end

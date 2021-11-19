@@ -46,12 +46,9 @@ module Control_fp
   input  logic flush,
   input  logic hazard,
   input  logic [4:0] rs3,rs2,rs1,rd,
-  output logic [4:0]fpusel,
+  output logic [4:0]fpusel_s,
   output logic [1:0]storecntrl, //sf,sd
   output logic [1:0]loadcntrl, //lf,ld
-  output logic      feq,
-  output logic      fne,
-  output logic      flt,
   output logic      memread,
   output logic      memwrite,
   output logic      regwrite,
@@ -60,9 +57,6 @@ module Control_fp
   output logic      auipc,
   output logic      lui,
   output logic      illegal_ins, 
-  output logic [2:0] csrsel, 
-  output logic      csrwrite, 
-  output logic      csrread,
   output logic trap_ret);
 
   // intruction classification signal
@@ -73,41 +67,33 @@ module Control_fp
     fpusel_s=5'b11111;
     storecntrl=2'b00;
     loadcntrl=2'b00;
-    cmpcntrl=2'b00;
-    beq=1'b0;
-    bne=1'b0;
-    blt=1'b0;
 	memread=1'b0;
 	memwrite=1'b0;
 	regwrite=1'b0;
-	alusrc=1'b0;
+	fpusrc=1'b0;
 	compare=1'b0;
 	auipc=1'b0;
 	lui=1'b0;
 	illegal_ins=1'b0;
-	csrsel = 3'b000;
-	csrwrite = 1'b0;
-	csrread = 0;
   	trap_ret = 0;
     unique case (opcode)
       7'b0000111:               //fp I-type (load) 
         begin
         memread=1'b1;
         regwrite=(!stall)&&(1'b1);
-        fpusel_s=5'11111;
-        alusrc=1'b1; 
-            if(func3 == 3'b010)
+        fpusel_s=5'b11111;
+        fpusrc=1'b1; 
+            if(funct3 == 3'b010)
 		//load instruction here:
-		loadcntrl=5'b00001;
-            else illegal_ins=(!flush)&&(1'b1); 
-
-            end;
+		      loadcntrl=5'b00001;
+            else 
+            illegal_ins=(!flush)&&(1'b1); 
         end
       7'b0100111:               // fp S-type (store)
         begin
           memwrite = (!stall)&&1'b1;
-          alusrc=1'b1;
-          fpusel_s=5'11111;
+          fpusrc=1'b1;
+          fpusel_s=5'b11111;
           unique case(funct3)
               3'b010: storecntrl=3'b001;
               default: illegal_ins=(!flush)&&(1'b1);
@@ -138,8 +124,8 @@ module Control_fp
 				fpusel_s=5'b00111;
 				 default: begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
-					end; 
-			   endcase;
+					end
+			   endcase
 			7'h14:	
 			   unique case(funct3)
 				3'b000 ://fmax.s
@@ -148,8 +134,8 @@ module Control_fp
 				fpusel_s=5'b01001;
 			   	default: begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
-					end; 
-			   endcase;
+					end 
+			   endcase
 			7'h60:	
 			   unique case(rs2)
 				5'b00000 ://fcvt.w.s
@@ -158,8 +144,8 @@ module Control_fp
 				fpusel_s=5'b10101;
 			   	default: begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
-					end; 
-			   endcase;
+					end 
+			   endcase
 			7'h50:	
 			   unique case({rs2,funct3})
 				{5'h00,3'b000}://fmv.x.w
@@ -169,8 +155,8 @@ module Control_fp
 				default: begin 
 					fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
-					end; 
-			   endcase;
+					end 
+			   endcase
 			7'h50:	
 			   unique case(funct3)
 				3'b010 ://feq.s
@@ -181,8 +167,8 @@ module Control_fp
 				fpusel_s=5'b01100;		
 			   	default: begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
-					end; 
-			   endcase; 	
+					end 
+			   endcase 	
 			7'h68:	
 			   unique case(rs2)
 				5'b00000 ://fcvt.s.w
@@ -191,14 +177,14 @@ module Control_fp
 				fpusel_s=5'b10111;
 			   	default: begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
-					end; 
-			   endcase;
+					end 
+			   endcase
 			7'h78:
 				if ((rs2 ==5'h00) && (funct3 == 3'b000)) begin //fmv.w.x
 				fpusel_s=5'b01111;
 				end else begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
-					end; 
+					end 
 		    default:
 		      illegal_ins=1'b1;				
             endcase
@@ -209,14 +195,14 @@ module Control_fp
         fpusrc=1'b1;
           unique case(funct3)
 			2'b00://FMADD.S
-			     	fpusel_s = 5'b10000;
+			    fpusel_s = 5'b10000;
 			2'b01://FMSUB.S
 				fpusel_s = 5'b10001;
 			2'b10://FNMSUB.S
 				fpusel_s = 5'b10010;
 			2'b11://FNMADD.S
 				fpusel_s = 5'b10011;
-	endcase
+	       endcase
         end
 	
      default:
@@ -229,4 +215,4 @@ module Control_fp
     
 
 
-endmodule: Control
+endmodule: Control_fp
