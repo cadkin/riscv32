@@ -51,35 +51,77 @@ module fp_top_sim();
             //2 + 1.5
             input_a = 32'h40000000;
             input_b = 32'h3fc00000;
-            #500;
+            #100;
             
             //7.46 + 1.5
             input_a = 32'h40eeb852;
             input_b = 32'h3fc00000;
-            #500;
+            #100;
             
             //2 + 3.25
             input_a = 32'h40000000;
             input_b = 32'h40500000;
-            #500;
+            #100;
             
             //Modified adder for subtraction
             fpusel_s <= 1;
             //2 - 1.5
             input_a = 32'h40000000;
             input_b = 32'h3fc00000;
-            #500;
+            #100;
             
             //7.46 - 1.5
             input_a = 32'h40eeb852;
             input_b = 32'h3fc00000;
-            #500;
+            #100;
             
             //2 - 3.25
             input_a = 32'h40000000;
             input_b = 32'h40500000;
-            #500;
+            #100;
+            fpusel_s <= 2;
+            // 2.2*4.4
+            input_a = 32'h408ccccd;
+            //set input b
+            input_b = 32'h400ccccd;
             
+            //wait
+            #250;    
+                                  
+            //3.5*-3
+            //set input a
+            input_a = 32'h40600000;
+            //set input b
+            input_b = 32'hc0000000;
+      
+            //wait
+            #250;
+            fpusel_s <= 8;
+            #50;
+            //set input a
+            input_a = 32'h408ccccd;
+            //set input b
+            input_b = 32'h400ccccd;
+            //set both stable
+            #50;
+            
+            input_b = 32'h40000000;
+            input_a = 32'h40a9999a;
+            
+            #50;
+            
+            input_a = 32'h40000000;
+            input_b = 32'h40a9999a;
+            
+            #50;
+            
+            input_a = 32'h40000000;
+            input_b = 32'h40200000;
+            #50;
+                        
+            input_a = 32'h40000000;
+            input_b = 32'h40000000;
+            #50;
       
       end
    

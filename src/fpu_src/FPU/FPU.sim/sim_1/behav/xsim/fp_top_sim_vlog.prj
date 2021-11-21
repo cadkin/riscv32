@@ -12,6 +12,7 @@ sv xil_defaultlib  \
 "../../../../../float_to_unsig_int.sv" \
 "../../../../../floating_point.sv" \
 "../../../../../fmul.sv" \
+"../../../../../fmul_add.sv" \
 "../../../../../fmv.sv" \
 "../../../../../fsgj.sv" \
 "../../../../../int_to_float.sv" \
