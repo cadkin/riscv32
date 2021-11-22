@@ -204,6 +204,7 @@ begin //fpu instuction selction
 
 always_ff @(negedge g_clk)
 begin
+    stall_flag <= 0;
    case(fpusel_s)
       5'b00000 : //fp fadd 
 		if(out_stb_add ==0) stall_flag <= 1;
@@ -237,17 +238,17 @@ begin
       5'b00111 : //fp fsgnjx
 		res <= output_fsgnj;
       5'b01000 : //fp fmax.s   compare_get_large
-		res <= output_fmax;
+		res <= output_fmax; 
       5'b01001 : //fp fmin.s   compare_get_small
-		res <= output_fmin;
+		res <= output_fmin; 
       5'b01010 : //fp feq.s    compare_eq
-		res <= output_feq;
+		res <= output_feq;  
       5'b01011 : //fp flt.s    compare_less_than
-		res <= output_flt;
+		res <= output_flt;  
       5'b01100 : //fp fle.s    compare_less_equite
-		res <= output_fle;
+		res <= output_fle;  
       5'b01101 : //fp fmv.x.w  
-		res <= output_fmv;
+		res <= output_fmv;  
       5'b01110 : //fp fclass.s
 		res <= output_class;
       5'b01111 : //fp fmv.w.x
