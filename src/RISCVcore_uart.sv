@@ -39,9 +39,9 @@ interface main_bus (
     logic  [4:0]  ID_EX_rd;
     logic         ID_EX_memread,ID_EX_regwrite;
     logic  [4:0]  EX_MEM_rd,MEM_WB_rd,WB_ID_rd;
-    logic  [4:0]  ID_EX_rs1,ID_EX_rs2;
-    logic  [31:0] ID_EX_dout_rs1,ID_EX_dout_rs2,EX_MEM_dout_rs2;
-    logic  [31:0] IF_ID_dout_rs1,IF_ID_dout_rs2;
+    logic  [4:0]  ID_EX_rs1,ID_EX_rs2,ID_EX_rs3;
+    logic  [31:0] ID_EX_dout_rs1,ID_EX_dout_rs2,ID_EX_dout_rs3,EX_MEM_dout_rs2;
+    logic  [31:0] IF_ID_dout_rs1,IF_ID_dout_rs2,IF_ID_dout_rs3;
     logic  [31:0]  IF_ID_pres_addr;
     logic         IF_ID_jalr;
     logic         ID_EX_jal,ID_EX_jalr;
@@ -54,13 +54,14 @@ interface main_bus (
 
     logic  [4:0]  EX_MEM_rs1, EX_MEM_rs2;
 
-    logic  [2:0]  ID_EX_alusel;
+    logic  [2:0]  ID_EX_alusel,ID_EX_frm,EX_MEM_frm;
+    logic  [4:0]  ID_EX_fpusel;
     logic  [4:0]  ID_EX_loadcntrl;
     logic  [2:0]  ID_EX_storecntrl;
     logic  [3:0]  ID_EX_cmpcntrl;
     logic  [4:0]  EX_MEM_loadcntrl;
     logic  [2:0]  EX_MEM_storecntrl;
-    logic         ID_EX_alusrc;
+    logic         ID_EX_alusrc,IF_ID_fpusrc,ID_EX_fpusrc,EX_MEM_fpusrc,MEM_WB_fpusrc,WB_ID_fpusrc;
     logic         EX_MEM_memread,MEM_WB_memread;
     logic         ID_EX_memwrite,EX_MEM_memwrite;
     logic         EX_MEM_regwrite,MEM_WB_regwrite,WB_ID_regwrite;
@@ -69,9 +70,10 @@ interface main_bus (
     logic  [31:0] ID_EX_imm;
     logic  [31:0] WB_res,WB_ID_res;
     logic  [4:0]  adr_rs1;//used for debug option
-    logic  [4:0]  IF_ID_rs1,IF_ID_rs2, IF_ID_rd;
+    logic  [4:0]  IF_ID_rs1,IF_ID_rs2,IF_ID_rs3, IF_ID_rd;
     logic         ID_EX_lb,ID_EX_lh,ID_EX_lw,ID_EX_lbu,ID_EX_lhu,ID_EX_sb,ID_EX_sh,ID_EX_sw;
     logic         EX_MEM_lb,EX_MEM_lh,EX_MEM_lw,EX_MEM_lbu,EX_MEM_lhu,EX_MEM_sb,EX_MEM_sh,EX_MEM_sw;
+    logic         f_stall; //used for stall the pipe for floating point calculation.
 //    logic dbg;
     logic [31:0] uart_dout;
     logic memcon_prog_ena;
@@ -167,7 +169,7 @@ interface main_bus (
     //modport for fetch stage
     modport fetch(
         input clk, PC_En, debug, prog, Rst, branch, IF_ID_jalr, IF_ID_jal,
-        input dbg, mem_hold,
+        input dbg, mem_hold,f_stall,
         input trap, mtvec, mepc, trigger_trap,  trap_ret, trigger_trap_ret,
         //input rx,
         input uart_dout, memcon_prog_ena,
@@ -179,24 +181,24 @@ interface main_bus (
 
     //modport for register file
     modport regfile(
-        input clk, adr_rs1, adr_photon_rs1, IF_ID_rs2, MEM_WB_rd, addr_corereg_photon, Rst,
-        input WB_res, MEM_WB_regwrite, mem_hold, photon_data_out, photon_regwrite,
-				output IF_ID_dout_rs1, IF_ID_dout_rs2
+        input clk, adr_rs1, adr_photon_rs1, IF_ID_rs1,IF_ID_rs2, IF_ID_rs3, MEM_WB_rd, addr_corereg_photon, Rst,f_stall,
+        input WB_res, MEM_WB_regwrite, mem_hold, photon_data_out, photon_regwrite,IF_ID_fpusrc,MEM_WB_fpusrc,
+		output IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_dout_rs3 
     );
 
     //modport for decode stage
-    modport decode(
-        input clk, Rst, dbg, ins, IF_ID_pres_addr, MEM_WB_rd, WB_res, mem_hold, comp_sig,
+    modport decode(            
+        input clk, Rst, dbg, ins, IF_ID_pres_addr, MEM_WB_rd, WB_res, mem_hold, comp_sig,f_stall,
         input EX_MEM_memread, EX_MEM_regwrite, MEM_WB_regwrite, EX_MEM_alures,
-        input EX_MEM_rd, IF_ID_dout_rs1, IF_ID_dout_rs2, 
+        input EX_MEM_rd, IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_dout_rs3,
         input IF_ID_CSR, trap, trigger_trap, RAS_rdy,
-        output ID_EX_memread, ID_EX_regwrite,
+        output ID_EX_memread, ID_EX_regwrite,IF_ID_fpusrc,
         output ID_EX_pres_addr, IF_ID_jalr, ID_EX_jalr, branch, IF_ID_jal,
-        output IF_ID_rs1, IF_ID_rs2, IF_ID_rd,
+        output IF_ID_rs1, IF_ID_rs2,IF_ID_rs3, IF_ID_rd,
         output ID_EX_dout_rs1, ID_EX_dout_rs2, branoff, hz,
-        output ID_EX_rs1, ID_EX_rs2, ID_EX_rd, ID_EX_alusel,
+        output ID_EX_rs1, ID_EX_rs2,ID_EX_rs3,ID_EX_rd, ID_EX_alusel,ID_EX_fpusel,ID_EX_frm,
         output ID_EX_storecntrl, ID_EX_loadcntrl, ID_EX_cmpcntrl,
-        output ID_EX_auipc, ID_EX_lui, ID_EX_alusrc, 
+        output ID_EX_auipc, ID_EX_lui, ID_EX_alusrc, ID_EX_fpusrc,
         output ID_EX_memwrite, ID_EX_imm, ID_EX_compare, ID_EX_jal, 
         output IF_ID_CSR_addr, ID_EX_CSR_addr, ID_EX_CSR, ID_EX_CSR_write, csrsel, ID_EX_CSR_read, ecall, ID_EX_comp_sig, 
         output trap_ret
@@ -204,19 +206,19 @@ interface main_bus (
 
     //modport for execute stage
     modport execute(
-        input clk, Rst, dbg, ID_EX_lui, ID_EX_auipc, ID_EX_loadcntrl, mem_hold,
+        input clk, Rst, dbg, ID_EX_lui, ID_EX_auipc, ID_EX_loadcntrl, mem_hold,f_stall,
         input ID_EX_storecntrl, ID_EX_cmpcntrl,
         output EX_MEM_loadcntrl, EX_MEM_storecntrl,
-        input ID_EX_compare, ID_EX_pres_addr, ID_EX_alusel, ID_EX_alusrc,
+        input ID_EX_compare, ID_EX_pres_addr, ID_EX_alusel, ID_EX_alusrc,ID_EX_fpusel,ID_EX_fpusrc,ID_EX_frm,
         input ID_EX_memread, ID_EX_memwrite, ID_EX_regwrite, ID_EX_jal,
-        input ID_EX_jalr, ID_EX_rs1, ID_EX_rs2, ID_EX_rd, ID_EX_dout_rs1, ID_EX_dout_rs2,
+        input ID_EX_jalr, ID_EX_rs1, ID_EX_rs2, ID_EX_rs3,ID_EX_rd, ID_EX_dout_rs1, ID_EX_dout_rs2, ID_EX_dout_rs3,
         output EX_MEM_dout_rs2, EX_MEM_rs2, EX_MEM_rs1,
         input ID_EX_imm, MEM_WB_regwrite, WB_ID_regwrite,
         output EX_MEM_alures,
         input WB_res, WB_ID_res,
         output EX_MEM_memread, EX_MEM_rd,
         input MEM_WB_rd, WB_ID_rd,
-        output EX_MEM_memwrite, EX_MEM_regwrite, EX_MEM_comp_res,
+        output EX_MEM_memwrite, EX_MEM_regwrite, EX_MEM_comp_res,EX_MEM_fpusrc,EX_MEM_frm,
         output EX_MEM_pres_addr,
         input ID_EX_CSR_addr, ID_EX_CSR, ID_EX_CSR_write, csrsel, ID_EX_CSR_read,
         output EX_CSR_res, EX_CSR_addr, EX_CSR_write, EX_MEM_CSR, EX_MEM_CSR_read,
@@ -225,11 +227,11 @@ interface main_bus (
 
     //modport for memory stage
     modport memory (
-        input clk, Rst, dbg, EX_MEM_storecntrl, mmio_read, mem_hold,
-        input EX_MEM_pres_addr,
+        input clk, Rst, dbg, EX_MEM_storecntrl, mmio_read, mem_hold,f_stall,
+        input EX_MEM_pres_addr, EX_MEM_fpusrc,
         input EX_MEM_loadcntrl, EX_MEM_alures, EX_MEM_dout_rs2, EX_MEM_rs2, WB_res, EX_MEM_rs1,
         input EX_MEM_rd, EX_MEM_regwrite, EX_MEM_memread, EX_MEM_memwrite,
-        output MEM_WB_regwrite, MEM_WB_memread, MEM_WB_rd, MEM_WB_alures, MEM_WB_memres,
+        output MEM_WB_regwrite, MEM_WB_memread, MEM_WB_rd, MEM_WB_alures, MEM_WB_memres,MEM_WB_fpusrc,
         output mmio_wea, mmio_dat,
 
         input mem_dout,
@@ -242,10 +244,10 @@ interface main_bus (
 
     //modport for writeback stage
     modport writeback(
-        input clk, Rst, dbg, MEM_WB_alures, MEM_WB_memres, MEM_WB_memread, mem_hold,
-        input MEM_WB_regwrite, MEM_WB_rd,
+        input clk, Rst, dbg, MEM_WB_alures, MEM_WB_memres, MEM_WB_memread, mem_hold,f_stall,
+        input MEM_WB_regwrite, MEM_WB_rd,MEM_WB_fpusrc,
         input MEM_WB_CSR, MEM_WB_CSR_read,
-        output WB_ID_regwrite, WB_ID_rd, WB_res, WB_ID_res
+        output WB_ID_regwrite,WB_ID_fpusrc, WB_ID_rd, WB_res, WB_ID_res
     );
 
 //    modport rstack(

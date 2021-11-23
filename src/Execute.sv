@@ -57,17 +57,16 @@
 
 module Execute(main_bus bus);
  
-  logic EX_MEM_memread_sig, EX_MEM_regwrite_sig;
-  logic [31:0] EX_MEM_alures_sig;
+  logic EX_MEM_memread_sig, EX_MEM_regwrite_sig,EX_MEM_fpusrc;
+  logic [31:0] EX_MEM_alures_sig,EX_MEM_fpures_sig;
   logic [4:0]  EX_MEM_rd_sig;
-  logic comp_res;
-  logic [31:0] alures;
+  logic comp_res,f_stall;
+  logic [31:0] alures,fpures;
   logic [2:0]  sel;
   logic [31:0] ALUop1,ALUop2,rs2_mod;
   logic [31:0] rs2_mod_final;//new
   
   logic [31:0] CSR_res;
-  
   logic [31:0] CSR_mod; 
   
   
@@ -115,7 +114,20 @@ module Execute(main_bus bus);
         .csrsel(bus.csrsel),
         .ID_EX_comp_sig(bus.ID_EX_comp_sig)
         );
-        
+ 
+FPU fut(.a(bus.ID_EX_dout_rs1),
+        .b(bus.ID_EX_dout_rs2),
+        .c(bus.ID_EX_dout_rs3),
+        .rm(frm),
+        .fpusel_s(bus.ID_EX_fpusel),
+        .fpusel_d(bus.ID_EX_fpusel),
+        .g_clk(bus.clk),
+        .fp_clk(bus.clk),
+        .g_rst(bus.Rst),
+        .res(fpures),
+        .stall(f_stall)
+        ); 
+  
  always_ff @(posedge bus.clk) begin
         if(bus.Rst) begin
             EX_MEM_rd_sig<=5'b00000;
@@ -123,6 +135,9 @@ module Execute(main_bus bus);
             bus.EX_MEM_memwrite<=1'b0;
             EX_MEM_regwrite_sig<=1'b0;
             EX_MEM_alures_sig<=32'h00000000;
+            EX_MEM_fpures_sig<=32'h00000000;
+            EX_MEM_fpusrc = 1'b0;
+            bus.EX_MEM_frm <= 3'b000;
             bus.EX_MEM_dout_rs2<=32'h00000000;
             bus.EX_MEM_rs2 <= 5'h0;
             bus.EX_MEM_rs1 <= 5'h0;
@@ -136,12 +151,15 @@ module Execute(main_bus bus);
             bus.EX_MEM_CSR <= 0;
             bus.EX_MEM_CSR_read <= 0;
         end
-        else if(!bus.dbg && !bus.mem_hold) begin
+        else if((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
             EX_MEM_rd_sig<=bus.ID_EX_rd;
             EX_MEM_memread_sig<=bus.ID_EX_memread;
             bus.EX_MEM_memwrite<=bus.ID_EX_memwrite;
             EX_MEM_regwrite_sig<=(bus.ID_EX_regwrite&&(!bus.ID_EX_compare))+(bus.ID_EX_regwrite&&bus.ID_EX_compare&&comp_res);
             EX_MEM_alures_sig<=alures;
+            EX_MEM_fpures_sig<=fpures;
+            EX_MEM_fpusrc<=bus.ID_EX_fpusrc;
+            bus.EX_MEM_frm<=bus.ID_EX_frm;
             bus.EX_MEM_dout_rs2<=rs2_mod;//new
             bus.EX_MEM_rs2<=bus.ID_EX_rs2;
             bus.EX_MEM_rs1<=bus.ID_EX_rs1;
@@ -156,9 +174,10 @@ module Execute(main_bus bus);
             bus.EX_MEM_CSR_read <= bus.ID_EX_CSR_read;
         end
   end
-  
+
   assign bus.EX_MEM_rd=EX_MEM_rd_sig;
-  assign bus.EX_MEM_alures=EX_MEM_alures_sig;
+  assign bus.EX_MEM_alures= EX_MEM_fpusrc ? EX_MEM_fpures_sig : EX_MEM_alures_sig;
+  assign bus.EX_MEM_fpusrc = EX_MEM_fpusrc;
   assign bus.EX_MEM_memread=EX_MEM_memread_sig;
   assign bus.EX_MEM_regwrite=EX_MEM_regwrite_sig;
 endmodule: Execute

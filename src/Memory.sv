@@ -174,6 +174,7 @@ module Memory(main_bus bus);
   always_ff @(posedge bus.clk) begin
         if(bus.Rst)begin
             bus.MEM_WB_alures<=32'h00000000;
+            bus.MEM_WB_fpusrc<=1'b0;
             bus.MEM_WB_memread<=1'b0;
             bus.MEM_WB_regwrite<=1'b0;
             bus.MEM_WB_rd<=5'b00000;
@@ -188,8 +189,9 @@ module Memory(main_bus bus);
             bus.MEM_WB_CSR <= 0;
             bus.MEM_WB_CSR_read <= 0;
         end
-        else if(!bus.dbg && !bus.mem_hold) begin
+        else if((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
             bus.MEM_WB_alures<=bus.EX_MEM_alures;
+            bus.MEM_WB_fpusrc<=bus.EX_MEM_fpusrc;
             bus.MEM_WB_memread<=bus.EX_MEM_memread;
             bus.MEM_WB_regwrite<=bus.EX_MEM_regwrite;
             bus.MEM_WB_rd<=bus.EX_MEM_rd;
