@@ -36,7 +36,8 @@ module Writeback(main_bus bus);
             bus.WB_ID_regwrite<=1'b0;
         end
         
-        else if (!bus.dbg && !bus.mem_hold)begin
+        else if ((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall))begin
+            bus.WB_ID_fpusrc<=bus.MEM_WB_fpusrc;
             bus.WB_ID_rd<=bus.MEM_WB_rd;
             bus.WB_ID_res<=WB_res_sig;
             bus.WB_ID_regwrite<=bus.MEM_WB_regwrite;

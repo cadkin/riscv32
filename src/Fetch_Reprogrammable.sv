@@ -81,7 +81,7 @@ assign imem_incr = bus.branch? bus.branoff : 12'h004;
      
 assign next_addr = bus.trap_ret ? bus.mepc : bus.trigger_trap ? bus.mtvec : branch_next ? branch_addr : bus.IF_ID_pres_addr + pc_incr;
      
-assign En_sig=(bus.PC_En&&(!bus.debug)&&(!bus.dbg)&&(!bus.mem_hold)); 
+assign En_sig=(bus.PC_En&&(!bus.debug)&&(!bus.dbg)&&(!bus.mem_hold)&&(!bus.f_stall)); 
 //assign En_sig=(bus.PC_En&&(!bus.dbg));
 assign En_mem=En_sig || bus.prog;
 assign bus.ins=bus.Rst?32'h00000000: comp_sig ? {16'h0000, memdout[15:0]} : memdout;

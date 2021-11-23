@@ -67,7 +67,7 @@ logic flush;
 //logic debug;
 logic ins_zero;
 logic flush_sig;
-logic [31:0]rs1_mod,rs2_mod;
+logic [31:0]rs1_mod,rs2_mod,rs3_mod;
 
 //logic jal,jalr;
 logic [1:0] funct2;
@@ -87,18 +87,20 @@ logic zero1,zero2,zero3,zero4,zeroa,zerob;
 
 //register file
 logic [4:0]IF_ID_rd;
-logic [31:0]dout_rs1,dout_rs2;
+logic [31:0]dout_rs1,dout_rs2,dout_rs3;
 
 //control
-logic [2:0]IF_ID_alusel, alusel;
+logic [2:0]IF_ID_alusel, alusel,IF_ID_frm,rm;
+logic [4:0] IF_ID_fpusel,fpusel_s;
 logic      IF_ID_branch, branch;
 logic      IF_ID_memwrite,IF_ID_memread,IF_ID_regwrite,IF_ID_alusrc;
 logic memwrite, memread, regwrite, alusrc;
-logic [2:0]IF_ID_storecntrl, storecntrl;
-logic [4:0]IF_ID_loadcntrl, loadcntrl;
+logic fmemwrite, fmemread, fregwrite, fpusrc;
+logic [2:0]IF_ID_storecntrl, storecntrl,fstorecntrl;
+logic [4:0]IF_ID_loadcntrl, loadcntrl,floadcntrl;
 logic [3:0]IF_ID_cmpcntrl;
 logic      IF_ID_auipc;
-
+logic [4:0] IF_ID_rs3,IF_ID_rs2 ,IF_ID_rs1;
 logic [2:0] csrsel;
 logic csrwrite;
 logic csrread;
@@ -157,8 +159,9 @@ always_comb begin
 		funct4 = c_funct4;
 		funct6 = c_funct6;
 		funct7 = c_funct7; 
-		bus.IF_ID_rs1 = c_rs1;
-		bus.IF_ID_rs2 = c_rs2;
+		IF_ID_rs1 = c_rs1;
+		IF_ID_rs2 = c_rs2;
+		IF_ID_rs3 = 5'h0;
 		IF_ID_rd = c_rd;
 		bus.IF_ID_rd = IF_ID_rd; 
 		IF_ID_alusel = c_alusel;
@@ -175,27 +178,37 @@ always_comb begin
 		IF_ID_jalr_sig = c_jalr;
 		IF_ID_imm = c_imm;
 	end else begin
-		funct3=bus.ins[14:12];
-		funct7=bus.ins[31:25];
-		funct12 = bus.ins[31:20];
-		bus.IF_ID_rs1 = bus.ins[19:15];
-		bus.IF_ID_rs2 = bus.ins[24:20]; 
-		IF_ID_rd=bus.ins[11:7];
-		bus.IF_ID_rd=IF_ID_rd;
-		IF_ID_alusel=alusel;
+	 if(fpusrc) begin
+	    IF_ID_storecntrl=fstorecntrl;
+		IF_ID_loadcntrl=floadcntrl;
+		IF_ID_memread = fmemread;
+		IF_ID_memwrite=fmemwrite;
+		IF_ID_regwrite=fregwrite;
+	  end else begin
 		IF_ID_storecntrl=storecntrl;
 		IF_ID_loadcntrl=loadcntrl;
-		IF_ID_branch=branch;
 		IF_ID_memread = memread;
 		IF_ID_memwrite=memwrite;
 		IF_ID_regwrite=regwrite;
+		end
+		IF_ID_branch=branch;
+		IF_ID_alusel=alusel;
+		funct3=bus.ins[14:12];
+		funct7=bus.ins[31:25];
+		funct12 = bus.ins[31:20];
+		bus.IF_ID_fpusrc = IF_ID_fpusrc;
+		IF_ID_rs1 = bus.ins[19:15];
+		IF_ID_rs2 = bus.ins[24:20]; 
+		IF_ID_rs3 = bus.ins[31:27]; 
+		IF_ID_rd=bus.ins[11:7];
+		bus.IF_ID_rd=IF_ID_rd;
 		IF_ID_alusrc=alusrc;
 		IF_ID_compare=compare;
 		IF_ID_lui=lui;
 		IF_ID_jal=jal;
 		IF_ID_jalr_sig=jalr_sig;
 		IF_ID_imm = imm;
-	end
+	   end
 end
 
 //assign flush=branch_taken_sig;
@@ -248,6 +261,26 @@ assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b000000000000000000000000011100
     	.alusrc(c_alusrc), .compare(c_compare), .lui(c_lui), .jal(c_jal), 
     	.jalr(c_jalr), .imm(c_imm)
    );
+   
+      //floating point control
+   Control_fp u8(
+       .opcode(bus.ins[6:0]),
+       .funct3(funct3),
+       .funct7(funct7),
+       .ins_zero(ins_zero),
+       .flush(flush),
+       .hazard(hz_sig),
+       .rs2(bus.ins[24:20]),
+       .rd(bus.ins[11:7]), 
+       .fpusel_s(IF_ID_fpusel),
+       .memwrite(fmemwrite),
+       .memread(fmemread),
+       .regwrite(fregwrite),
+       .fpusrc(IF_ID_fpusrc),
+       .storecntrl(fstorecntrl),
+       .loadcntrl(floadcntrl),
+       .rm(IF_ID_frm)
+    );
    
    //branchforward
    branchforward u0(
@@ -310,8 +343,8 @@ assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b000000000000000000000000011100
    );
    //Compare unit for branch decision and hazard detection
    compare u6(
-        .IF_ID_rs1(bus.IF_ID_rs1),
-        .IF_ID_rs2(bus.IF_ID_rs2),
+        .IF_ID_rs1(IF_ID_rs1),
+        .IF_ID_rs2(IF_ID_rs2),
         //.ID_EX_rs1(bus.ID_EX_rs1),
         .ID_EX_rd(bus.ID_EX_rd),
         .EX_MEM_rd(bus.EX_MEM_rd),
@@ -327,10 +360,16 @@ assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b000000000000000000000000011100
    //Compressed Instruction Control Unit
    
    
+
+   
+   
    always_ff @(posedge bus.clk)begin
         if(bus.Rst)begin
             bus.ID_EX_alusel<=3'h0;
             bus.ID_EX_alusrc<=1'b0;
+            bus.ID_EX_fpusel<=5'h00;
+            bus.ID_EX_fpusrc<=1'b0;
+            bus.ID_EX_frm=3'h0;
             ID_EX_memread_sig<=1'b0;
             bus.ID_EX_memwrite<=1'b0;
             ID_EX_regwrite_sig<=1'b0;
@@ -358,18 +397,22 @@ assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b000000000000000000000000011100
             bus.ID_EX_comp_sig <= 0;
             bus.trap_ret <= 0;
             end
-        else if(!bus.dbg && !bus.mem_hold) begin
+        else if((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
             if ((!hz_sig) & bus.RAS_rdy) begin
                 bus.ID_EX_alusel<=IF_ID_alusel;
                 bus.ID_EX_alusrc<=IF_ID_alusrc;
+                bus.ID_EX_fpusel<=IF_ID_fpusel;
+                bus.ID_EX_fpusrc<=IF_ID_fpusrc;
+                bus.ID_EX_frm=IF_ID_frm;
+                
                 ID_EX_memread_sig<=IF_ID_memread;
                 bus.ID_EX_memwrite<=IF_ID_memwrite;
                 ID_EX_regwrite_sig<=IF_ID_regwrite;
                 bus.ID_EX_storecntrl<=IF_ID_storecntrl;
                 bus.ID_EX_loadcntrl<=IF_ID_loadcntrl;
                 bus.ID_EX_cmpcntrl<=IF_ID_cmpcntrl;
-                bus.ID_EX_rs1<=bus.IF_ID_rs1;
-                bus.ID_EX_rs2<=bus.IF_ID_rs2;
+                bus.ID_EX_rs1<=IF_ID_rs1;
+                bus.ID_EX_rs2<=IF_ID_rs2;
                // ID_EX_rd_sig<=IF_ID_rd;
                 bus.ID_EX_rd<=IF_ID_rd;
                 bus.ID_EX_compare<=IF_ID_compare;
@@ -392,6 +435,9 @@ assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b000000000000000000000000011100
             end else begin
                 bus.ID_EX_alusel<=3'b000;
                 bus.ID_EX_alusrc<=1'b1;
+                bus.ID_EX_fpusel<=5'h00;
+                bus.ID_EX_fpusrc<=1'b0;
+                bus.ID_EX_frm=3'h0;
                 ID_EX_memread_sig<=1'b0;
                 bus.ID_EX_memwrite<=1'b0;;
                 ID_EX_regwrite_sig<=1'b0;
@@ -422,7 +468,9 @@ assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b000000000000000000000000011100
             end
         end
     end
-        
+    assign bus.IF_ID_rs1 = IF_ID_rs1;
+    assign bus.IF_ID_rs2 = IF_ID_rs2;
+    assign bus.IF_ID_rs3 = IF_ID_rs3;
     assign bus.ID_EX_memread=ID_EX_memread_sig;
     assign bus.ID_EX_regwrite=ID_EX_regwrite_sig;
    // assign ID_EX_rd=ID_EX_rd_sig;
