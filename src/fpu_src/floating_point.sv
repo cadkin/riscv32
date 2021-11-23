@@ -28,11 +28,12 @@ module FPU
  (input  logic [31:0] a,
   input  logic [31:0] b,
   input  logic [31:0] c,
+  input  logic [2:0] rm,
   input  logic [3:0]  fpusel_s,fpusel_d,
   input  logic g_clk,fp_clk,g_rst, //global clock, floating point logic unit clock, global reset 
   output logic [31:0] res,    
-  output logic stall,     //flag for stall the pipeline
-  output logic  comp_res);
+  output logic stall     //flag for stall the pipeline
+  );
 
   logic [31:0] input_a,input_b,input_c; //temp input for fpu
   logic [31:0] output_add,output_mul,output_div,output_mul_add,output_f2i,output_i2f,output_f2ui,output_ui2f,output_fsgnj,output_fmv;//temp result for fpu

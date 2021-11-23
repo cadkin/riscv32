@@ -24,12 +24,13 @@ module fp_top_sim();
   logic [31:0] input_a;
   logic [31:0] input_b;
   logic [31:0] input_c;
+  logic [2:0]   rm;
   logic [3:0]  fpusel_s,fpusel_d;
   logic g_clk,fp_clk,g_rst; //global clock, floating point logic unit clock, global reset 
   logic [31:0] res;    
   logic stall;     //flag for stall the pipeline
-  logic  comp_res;
-  FPU   a1(input_a,input_b,input_c,fpusel_s,fpusel_d,g_clk,fp_clk,g_rst,res,stall,comp_res);
+
+  FPU   a1(input_a,input_b,input_c,rm,fpusel_s,fpusel_d,g_clk,fp_clk,g_rst,res,stall);
    
     always begin
         #3 g_clk = !g_clk;  
@@ -51,34 +52,34 @@ module fp_top_sim();
             //2 + 1.5
             input_a = 32'h40000000;
             input_b = 32'h3fc00000;
-            #100;
+            #150;
             
             //7.46 + 1.5
             input_a = 32'h40eeb852;
             input_b = 32'h3fc00000;
-            #100;
+            #150;
             
             //2 + 3.25
             input_a = 32'h40000000;
             input_b = 32'h40500000;
-            #100;
+            #150;
             
             //Modified adder for subtraction
             fpusel_s <= 1;
             //2 - 1.5
             input_a = 32'h40000000;
             input_b = 32'h3fc00000;
-            #100;
+            #150;
             
             //7.46 - 1.5
             input_a = 32'h40eeb852;
             input_b = 32'h3fc00000;
-            #100;
+            #150;
             
             //2 - 3.25
             input_a = 32'h40000000;
             input_b = 32'h40500000;
-            #100;
+            #150;
             fpusel_s <= 2;
             // 2.2*4.4
             input_a = 32'h408ccccd;
