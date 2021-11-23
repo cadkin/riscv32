@@ -18,132 +18,188 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-interface riscv_bus (
-    input  reg clk, Rst, debug, prog,
-    input  logic scan_en, scan_in, scan_clk,
-    output logic scan_out,
-    input  logic [4:0] debug_input
-    );
+interface main_bus ();
+    logic clk, Rst, debug, dbg, prog, mem_hold, uart_IRQ, RAS_rdy;//rx, //addr_dn, addr_up,
+    logic[4:0] debug_input;
+    logic         PC_En;
+    logic         hz;
+    logic         branch;
+    logic  [31:0]  branoff;
+    logic  [31:0]  ID_EX_pres_addr;
+    logic  [31:0] ins;
+    logic  [4:0]  ID_EX_rd;
+    logic         ID_EX_memread,ID_EX_regwrite;
+    logic  [4:0]  EX_MEM_rd,MEM_WB_rd,WB_ID_rd;
+    logic  [4:0]  ID_EX_rs1,ID_EX_rs2,ID_EX_rs3;
+    logic  [31:0] ID_EX_dout_rs1,ID_EX_dout_rs2,ID_EX_dout_rs3,EX_MEM_dout_rs2;
+    logic  [31:0] IF_ID_dout_rs1,IF_ID_dout_rs2,IF_ID_dout_rs3;
+    logic  [31:0]  IF_ID_pres_addr;
+    logic         IF_ID_jalr;
+    logic         ID_EX_jal,ID_EX_jalr;
+    logic         ID_EX_compare;
+    logic  [31:0] EX_MEM_alures,MEM_WB_alures,MEM_WB_memres;
+    logic         EX_MEM_comp_res;
 
-    //Memory signals
-    logic mem_wea, mem_rea;
-    logic [3:0] mem_en;
-    logic [31:0] mem_addr;
+    logic [31:0] EX_MEM_pres_addr;
+    logic [31:0] MEM_WB_pres_addr;
+
+    logic  [4:0]  EX_MEM_rs1, EX_MEM_rs2;
+
+    logic  [2:0]  ID_EX_alusel,ID_EX_frm,EX_MEM_frm;
+    logic  [4:0]  ID_EX_fpusel;
+    logic  [4:0]  ID_EX_loadcntrl;
+    logic  [2:0]  ID_EX_storecntrl;
+    logic  [3:0]  ID_EX_cmpcntrl;
+    logic  [4:0]  EX_MEM_loadcntrl;
+    logic  [2:0]  EX_MEM_storecntrl;
+    logic         ID_EX_alusrc,IF_ID_fpusrc,ID_EX_fpusrc,EX_MEM_fpusrc,MEM_WB_fpusrc,WB_ID_fpusrc;
+    logic         EX_MEM_memread,MEM_WB_memread;
+    logic         ID_EX_memwrite,EX_MEM_memwrite;
+    logic         EX_MEM_regwrite,MEM_WB_regwrite,WB_ID_regwrite;
+    logic         ID_EX_lui;
+    logic         ID_EX_auipc;
+    logic  [31:0] ID_EX_imm;
+    logic  [31:0] WB_res,WB_ID_res;
+    logic  [4:0]  adr_rs1;//used for debug option
+    logic  [4:0]  IF_ID_rs1,IF_ID_rs2,IF_ID_rs3, IF_ID_rd;
+    logic         ID_EX_lb,ID_EX_lh,ID_EX_lw,ID_EX_lbu,ID_EX_lhu,ID_EX_sb,ID_EX_sh,ID_EX_sw;
+    logic         EX_MEM_lb,EX_MEM_lh,EX_MEM_lw,EX_MEM_lbu,EX_MEM_lhu,EX_MEM_sb,EX_MEM_sh,EX_MEM_sw;
+    logic         f_stall; //used for stall the pipe for floating point calculation.
+//    logic dbg;
+    logic [31:0] uart_dout;
+    logic memcon_prog_ena;
+
+    logic IF_ID_jal;
+
+    logic mmio_wea;
+    logic [31:0] mmio_dat;
+    logic mmio_read;
+
+    logic [31:0] DD_out;
+
     logic [31:0] mem_din, mem_dout;
-    logic [2:0] storecntrl;
-    logic [31:0] debug_output;
+    logic [31:0] mem_addr;
+    logic [3:0] mem_en;
+    logic mem_wea;
+    logic mem_rea;
 
-    //Instruction memory signals
-    logic imem_en, imem_prog_ena;
+    logic [31:0] imem_dout;
+    logic imem_en;
     logic [31:0] imem_addr;
-    logic [31:0] imem_dout, imem_din;
+    
+    logic comp_sig;
+    logic ID_EX_comp_sig;
 
-    logic mem_hold;
-    logic uart_IRQ;
-    logic trapping;
+//    logic push, pop, stack_ena;
+//    logic stack_mismatch, stack_full, stack_empty;
+//    logic [31:0] stack_din;
 
-    //RAS signals
-    logic RAS_branch, ret, stack_full, stack_empty, stack_mismatch;
-    logic [31:0] RAS_addr_in;
 
-    logic RAS_rdy;
-    logic [31:0] IF_ID_pres_addr, ins, IF_ID_dout_rs1, branoff, next_addr;
-    logic branch, IF_ID_jal;
-    logic [4:0] IF_ID_rd;
+    //CSR signals
+    logic [11:0] IF_ID_CSR_addr, ID_EX_CSR_addr;
+    logic [31:0] IF_ID_CSR, ID_EX_CSR;
+    logic [31:0] EX_CSR_res;
+    logic [31:0] EX_MEM_CSR, MEM_WB_CSR;
+    logic [11:0] EX_CSR_addr;
+    logic ID_EX_CSR_write;
+    logic EX_CSR_write;
+    logic MEM_WB_CSR_write;
+    logic ID_EX_CSR_read, EX_MEM_CSR_read, MEM_WB_CSR_read;
 
-    assign ret = (branch & ((ins == 32'h8082) | (ins == 32'h8067)));
-	assign RAS_branch = branch & IF_ID_jal & (IF_ID_rd == 1);
-    assign RAS_addr_in = RAS_branch ? (next_addr) : (ret ? branoff : 1'b0);
+    logic [2:0] csrsel;
 
-    modport core(
-        input clk, Rst, debug, prog, debug_input, mem_dout, imem_dout, //rx,
-        output debug_output, mem_wea, mem_rea, mem_en, mem_addr, mem_din, imem_en,
-        output imem_addr, imem_din, imem_prog_ena, storecntrl,
-        input mem_hold, uart_IRQ,
-        output trapping,
-        output IF_ID_pres_addr, ins, IF_ID_dout_rs1, branch, IF_ID_jal, IF_ID_rd, branoff, next_addr,
-        input stack_mismatch, RAS_rdy, RAS_branch, ret
+    logic trap, ecall;
+    logic [31:0] mtvec, mepc;
+
+    logic trapping, trigger_trap, trap_ret, trigger_trap_ret;
+
+    logic [31:0] next_addr;
+
+
+    assign trap = ecall;
+	always_ff @(posedge clk) begin
+		if (Rst) begin
+			trapping <= 0;
+			trigger_trap <= 0;
+			trigger_trap_ret <= 0;
+		end else begin
+			if (trap & (~trapping)) begin
+				trapping <= 1;
+				trigger_trap <= 1;
+			end else trigger_trap <= 0;
+
+			if (trap_ret & (trapping)) begin
+				trapping <= 0;
+				trigger_trap_ret <= 1;
+			end else trigger_trap_ret <= 0;
+		end
+	end
+
+
+
+    //photon_core signals
+    logic [31:0] photon_ins, photon_data_out;
+    logic photon_busy, photon_regwrite;
+    logic [4:0] adr_photon_rs1, addr_corereg_photon;
+
+    //modport declarations. These ensure each pipeline stage only sees and has access to the
+    //ports and signals that it needs
+
+ /*   //modport for register file
+    modport regfile(
+        input clk, adr_rs1, adr_photon_rs1, IF_ID_rs1,IF_ID_rs2, IF_ID_rs3, MEM_WB_rd, addr_corereg_photon, Rst,f_stall,
+        input WB_res, MEM_WB_regwrite, mem_hold, photon_data_out, photon_regwrite,IF_ID_fpusrc,MEM_WB_fpusrc,
+		output IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_dout_rs3 
     );
 
-    modport memcon(
-        input clk, Rst, mem_wea, mem_en, mem_addr, mem_din, imem_en,
-        input imem_addr, imem_din, imem_prog_ena, mem_rea, storecntrl,
-        output mem_dout, imem_dout, mem_hold,
-        input scan_clk, scan_en, scan_in,
-        output scan_out
+    //modport for decode stage
+    modport decode(            
+        input clk, Rst, dbg, ins, IF_ID_pres_addr, MEM_WB_rd, WB_res, mem_hold, comp_sig,f_stall,
+        input EX_MEM_memread, EX_MEM_regwrite, MEM_WB_regwrite, EX_MEM_alures,
+        input EX_MEM_rd, IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_dout_rs3,
+        input IF_ID_CSR, trap, trigger_trap, RAS_rdy,
+        output ID_EX_memread, ID_EX_regwrite,IF_ID_fpusrc,
+        output ID_EX_pres_addr, IF_ID_jalr, ID_EX_jalr, branch, IF_ID_jal,
+        output IF_ID_rs1, IF_ID_rs2,IF_ID_rs3, IF_ID_rd,
+        output ID_EX_dout_rs1, ID_EX_dout_rs2, branoff, hz,
+        output ID_EX_rs1, ID_EX_rs2,ID_EX_rs3,ID_EX_rd, ID_EX_alusel,ID_EX_fpusel,ID_EX_frm,
+        output ID_EX_storecntrl, ID_EX_loadcntrl, ID_EX_cmpcntrl,
+        output ID_EX_auipc, ID_EX_lui, ID_EX_alusrc, ID_EX_fpusrc,
+        output ID_EX_memwrite, ID_EX_imm, ID_EX_compare, ID_EX_jal, 
+        output IF_ID_CSR_addr, ID_EX_CSR_addr, ID_EX_CSR, ID_EX_CSR_write, csrsel, ID_EX_CSR_read, ecall, ID_EX_comp_sig, 
+        output trap_ret
+    );
+*/
+    //modport for execute stage
+    modport execute(
+        input clk, Rst, dbg, ID_EX_lui, ID_EX_auipc, ID_EX_loadcntrl, mem_hold,f_stall,
+        input ID_EX_storecntrl, ID_EX_cmpcntrl,
+        output EX_MEM_loadcntrl, EX_MEM_storecntrl,
+        input ID_EX_compare, ID_EX_pres_addr, ID_EX_alusel, ID_EX_alusrc,ID_EX_fpusel,ID_EX_fpusrc,ID_EX_frm,
+        input ID_EX_memread, ID_EX_memwrite, ID_EX_regwrite, ID_EX_jal,
+        input ID_EX_jalr, ID_EX_rs1, ID_EX_rs2, ID_EX_rs3,ID_EX_rd, ID_EX_dout_rs1, ID_EX_dout_rs2, ID_EX_dout_rs3,
+        output EX_MEM_dout_rs2, EX_MEM_rs2, EX_MEM_rs1,
+        input ID_EX_imm, MEM_WB_regwrite, WB_ID_regwrite,
+        output EX_MEM_alures,
+        input WB_res, WB_ID_res,
+        output EX_MEM_memread, EX_MEM_rd,
+        input MEM_WB_rd, WB_ID_rd,
+        output EX_MEM_memwrite, EX_MEM_regwrite, EX_MEM_comp_res,EX_MEM_fpusrc,EX_MEM_frm,
+        output EX_MEM_pres_addr,
+        input ID_EX_CSR_addr, ID_EX_CSR, ID_EX_CSR_write, csrsel, ID_EX_CSR_read,
+        output EX_CSR_res, EX_CSR_addr, EX_CSR_write, EX_MEM_CSR, EX_MEM_CSR_read,
+        input ID_EX_comp_sig
     );
 
-    modport CRAS(
-    	input clk, Rst, RAS_branch, ret, RAS_addr_in,
-    	//input RAS_mem_rdy,
-    	output stack_full, stack_empty, stack_mismatch, RAS_rdy
-    );
 
-    modport uart(
-    	output uart_IRQ
-    );
 endinterface
 
 module Execute_sim(
 
-    input  logic clk,
-    input  logic rst_n,
-
-    //FPGA Debugging
-    input  logic debug,
-    input  logic [4:0] debug_input,
-    output logic [6:0] sev_out,
-    output logic [7:0] an,
-    output logic [15:0] led,
-
-    //UART
-    input  logic rx,
-    output logic tx,
-
-    //Scanchain (disable for FPGA testing)
-//    input  logic scan_en,
-//    input  logic scan_in,
-//    input  logic scan_clk,
-//    output logic scan_out,
-
-    //SPI
-    input  logic miso,
-    output logic mosi, cs
     );
     
-    reg clk, Rst, debug, prog, mem_wea, dbg; //rx,
-    logic [4:0] debug_input;
-    logic [31:0] debug_output, mem_addr, mem_din, mem_dout;
-    logic [3:0] mem_en;
-    logic RAS_rdy;
 
-    logic trap;
-    logic prog;
-    logic [31:0] debug_output;
-    logic [3:0]  seg_cur, seg_nxt;
-    logic        clk_50M, clk_12M, clk_115k;
-    logic clk_7seg;
-    logic addr_dn, addr_up;
-    reg Rst;
-    logic rst_in, rst_last;
-
-    // Comment out for FPGA testing
-//    logic [4:0] debug_input;
-//    logic debug;
-//    assign debug = 0;
-//    assign debug_input = 5'b00000;
-//    logic [6:0] sev_out;
-//    logic [7:0] an;
-//    logic [15:0] led;
-//    assign Rst = !rst_n;
-
-    // Include for FPGA testing
-    logic scan_en;
-    logic scan_in;
-    logic scan_clk;
-    logic scan_out;
-  riscv_bus rbus(.clk(clk_rv), .*);
-  main_bus bus(.mem_hold(rbus.mem_hold), .uart_IRQ(rbus.uart_IRQ), .*);
+  main_bus bus();
   
   logic EX_MEM_memread_sig, EX_MEM_regwrite_sig,EX_MEM_fpusrc;
   logic [31:0] EX_MEM_alures_sig,EX_MEM_fpures_sig;
@@ -156,6 +212,9 @@ module Execute_sim(
   
   logic [31:0] CSR_res;
   logic [31:0] CSR_mod; 
+
+
+assign bus.adr_rs1=bus.IF_ID_rs1;
 /*
 FPU fut(.a(bus.ID_EX_dout_rs1),
         .b(bus.ID_EX_dout_rs2),
@@ -170,7 +229,9 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
         .stall(f_stall)
         ); 
  */
- Execute e(bus);
+ //Decode u2(bus.decode);
+ Execute u3(bus.execute);
+
  reg clk;
  always begin
     #3 clk = !clk;  
