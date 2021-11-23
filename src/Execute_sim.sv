@@ -201,17 +201,14 @@ module Execute_sim(
 
   main_bus bus();
   
-  logic EX_MEM_memread_sig, EX_MEM_regwrite_sig,EX_MEM_fpusrc;
-  logic [31:0] EX_MEM_alures_sig,EX_MEM_fpures_sig;
-  logic [4:0]  EX_MEM_rd_sig;
-  logic comp_res,f_stall;
+  logic f_stall;
   logic [31:0] alures,fpures;
-  logic [2:0]  sel;
   logic [31:0] ALUop1,ALUop2,rs2_mod;
-  logic [31:0] rs2_mod_final;//new
   
-  logic [31:0] CSR_res;
-  logic [31:0] CSR_mod; 
+  assign ALUop1 =u3.ALUop1;
+  assign ALUop2 =u3.ALUop2;
+
+  assign fpures = u3.fpures;
 
 
 assign bus.adr_rs1=bus.IF_ID_rs1;
@@ -231,6 +228,7 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
  */
  //Decode u2(bus.decode);
  Execute u3(bus.execute);
+ reg frm;
 
  reg clk;
  always begin
@@ -238,16 +236,36 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
  end
  assign bus.clk = clk;
  initial begin
+    clk = 1;
     bus.ID_EX_fpusrc = 1;
     bus.Rst = 1;
-    e.frm = 0;
+    bus.dbg = 0;
+    bus.mem_hold =0;
+    bus.f_stall =0;
     
     #15
     bus.Rst = 0;
     #15
     bus.ID_EX_dout_rs1 = 32'h408ccccd;
     bus.ID_EX_dout_rs2 = 32'h400ccccd;
-    bus.ID_EX_fpusel = 1;
+    bus.ID_EX_fpusel = 0;
+    #300;
+    bus.ID_EX_dout_rs1 = 32'h408ccccd;
+    bus.ID_EX_dout_rs2 = 32'h400ccccd;
+    bus.ID_EX_fpusel = 3;
+    #300;
+    bus.ID_EX_fpusrc = 0;
+    bus.ID_EX_alusel = 0;
+    u3.ALUop1 = 5;
+    u3.ALUop2 = 7;
+    bus.ID_EX_alusel = 0;
+    bus.ID_EX_compare =0;
+    bus.ID_EX_pres_addr=0;
+    bus.ID_EX_lui=0;
+    bus.ID_EX_jal=0;
+    bus.ID_EX_jalr=0;
+    bus.ID_EX_auipc=0;
+    
     #200;
     
     
