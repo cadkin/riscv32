@@ -84,8 +84,22 @@ interface main_bus ();
     logic mem_wea;
     logic mem_rea;
 
+
     logic comp_sig;
     logic ID_EX_comp_sig;
+
+
+    logic [31:0] imem_dout;
+    logic imem_en;
+    logic [31:0] imem_addr;
+    
+    logic comp_sig;
+    logic ID_EX_comp_sig;
+
+//    logic push, pop, stack_ena;
+//    logic stack_mismatch, stack_full, stack_empty;
+//    logic [31:0] stack_din;
+
 
 
     //CSR signals
@@ -105,7 +119,7 @@ interface main_bus ();
     logic [31:0] mtvec, mepc;
 
     logic trapping, trigger_trap, trap_ret, trigger_trap_ret;
-0
+
     logic [31:0] next_addr;
 
 
@@ -144,7 +158,11 @@ interface main_bus ();
         input WB_res, MEM_WB_regwrite, mem_hold, photon_data_out, photon_regwrite,IF_ID_fpusrc,MEM_WB_fpusrc,
 		output IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_dout_rs3 
     );
+
 */
+
+
+
     //modport for decode stage
     modport decode(            
         input clk, Rst, dbg, ins, IF_ID_pres_addr, MEM_WB_rd, WB_res, mem_hold, comp_sig,f_stall,
@@ -163,7 +181,11 @@ interface main_bus ();
         output trap_ret
     );
 
+
 /*
+
+*/
+
     //modport for execute stage
     modport execute(
         input clk, Rst, dbg, ID_EX_lui, ID_EX_auipc, ID_EX_loadcntrl, mem_hold,f_stall,
@@ -184,6 +206,7 @@ interface main_bus ();
         output EX_CSR_res, EX_CSR_addr, EX_CSR_write, EX_MEM_CSR, EX_MEM_CSR_read,
         input ID_EX_comp_sig
     );
+
 */
 
 endinterface
@@ -303,7 +326,42 @@ fpusel = bus.ID_EX_fpusel;
  bus.ins = ins;
  bus.comp_sig = 0;
  res = bus.EX_MEM_alures;
+
+
+
+endinterface
+
+module Decode_Sim();
+
+main_bus bus();
+
+Decode d(bus);
+
+/*
+   Control_fp u8(
+       .opcode(bus.ins[6:0]),
+       .funct3(funct3),
+       .funct7(funct7),
+       .ins_zero(ins_zero),
+       .flush(flush),
+       .hazard(hz_sig),
+       .rs2(bus.ins[24:20]),
+       .rd(bus.ins[11:7]), 
+       .fpusel_s(IF_ID_fpusel),
+       .memwrite(fmemwrite),
+       .memread(fmemread),
+       .regwrite(fregwrite),
+       .fpusrc(IF_ID_fpusrc),
+       .storecntrl(fstorecntrl),
+       .loadcntrl(floadcntrl),
+       .rm(IF_ID_frm)
+    );
+
+*/
+
 initial begin
+
+
 
 end
 

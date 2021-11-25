@@ -5,7 +5,7 @@
 // 
 // Create Date: 11/22/2021 10:21:37 PM
 // Design Name: 
-// Module Name: Execute_sim
+// Module Name: Decode_Sim
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -18,6 +18,7 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
+
 interface main_bus ();
     logic clk, Rst, debug, dbg, prog, mem_hold, uart_IRQ, RAS_rdy;//rx, //addr_dn, addr_up,
     logic[4:0] debug_input;
@@ -104,7 +105,7 @@ interface main_bus ();
     logic [31:0] mtvec, mepc;
 
     logic trapping, trigger_trap, trap_ret, trigger_trap_ret;
-
+0
     logic [31:0] next_addr;
 
 
@@ -143,7 +144,7 @@ interface main_bus ();
         input WB_res, MEM_WB_regwrite, mem_hold, photon_data_out, photon_regwrite,IF_ID_fpusrc,MEM_WB_fpusrc,
 		output IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_dout_rs3 
     );
-
+*/
     //modport for decode stage
     modport decode(            
         input clk, Rst, dbg, ins, IF_ID_pres_addr, MEM_WB_rd, WB_res, mem_hold, comp_sig,f_stall,
@@ -161,7 +162,8 @@ interface main_bus ();
         output IF_ID_CSR_addr, ID_EX_CSR_addr, ID_EX_CSR, ID_EX_CSR_write, csrsel, ID_EX_CSR_read, ecall, ID_EX_comp_sig, 
         output trap_ret
     );
-*/
+
+/*
     //modport for execute stage
     modport execute(
         input clk, Rst, dbg, ID_EX_lui, ID_EX_auipc, ID_EX_loadcntrl, mem_hold,f_stall,
@@ -182,24 +184,12 @@ interface main_bus ();
         output EX_CSR_res, EX_CSR_addr, EX_CSR_write, EX_MEM_CSR, EX_MEM_CSR_read,
         input ID_EX_comp_sig
     );
-
+*/
 
 endinterface
 
-module Execute_sim();
+
     
-  main_bus bus();
-
-  
-  logic f_stall;
-  logic [31:0] alures,fpures;
-  logic [31:0] ALUop1,ALUop2,rs2_mod;
-  
-  assign ALUop1 =u3.ALUop1;
-  assign ALUop2 =u3.ALUop2;
-
-  assign fpures = u3.fpures;
-
 
 
 assign bus.adr_rs1=bus.IF_ID_rs1;
@@ -217,83 +207,106 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
         .stall(f_stall)
         ); 
  */
- //Decode u2(bus.decode);
- Execute u3(bus.execute);
- reg frm;
 
- logic clk,rst,fpusrc,stall;
- logic [31:0] rs1,rs2,res;
- logic [4:0] fpusel;
- logic [2:0] frm;
 
-always_comb begin
+
+
+
+
+
+
+module Decode_Sim();
+
+  main_bus bus();
+
+logic IF_ID_lui, lui;
+logic ID_EX_memread_sig, ID_EX_regwrite_sig;
+//logic[4:0] ID_EX_rd_sig;
+
+//fluhed instruction detector
+logic flush;
+
+//logic debug;
+logic ins_zero;
+logic flush_sig;
+logic [31:0]rs1_mod,rs2_mod,rs3_mod;
+
+//logic jal,jalr;
+logic [1:0] funct2;
+logic [2:0]funct3;
+logic [3:0] funct4;
+logic [5:0] funct6;
+logic [6:0]funct7;
+logic [11:0] funct12;
+logic [31:0] comp_imm;
+
+logic IF_ID_jal, IF_ID_compare;
+logic jal, compare, jalr_sig;
+logic IF_ID_jalr_sig;
+
+//hazard detection and compare unit
+logic zero1,zero2,zero3,zero4,zeroa,zerob;
+
+//register file
+logic [4:0]IF_ID_rd;
+logic [31:0]dout_rs1,dout_rs2,dout_rs3,ins;
+
+//control
+logic [2:0]IF_ID_alusel, alusel,IF_ID_frm,rm;
+logic [4:0] IF_ID_fpusel,fpusel_s;
+logic      IF_ID_branch, branch;
+logic      IF_ID_memwrite,IF_ID_memread,IF_ID_regwrite,IF_ID_alusrc;
+logic memwrite, memread, regwrite, alusrc;
+logic fmemwrite, fmemread, fregwrite, fpusrc;
+logic [2:0]IF_ID_storecntrl, storecntrl,fstorecntrl;
+logic [4:0]IF_ID_loadcntrl, loadcntrl,floadcntrl;
+logic [3:0]IF_ID_cmpcntrl;
+logic      IF_ID_auipc;
+logic [4:0] IF_ID_rs3,IF_ID_rs2 ,IF_ID_rs1;
+logic [2:0] csrsel;
+logic csrwrite;
+logic csrread;
+logic [11:0] IF_ID_CSR_addr;
+
+//imm gen
+logic [31:0]imm, IF_ID_imm;
+logic hz_sig;
+logic branch_taken_sig;
+
+
+//Compressed signals
+logic [4:0] c_rd, c_rs1, c_rs2;
+logic [1:0] c_funct2;
+logic [2:0] c_funct3;
+logic [3:0] c_funct4;
+logic [5:0] c_funct6;
+logic [6:0] c_funct7; 
+logic [2:0] c_alusel; 
+logic [2:0] c_storecntrl;
+logic [4:0] c_loadcntrl;
+logic c_branch, c_beq, c_bne, c_memread, c_memwrite, c_regwrite, c_alusrc, c_compare;
+logic c_lui, c_jal, c_jalr;
+logic [31:0] c_imm;
+
+logic trap_ret;
+
+Decode u2(bus.decode);
  bus.clk = clk;
  bus.Rst = rst;
- bus.ID_EX_fpusrc = fpusrc;
- bus.ID_EX_frm = frm
- bus.ID_EX_dout_rs1 = rs1;
- bus.ID_EX_dout_rs2 = rs2;
- bus.ID_EX_fpusel = fpusel;
+fpusrc= bus.ID_EX_fpusrc;
+ frm= bus.ID_EX_frm;
+
+fpusel = bus.ID_EX_fpusel;
  stall = bus.f_stall;
  bus.mem_hold = 0;
  bus.dbg =0;
+ bus.ins = ins;
+ bus.comp_sig = 0;
  res = bus.EX_MEM_alures;
+initial begin
+
 end
 
- always begin
-    #3 clk = !clk;  
- end
-
-
- initial begin
-
-    fpusrc = 1;
-    rst = 1;
-    frm = 0;
-
-    clk = 1;
-    bus.ID_EX_fpusrc = 1;
-    bus.Rst = 1;
-    bus.dbg = 0;
-    bus.mem_hold =0;
-    bus.f_stall =0;
-
-    
-    #15
-    rst = 0;
-    #15
-
-    rs1 = 32'h408ccccd;
-    rs2 = 32'h400ccccd;
-    fpusel = 1;
-
-    bus.ID_EX_dout_rs1 = 32'h408ccccd;
-    bus.ID_EX_dout_rs2 = 32'h400ccccd;
-    bus.ID_EX_fpusel = 0;
-    #300;
-    bus.ID_EX_dout_rs1 = 32'h408ccccd;
-    bus.ID_EX_dout_rs2 = 32'h400ccccd;
-    bus.ID_EX_fpusel = 3;
-    #300;
-    bus.ID_EX_fpusrc = 0;
-    bus.ID_EX_alusel = 0;
-    u3.ALUop1 = 5;
-    u3.ALUop2 = 7;
-    bus.ID_EX_alusel = 0;
-    bus.ID_EX_compare =0;
-    bus.ID_EX_pres_addr=0;
-    bus.ID_EX_lui=0;
-    bus.ID_EX_jal=0;
-    bus.ID_EX_jalr=0;
-    bus.ID_EX_auipc=0;
-    
-
-    #200;
-    
-    
-    
-    
- end
 
 
 endmodule
