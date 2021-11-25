@@ -150,6 +150,7 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
             bus.EX_CSR_write <= 0;
             bus.EX_MEM_CSR <= 0;
             bus.EX_MEM_CSR_read <= 0;
+            bus.f_stall <= 1'b0;
         end
         else if((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
             EX_MEM_rd_sig<=bus.ID_EX_rd;
@@ -172,6 +173,7 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
             bus.EX_CSR_write <= bus.ID_EX_CSR_write;
             bus.EX_MEM_CSR <= bus.ID_EX_CSR;
             bus.EX_MEM_CSR_read <= bus.ID_EX_CSR_read;
+            bus.f_stall <= f_stall;
         end
   end
 

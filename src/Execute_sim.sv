@@ -83,16 +83,8 @@ interface main_bus ();
     logic mem_wea;
     logic mem_rea;
 
-    logic [31:0] imem_dout;
-    logic imem_en;
-    logic [31:0] imem_addr;
-    
     logic comp_sig;
     logic ID_EX_comp_sig;
-
-//    logic push, pop, stack_ena;
-//    logic stack_mismatch, stack_full, stack_empty;
-//    logic [31:0] stack_din;
 
 
     //CSR signals
@@ -194,25 +186,9 @@ interface main_bus ();
 
 endinterface
 
-module Execute_sim(
-
-    );
+module Execute_sim();
     
-
   main_bus bus();
-  
-  logic EX_MEM_memread_sig, EX_MEM_regwrite_sig,EX_MEM_fpusrc;
-  logic [31:0] EX_MEM_alures_sig,EX_MEM_fpures_sig;
-  logic [4:0]  EX_MEM_rd_sig;
-  logic comp_res,f_stall;
-  logic [31:0] alures,fpures;
-  logic [2:0]  sel;
-  logic [31:0] ALUop1,ALUop2,rs2_mod;
-  logic [31:0] rs2_mod_final;//new
-  
-  logic [31:0] CSR_res;
-  logic [31:0] CSR_mod; 
-
 
 assign bus.adr_rs1=bus.IF_ID_rs1;
 /*
@@ -232,22 +208,41 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
  //Decode u2(bus.decode);
  Execute u3(bus.execute);
 
- reg clk;
+ logic clk,rst,fpusrc,stall;
+ logic [31:0] rs1,rs2,res;
+ logic [4:0] fpusel;
+ logic [2:0] frm;
+
+always_comb begin
+ bus.clk = clk;
+ bus.Rst = rst;
+ bus.ID_EX_fpusrc = fpusrc;
+ bus.ID_EX_frm = frm
+ bus.ID_EX_dout_rs1 = rs1;
+ bus.ID_EX_dout_rs2 = rs2;
+ bus.ID_EX_fpusel = fpusel;
+ stall = bus.f_stall;
+ bus.mem_hold = 0;
+ bus.dbg =0;
+ res = bus.EX_MEM_alures;
+end
+
  always begin
     #3 clk = !clk;  
  end
- assign bus.clk = clk;
+
+
  initial begin
-    bus.ID_EX_fpusrc = 1;
-    bus.Rst = 1;
-    e.frm = 0;
+    fpusrc = 1;
+    rst = 1;
+    frm = 0;
     
     #15
-    bus.Rst = 0;
+    rst = 0;
     #15
-    bus.ID_EX_dout_rs1 = 32'h408ccccd;
-    bus.ID_EX_dout_rs2 = 32'h400ccccd;
-    bus.ID_EX_fpusel = 1;
+    rs1 = 32'h408ccccd;
+    rs2 = 32'h400ccccd;
+    fpusel = 1;
     #200;
     
     
