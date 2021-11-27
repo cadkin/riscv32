@@ -10,8 +10,8 @@ module fmove(
 always_comb
 begin
    case(sel)
-	0'b0:output_z[31:0] = input_a[31:0];
-	0'b1:output_z[31:0] = input_a[31:0];
+	1'b0:output_z[31:0] = input_a[31:0];
+	1'b1:output_z[31:0] = input_a[31:0];
   endcase;
 end
 

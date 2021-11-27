@@ -42,7 +42,7 @@ module float_to_unsig_int(
       special_cases:
       begin
         if (($signed(a_e) == -127)||(a_s == 1)) begin
-          z <= 0; 
+          z <= 0;
           state <= put_z;
         end else if ($signed(a_e) > 32) begin
           z <= 32'h80000000;

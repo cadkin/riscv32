@@ -95,7 +95,7 @@ interface main_bus (
     logic [31:0] imem_dout;
     logic imem_en;
     logic [31:0] imem_addr;
-    
+
     logic comp_sig;
     logic ID_EX_comp_sig;
 
@@ -183,11 +183,11 @@ interface main_bus (
     modport regfile(
         input clk, adr_rs1, adr_photon_rs1, IF_ID_rs1,IF_ID_rs2, IF_ID_rs3, MEM_WB_rd, addr_corereg_photon, Rst,f_stall,
         input WB_res, MEM_WB_regwrite, mem_hold, photon_data_out, photon_regwrite,IF_ID_fpusrc,MEM_WB_fpusrc,
-		output IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_dout_rs3 
+		output IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_dout_rs3
     );
 
     //modport for decode stage
-    modport decode(            
+    modport decode(
         input clk, Rst, dbg, ins, IF_ID_pres_addr, MEM_WB_rd, WB_res, mem_hold, comp_sig,f_stall,
         input EX_MEM_memread, EX_MEM_regwrite, MEM_WB_regwrite, EX_MEM_alures,
         input EX_MEM_rd, IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_dout_rs3,
@@ -199,8 +199,8 @@ interface main_bus (
         output ID_EX_rs1, ID_EX_rs2,ID_EX_rs3,ID_EX_rd, ID_EX_alusel,ID_EX_fpusel,ID_EX_frm,
         output ID_EX_storecntrl, ID_EX_loadcntrl, ID_EX_cmpcntrl,
         output ID_EX_auipc, ID_EX_lui, ID_EX_alusrc, ID_EX_fpusrc,
-        output ID_EX_memwrite, ID_EX_imm, ID_EX_compare, ID_EX_jal, 
-        output IF_ID_CSR_addr, ID_EX_CSR_addr, ID_EX_CSR, ID_EX_CSR_write, csrsel, ID_EX_CSR_read, ecall, ID_EX_comp_sig, 
+        output ID_EX_memwrite, ID_EX_imm, ID_EX_compare, ID_EX_jal,
+        output IF_ID_CSR_addr, ID_EX_CSR_addr, ID_EX_CSR, ID_EX_CSR_write, csrsel, ID_EX_CSR_read, ecall, ID_EX_comp_sig,
         output trap_ret
     );
 

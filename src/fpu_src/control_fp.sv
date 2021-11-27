@@ -3,10 +3,10 @@
 // Created by:
 //   Jianjun Xu
 //   University of Tennessee, Knoxville
-// 
+//
 // Created:
 //   October 28, 2021
-// 
+//
 // Module name: Control_fp
 // Description:
 //   Implements the RISC-V control logic for floating point unit (part of decoder pipeline stage)
@@ -14,26 +14,26 @@
 // "Mini-RISC-V" implementation of RISC-V architecture developed by UC Berkeley
 //
 // Inputs:
-//   opcode -- 7-bit opcode field from the 32-bit instruction 
+//   opcode -- 7-bit opcode field from the 32-bit instruction
 //   funct3 -- 3-bit funct3 field from the 32-bit instruction
 //   funct7 -- 7-bit funct7 field from the 32-bit instruction
-//   ins_zero -- 
-//   flush -- 
-//   hazard -- 
+//   ins_zero --
+//   flush --
+//   hazard --
 // Output:
-//   fpusel_s2 -- 
-//   fpusel_s1 -- 
-//   fpusel_s0 -- 
-//   addb -- 
-//   rightb -- 
-//   logicb -- 
-//   branch -- 
-//   memwrite -- 
-//   memread -- 
-//   regwrite -- 
-//   alusrc -- 
-//   compare -- 
-// 
+//   fpusel_s2 --
+//   fpusel_s1 --
+//   fpusel_s0 --
+//   addb --
+//   rightb --
+//   logicb --
+//   branch --
+//   memwrite --
+//   memread --
+//   regwrite --
+//   alusrc --
+//   compare --
+//
 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -46,8 +46,8 @@ module Control_fp
   input  logic hazard,
   input  logic [4:0] rs2,rd,
   output logic [4:0]fpusel_s,
-  output logic [1:0]storecntrl, //sf,sd
-  output logic [1:0]loadcntrl, //lf,ld
+  output logic [2:0]storecntrl, //sf,sd
+  output logic [2:0]loadcntrl, //lf,ld
   output logic [2:0]rm,
   output logic      memread,
   output logic      memwrite,
@@ -56,13 +56,12 @@ module Control_fp
   output logic      illegal_ins);
 
   // intruction classification signal
-  
+
   logic stall;
 
   always_comb begin
     fpusel_s=5'b11111;
-    storecntrl=2'b00;
-    loadcntrl=2'b00;
+    loadcntrl=3'b000;
 	memread=1'b0;
 	memwrite=1'b0;
 	regwrite=1'b0;
@@ -70,17 +69,17 @@ module Control_fp
 	illegal_ins=1'b0;
 	rm = 3'b000;
     unique case (opcode)
-      7'b0000111:               //fp I-type (load) 
+      7'b0000111:               //fp I-type (load)
         begin
         memread=1'b1;
         regwrite=(!stall)&&(1'b1);
         fpusel_s=5'b11111;
-        fpusrc=1'b1; 
+        fpusrc=1'b1;
             if(funct3 == 3'b010)
 		//load instruction here:
-		      loadcntrl=5'b00001;
-            else 
-            illegal_ins=(!flush)&&(1'b1); 
+		      loadcntrl=3'b001;
+            else
+            illegal_ins=(!flush)&&(1'b1);
         end
       7'b0100111:               // fp S-type (store)
         begin
@@ -90,34 +89,34 @@ module Control_fp
           unique case(funct3)
               3'b010: storecntrl=3'b001;
               default: illegal_ins=(!flush)&&(1'b1);
-          endcase 
+          endcase
         end
       7'b1010011:               //fp R-type (arith & compare)
 	begin
 	regwrite=(!stall)&&(1'b1);
-          
+
           unique case(funct7)
 			7'h00: begin //fadd
 				fpusel_s=5'b00000;
-				rm = funct3; 
+				rm = funct3;
 				end
 			7'h04: begin//fsub
 				fpusel_s=5'b00001;
-				rm = funct3; 
+				rm = funct3;
 				end
 			7'h08: begin//fmul
 				fpusel_s=5'b00010;
-				rm = funct3; 
+				rm = funct3;
 				end
-			7'h08: begin//fdiv	
+			7'h08: begin//fdiv
 				fpusel_s=5'b00011;
-				rm = funct3; 
+				rm = funct3;
 				end
 			7'h2c: begin//fsqrt
 				fpusel_s=5'b00100;
-				rm = funct3; 
+				rm = funct3;
 				end
-			7'h10:	//fsgnj_s 
+			7'h10:	//fsgnj_s
 			   unique case(funct3)
 				3'b000 ://fsgnj
 				fpusel_s=5'b00101;
@@ -129,7 +128,7 @@ module Control_fp
 					illegal_ins=(!flush)&&(1'b1);
 					end
 			   endcase
-			7'h14:	
+			7'h14:
 			   unique case(funct3)
 				3'b000 ://fmax.s
 				fpusel_s=5'b01000;
@@ -137,10 +136,10 @@ module Control_fp
 				fpusel_s=5'b01001;
 			   	default: begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
-					end 
+					end
 			   endcase
 			7'h60: begin
-			   rm = funct3; 	
+			   rm = funct3;
 			   unique case(rs2)
 				5'b00000 ://fcvt.w.s
 				fpusel_s=5'b10100;
@@ -148,35 +147,35 @@ module Control_fp
 				fpusel_s=5'b10101;
 			   	default: begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
-					end 
+					end
 			   endcase
 			   end
 			7'h50:	begin
-			   rm = funct3; 
+			   rm = funct3;
 			   unique case({rs2,funct3})
 				{5'h00,3'b000}://fmv.x.w
 				fpusel_s=5'b01101;
 				{5'h00,3'b000}:	//fclass.s
 				fpusel_s=5'b01110;
-				default: begin 
+				default: begin
 					fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
-					end 
+					end
 			   endcase
 			   end
-			7'h50:	
+			7'h50:
 			   unique case(funct3)
 				3'b010 ://feq.s
 				fpusel_s=5'b01010;
 				3'b001 ://flt.s
 				fpusel_s=5'b01011;
 				3'b000 ://fle.s
-				fpusel_s=5'b01100;		
+				fpusel_s=5'b01100;
 			   	default: begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
-					end 
-			   endcase 	
-			7'h68:	
+					end
+			   endcase
+			7'h68:
 			   unique case(rs2)
 				5'b00000 ://fcvt.s.w
 				fpusel_s=5'b10110;
@@ -184,18 +183,18 @@ module Control_fp
 				fpusel_s=5'b10111;
 			   	default: begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
-					end 
+					end
 			   endcase
 			7'h78:
 				if ((rs2 ==5'h00) && (funct3 == 3'b000)) begin //fmv.w.x
 				fpusel_s=5'b01111;
 				end else begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
-					end 
+					end
 		    default:
-		      illegal_ins=1'b1; 				
+		      illegal_ins=1'b1;
             endcase
-        end		
+        end
       7'b001**11:               // R4 type
 		begin
 		regwrite=(!stall)&&(1'b1);
@@ -203,7 +202,7 @@ module Control_fp
         rm = funct3;
           unique case(opcode[3:2])
 			2'b00://FMADD.S
-			    fpusel_s = 5'b10000; 
+			    fpusel_s = 5'b10000;
 			2'b01://FMSUB.S
 				fpusel_s = 5'b10001;
 			2'b10://FNMSUB.S
@@ -212,15 +211,15 @@ module Control_fp
 				fpusel_s = 5'b10011;
 	       endcase
         end
-	
+
      default:
         illegal_ins=(!flush)&&(1'b1);
     endcase
   end
 
-  
+
   assign stall = flush || hazard || ins_zero;
-    
+
 
 
 endmodule: Control_fp

@@ -3,10 +3,10 @@
 // Created by:
 //   Md Badruddoja Majumder, Garrett S. Rose
 //   University of Tennessee, Knoxville
-// 
+//
 // Created:
 //   October 30, 2018
-// 
+//
 // Module name: Execute
 // Description:
 //   Implements the RISC-V execution pipeline stage
@@ -19,9 +19,9 @@
 //   debug -- debug I/O control
 //   ID_EX_compare --
 //   ID_EX_pres_adr -- 16-bit program counter (present address) from decode stage
-//   ID_EX_alusel2 -- 
-//   ID_EX_alusel1 -- 
-//   ID_EX_alusel0 -- 
+//   ID_EX_alusel2 --
+//   ID_EX_alusel1 --
+//   ID_EX_alusel0 --
 //   ID_EX_addb --
 //   ID_EX_rightb --
 //   ID_EX_logicb --
@@ -51,12 +51,12 @@
 //   EX_MEM_comp_res --
 //   dbg_ALUop1 -- 32-bit ALU operation for debugging
 //   dbg_ALUop2 -- 32-bit ALU operation for debugging
-// 
+//
 //////////////////////////////////////////////////////////////////////////////////
 
 
 module Execute(main_bus bus);
- 
+
   logic EX_MEM_memread_sig, EX_MEM_regwrite_sig,EX_MEM_fpusrc;
   logic [31:0] EX_MEM_alures_sig,EX_MEM_fpures_sig;
   logic [4:0]  EX_MEM_rd_sig;
@@ -65,13 +65,13 @@ module Execute(main_bus bus);
   logic [2:0]  sel;
   logic [31:0] ALUop1,ALUop2,rs2_mod;
   logic [31:0] rs2_mod_final;//new
-  
+
   logic [31:0] CSR_res;
-  logic [31:0] CSR_mod; 
-  
-  
- 
-  
+  logic [31:0] CSR_mod;
+
+
+
+
 
   Forwarding dut(
          .EX_MEM_regwrite(EX_MEM_regwrite_sig),
@@ -96,7 +96,7 @@ module Execute(main_bus bus);
          .fw_rs2(ALUop2),
          .rs2_mod(rs2_mod)
   );
-  
+
  ALU uut(
         .a(ALUop1),
         .b(ALUop2),
@@ -108,17 +108,17 @@ module Execute(main_bus bus);
         .ID_EX_jalr(bus.ID_EX_jalr),
         .ID_EX_auipc(bus.ID_EX_auipc),
         .res(alures),
-        .comp_res(comp_res), 
+        .comp_res(comp_res),
         .CSR_res(CSR_res),
-        .CSR_in(bus.ID_EX_CSR), 
+        .CSR_in(bus.ID_EX_CSR),
         .csrsel(bus.csrsel),
         .ID_EX_comp_sig(bus.ID_EX_comp_sig)
         );
- 
+
 FPU fut(.a(bus.ID_EX_dout_rs1),
         .b(bus.ID_EX_dout_rs2),
         .c(bus.ID_EX_dout_rs3),
-        .rm(frm),
+        .rm(bus.EX_MEM_frm),
         .fpusel_s(bus.ID_EX_fpusel),
         .fpusel_d(bus.ID_EX_fpusel),
         .g_clk(bus.clk),
@@ -126,8 +126,8 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
         .g_rst(bus.Rst),
         .res(fpures),
         .stall(f_stall)
-        ); 
-  
+        );
+
  always_ff @(posedge bus.clk) begin
         if(bus.Rst) begin
             EX_MEM_rd_sig<=5'b00000;
@@ -136,7 +136,7 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
             EX_MEM_regwrite_sig<=1'b0;
             EX_MEM_alures_sig<=32'h00000000;
             EX_MEM_fpures_sig<=32'h00000000;
-            EX_MEM_fpusrc = 1'b0;
+            EX_MEM_fpusrc <= 1'b0;
             bus.EX_MEM_frm <= 3'b000;
             bus.EX_MEM_dout_rs2<=32'h00000000;
             bus.EX_MEM_rs2 <= 5'h0;
@@ -166,7 +166,7 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
             bus.EX_MEM_comp_res<=comp_res;
             bus.EX_MEM_loadcntrl<=bus.ID_EX_loadcntrl;
             bus.EX_MEM_storecntrl<=bus.ID_EX_storecntrl;
-            bus.EX_MEM_pres_addr<=bus.ID_EX_pres_addr; 
+            bus.EX_MEM_pres_addr<=bus.ID_EX_pres_addr;
             bus.EX_CSR_res <= CSR_res;
             bus.EX_CSR_addr <= bus.ID_EX_CSR_addr;
             bus.EX_CSR_write <= bus.ID_EX_CSR_write;
