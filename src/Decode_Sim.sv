@@ -84,7 +84,6 @@ interface main_bus ();
     logic mem_wea;
     logic mem_rea;
 
-
     logic comp_sig;
     logic ID_EX_comp_sig;
 
@@ -92,15 +91,6 @@ interface main_bus ();
     logic [31:0] imem_dout;
     logic imem_en;
     logic [31:0] imem_addr;
-    
-    logic comp_sig;
-    logic ID_EX_comp_sig;
-
-//    logic push, pop, stack_ena;
-//    logic stack_mismatch, stack_full, stack_empty;
-//    logic [31:0] stack_din;
-
-
 
     //CSR signals
     logic [11:0] IF_ID_CSR_addr, ID_EX_CSR_addr;
@@ -182,32 +172,6 @@ interface main_bus ();
     );
 
 
-/*
-
-*/
-
-    //modport for execute stage
-    modport execute(
-        input clk, Rst, dbg, ID_EX_lui, ID_EX_auipc, ID_EX_loadcntrl, mem_hold,f_stall,
-        input ID_EX_storecntrl, ID_EX_cmpcntrl,
-        output EX_MEM_loadcntrl, EX_MEM_storecntrl,
-        input ID_EX_compare, ID_EX_pres_addr, ID_EX_alusel, ID_EX_alusrc,ID_EX_fpusel,ID_EX_fpusrc,ID_EX_frm,
-        input ID_EX_memread, ID_EX_memwrite, ID_EX_regwrite, ID_EX_jal,
-        input ID_EX_jalr, ID_EX_rs1, ID_EX_rs2, ID_EX_rs3,ID_EX_rd, ID_EX_dout_rs1, ID_EX_dout_rs2, ID_EX_dout_rs3,
-        output EX_MEM_dout_rs2, EX_MEM_rs2, EX_MEM_rs1,
-        input ID_EX_imm, MEM_WB_regwrite, WB_ID_regwrite,
-        output EX_MEM_alures,
-        input WB_res, WB_ID_res,
-        output EX_MEM_memread, EX_MEM_rd,
-        input MEM_WB_rd, WB_ID_rd,
-        output EX_MEM_memwrite, EX_MEM_regwrite, EX_MEM_comp_res,EX_MEM_fpusrc,EX_MEM_frm,
-        output EX_MEM_pres_addr,
-        input ID_EX_CSR_addr, ID_EX_CSR, ID_EX_CSR_write, csrsel, ID_EX_CSR_read,
-        output EX_CSR_res, EX_CSR_addr, EX_CSR_write, EX_MEM_CSR, EX_MEM_CSR_read,
-        input ID_EX_comp_sig
-    );
-
-*/
 
 endinterface
 
@@ -215,7 +179,8 @@ endinterface
     
 
 
-assign bus.adr_rs1=bus.IF_ID_rs1;
+
+
 /*
 FPU fut(.a(bus.ID_EX_dout_rs1),
         .b(bus.ID_EX_dout_rs2),
@@ -240,11 +205,9 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
 
 module Decode_Sim();
 
-  main_bus bus();
+main_bus bus();
 
-logic IF_ID_lui, lui;
 logic ID_EX_memread_sig, ID_EX_regwrite_sig;
-//logic[4:0] ID_EX_rd_sig;
 
 //fluhed instruction detector
 logic flush;
@@ -252,7 +215,6 @@ logic flush;
 //logic debug;
 logic ins_zero;
 logic flush_sig;
-logic [31:0]rs1_mod,rs2_mod,rs3_mod;
 
 //logic jal,jalr;
 logic [1:0] funct2;
@@ -261,82 +223,57 @@ logic [3:0] funct4;
 logic [5:0] funct6;
 logic [6:0]funct7;
 logic [11:0] funct12;
-logic [31:0] comp_imm;
 
 logic IF_ID_jal, IF_ID_compare;
 logic jal, compare, jalr_sig;
 logic IF_ID_jalr_sig;
 
-//hazard detection and compare unit
-logic zero1,zero2,zero3,zero4,zeroa,zerob;
 
 //register file
 logic [4:0]IF_ID_rd;
 logic [31:0]dout_rs1,dout_rs2,dout_rs3,ins;
 
 //control
-logic [2:0]IF_ID_alusel, alusel,IF_ID_frm,rm;
-logic [4:0] IF_ID_fpusel,fpusel_s;
-logic      IF_ID_branch, branch;
-logic      IF_ID_memwrite,IF_ID_memread,IF_ID_regwrite,IF_ID_alusrc;
+logic [2:0]IF_ID_alusel, alusel;
+logic IF_ID_memwrite,IF_ID_memread,IF_ID_regwrite,IF_ID_alusrc;
 logic memwrite, memread, regwrite, alusrc;
 logic fmemwrite, fmemread, fregwrite, fpusrc;
-logic [2:0]IF_ID_storecntrl, storecntrl,fstorecntrl;
-logic [4:0]IF_ID_loadcntrl, loadcntrl,floadcntrl;
-logic [3:0]IF_ID_cmpcntrl;
-logic      IF_ID_auipc;
+logic [2:0]IF_ID_storecntrl;
+logic [4:0]IF_ID_loadcntrl;
+
 logic [4:0] IF_ID_rs3,IF_ID_rs2 ,IF_ID_rs1;
-logic [2:0] csrsel;
-logic csrwrite;
-logic csrread;
-logic [11:0] IF_ID_CSR_addr;
 
 //imm gen
-logic [31:0]imm, IF_ID_imm;
+logic [31:0]imm;
 logic hz_sig;
 logic branch_taken_sig;
 
 
-//Compressed signals
-logic [4:0] c_rd, c_rs1, c_rs2;
-logic [1:0] c_funct2;
-logic [2:0] c_funct3;
-logic [3:0] c_funct4;
-logic [5:0] c_funct6;
-logic [6:0] c_funct7; 
-logic [2:0] c_alusel; 
-logic [2:0] c_storecntrl;
-logic [4:0] c_loadcntrl;
-logic c_branch, c_beq, c_bne, c_memread, c_memwrite, c_regwrite, c_alusrc, c_compare;
-logic c_lui, c_jal, c_jalr;
-logic [31:0] c_imm;
 
 logic trap_ret;
 
 Decode u2(bus.decode);
+
+logic clk, rst,stall;
+logic [31:0] res;
+logic [4:0] fpusel;
+logic [2:0] frm;
+
+always_comb begin
  bus.clk = clk;
  bus.Rst = rst;
-fpusrc= bus.ID_EX_fpusrc;
+ fpusrc= bus.ID_EX_fpusrc;
  frm= bus.ID_EX_frm;
-
-fpusel = bus.ID_EX_fpusel;
+ ins = bus.ins;
+ fpusel = bus.ID_EX_fpusel;
  stall = bus.f_stall;
- bus.mem_hold = 0;
- bus.dbg =0;
- bus.ins = ins;
- bus.comp_sig = 0;
- res = bus.EX_MEM_alures;
-
-
-
-endinterface
-
-module Decode_Sim();
-
-main_bus bus();
-
-Decode d(bus);
-
+IF_ID_rs3 = bus.IF_ID_rs3;
+IF_ID_rs2 = bus.IF_ID_rs2;
+IF_ID_rs1 = bus.IF_ID_rs1;
+imm = bus.ID_EX_imm;
+IF_ID_loadcntrl = bus.ID_EX_loadcntrl;
+IF_ID_storecntrl = bus.ID_EX_storecntrl;
+end;
 /*
    Control_fp u8(
        .opcode(bus.ins[6:0]),
@@ -359,11 +296,35 @@ Decode d(bus);
 
 */
 
-initial begin
+
+always begin
+    #3 clk = !clk;  
+ end
 
 
+ initial begin
+    rst = 1;
+    clk = 1;
+    bus.dbg = 0;
+    bus.mem_hold =0;
+    bus.comp_sig = 0;
+    bus.RAS_rdy = 1;
+    bus.f_stall =0;
+    #15;
+    rst = 0;
+    #15;
 
-end
+    bus.ins  = 32'h001001D3; // fadd with rd = 0x03 rs1 =0x00 rs2 = 0x01 rm =000
+    #15;
+    bus.ins  = 32'h28501353; // fmax with rd = 0x06 rs1 =0x00 rs2 = 0x05
+    #15;
+    bus.ins  = 32'hD0032053; // fcvts.w with rd = 0x00 rs1 =0x06 rm =010
+    #15;
+    bus.ins  = 32'h003C2187; //fload with rd = 0x03 rs1 = 0x18 imm = 0x003
+    #30;
+	
+
+end;
 
 
 

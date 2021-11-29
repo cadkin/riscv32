@@ -94,7 +94,7 @@ module Control_fp
       7'b1010011:               //fp R-type (arith & compare)
 	begin
 	regwrite=(!stall)&&(1'b1);
-
+	fpusrc=1'b1;
           unique case(funct7)
 			7'h00: begin //fadd
 				fpusel_s=5'b00000;
@@ -126,6 +126,7 @@ module Control_fp
 				fpusel_s=5'b00111;
 				 default: begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
+					fpusrc=1'b0;
 					end
 			   endcase
 			7'h14:
@@ -136,6 +137,7 @@ module Control_fp
 				fpusel_s=5'b01001;
 			   	default: begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
+					fpusrc=1'b0;
 					end
 			   endcase
 			7'h60: begin
@@ -147,6 +149,7 @@ module Control_fp
 				fpusel_s=5'b10101;
 			   	default: begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
+					fpusrc=1'b0;
 					end
 			   endcase
 			   end
@@ -160,6 +163,7 @@ module Control_fp
 				default: begin
 					fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
+					fpusrc=1'b0;
 					end
 			   endcase
 			   end
@@ -173,9 +177,11 @@ module Control_fp
 				fpusel_s=5'b01100;
 			   	default: begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
+					fpusrc=1'b0;
 					end
 			   endcase
-			7'h68:
+			7'h68: begin
+			   rm = funct3;
 			   unique case(rs2)
 				5'b00000 ://fcvt.s.w
 				fpusel_s=5'b10110;
@@ -183,16 +189,21 @@ module Control_fp
 				fpusel_s=5'b10111;
 			   	default: begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
+					fpusrc=1'b0;
 					end
 			   endcase
+				end
 			7'h78:
 				if ((rs2 ==5'h00) && (funct3 == 3'b000)) begin //fmv.w.x
 				fpusel_s=5'b01111;
 				end else begin fpusel_s = 5'b11111;
 					illegal_ins=(!flush)&&(1'b1);
+					fpusrc=1'b0;
 					end
-		    default:
+		    default:begin
 		      illegal_ins=1'b1;
+			fpusrc=1'b0;
+			end
             endcase
         end
       7'b001**11:               // R4 type
@@ -212,8 +223,10 @@ module Control_fp
 	       endcase
         end
 
-     default:
+     default: begin
         illegal_ins=(!flush)&&(1'b1);
+	fpusrc = 1'b0;
+	end
     endcase
   end
 
