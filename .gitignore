@@ -82,3 +82,9 @@ viva*.jou
 viva*.log
 viva*.str
 vivado/
+
+# Instruction lists
+c/*.txt
+
+# BIN file
+*.bin
