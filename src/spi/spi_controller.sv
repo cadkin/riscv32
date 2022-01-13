@@ -73,12 +73,9 @@ module spi_controller(
 
     logic ctrl_state;
 
-    /*
     spi_master spi0(clk, spi_en, mosi_data_i, miso_data_o, spi_data_ready, cs, sck, mosi, miso);
     gh_fifo_sync_sr #(.add_width(4), .data_width(8)) mosi_fifo(clk, rst, rst, mosi_WR, mosi_RD, mosi_din, mosi_dout, mosi_empty, mosi_full);
     gh_fifo_sync_sr #(.add_width(4), .data_width(8)) miso_fifo(clk, rst, rst, spi_data_ready, miso_RD, miso_din, miso_dout, miso_empty, miso_full);
-    */
-
 
     assign mosi_avail = ~mosi_empty;
     assign miso_avail = ~miso_empty;
