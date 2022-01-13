@@ -14,6 +14,7 @@
 13. Change hierarchy to match below.
 
 ![Hierarchy](Hierarchy.png)
+
 13. Create 8 Block RAM Cells. After creating one, use right-click > Copy IP... to speed up the process.
 ```
 Block RAM Cells
