@@ -23,7 +23,7 @@
 
 module tb_rvtop();
 
-logic clk, Rst, debug, rx, prog;
+logic clk, Rst, rst_n, debug, rx, prog;
 logic[ 4:0] debug_input; 
 logic tx, clk_out; 
 logic [6:0] sev_out;
@@ -37,6 +37,7 @@ assign key[95:48]=48'h3cf3cf3cf3cf;
 assign key[47:24]=24'h30c30c;
 assign key[23:12]=12'hbae;
 assign key[11:0]=12'h3cf;
+assign rst_n = ~Rst;
 //assign key[95:48]=48'haaaaaaaaaaaa;
 //assign key[47:24]=24'h000000;
 //assign key[23:12]=12'h000;
