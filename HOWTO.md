@@ -12,6 +12,7 @@
 11. Add `[REPO]/sims` directory to Simulation Sources.
 12. Add each file in `[REPO]/wcfg` (not directory) to Simulation Sources.
 13. Change hierarchy to match below.
+
 ![Hierarchy](Hierarchy.png)
 13. Create 8 Block RAM Cells. After creating one, use right-click > Copy IP... to speed up the process.
 ```
