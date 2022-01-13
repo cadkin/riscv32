@@ -3,7 +3,7 @@ import os
 
 basestr = 'memory_initialization_radix=16;\nmemory_initialization_vector=\n'
 #basedir = 'C:/Users/grayb/Projects/Mini-Risc-V-Uart-Srcs/gcc/'
-basedir = 'C:/Users/bserg_000/Documents/Source/ReturnAddressEncryption/Mini-Risc-V-Uart-Srcs/gcc/'
+basedir = '/home/jting/Projects/senecautk/riscv32/c/'
 
 mems = [list(), list(), list(), list()] 
 
@@ -27,13 +27,13 @@ for m in mems:
 		f.write(';')
 	idx += 1
 
-with open('loadcoe_base.tcl', 'r') as f:
+with open(os.path.join(sys.path[0], 'tcl/loadcoe_base.tcl'), 'r') as f:
 	coescript = f.read() 
 
 for i in range(4):
 	outfilestr = basedir + outfile_base + str(i) + '.coe'
 	coescript = coescript.replace('%' + str(i), outfilestr)
 
-with open('loadcoe.tcl', 'w') as f:
+with open(os.path.join(sys.path[0], 'tcl/loadcoe.tcl'), 'w') as f:
 	f.write(coescript)
 
