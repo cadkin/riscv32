@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-import os 
+import os
+import sys
 import argparse 
 
 def runbash(cmd):
@@ -37,8 +38,8 @@ parser.add_argument('files', nargs='+', help='File Names (Takes .c and .s')
 # parser.add_argument('-c', '--coe', action='store_true', help='generate .coe file instead of .hex file')
 parser.add_argument('-x', '--hex', action='store_true', help='generate .hex instead of .coe file')
 parser.add_argument('-s', '--save_temps', action='store_true', help='save intermediate .s and .o files')
-parser.add_argument('-l', '--linker_script', type=str, default='minirisc.ld')
-parser.add_argument('-b', '--bootloader', type=str, default='boot.S')
+parser.add_argument('-l', '--linker_script', type=str, default=os.path.join(sys.path[0], 'compile/minirisc.ld'))
+parser.add_argument('-b', '--bootloader', type=str, default=os.path.join(sys.path[0], 'compile/boot.S'))
 parser.add_argument('-o', '--output', type=str, default='a.hex')
 parser.add_argument('-k', '--compile_kernel', action='store_true')
 args = parser.parse_args()
@@ -49,8 +50,8 @@ dmp = 'riscv32-unknown-elf-objdump -d '
 # asm = 'heapthing.S'
 
 if (args.compile_kernel):
-	args.linker_script = 'kernel.ld'
-	args.bootloader = 'kboot.S' 
+	args.linker_script = os.path.join(sys.path[0], 'compile/kernel.ld')
+	args.bootloader = os.path.join(sys.path[0], 'compile/kboot.S')
 
 if ('.coe' in args.output):
 	args.output = args.output.replace('.coe', '')
