@@ -82,9 +82,14 @@ viva*.jou
 viva*.log
 viva*.str
 vivado/
+webtalk.jou
+webtalk.log
 
 # Instruction lists
 c/*.txt
 
 # BIN file
 *.bin
+
+# Generated loadcoe file
+loadcoe.tcl
