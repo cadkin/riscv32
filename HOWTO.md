@@ -60,9 +60,13 @@ get_files /[YOUR_PATH]/RISCV_Project/RISCV_Project.srcs/...
 ```
 2. Convert the `.hex` file into 4 separate `.coe` files and generate a `loadcoe.tcl` file.
 ```
-python3 ../scripts/prog/hex2coe.py test.hex
+python3 ../scripts/prog/coegen.py test.hex
 ```
-3. *(OPTIONAL)* Create a text file with the RISC-V instructions created from the C code.
+3. *(OPTIONAL)* Generate a `clearcoe.tcl` file to use in resetting Block RAMs.
+```
+python3 ../scripts/prog/coegen.py --clear
+```
+4. *(OPTIONAL)* Create a text file with the RISC-V instructions created from the C code.
 ```
 riscv32-unknown-elf-objdump -d test.elf > test.txt
 ```
