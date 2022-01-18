@@ -4,12 +4,12 @@ BOARD               := xc7a100tcsg324-1
 XDC                 := constr/riscvcore.xdc
 
 VIVADO              := vivado
+VIVADO_PATH			:= $(shell which $(VIVADO) 2> /dev/null)
 VIVADO_FLAGS        :=
 TOP                 := rv_uart_top
 
 MEM_GEN_TCL_PATH    := scripts/vivado/ip_mem_gen.tcl
 TMP_TCL_PATH        := /tmp/$(shell bash -c 'echo $$RANDOM')-${USER}-vivado.tcl
-
 
 SYNTH_CHECKPOINT    := synth.checkpoint
 IMPL_CHECKPOINT     := impl.checkpoint
@@ -45,8 +45,10 @@ TB                  := $(shell find tb/ -type f -name '*.sv')
 SRC                 := $(shell find src/ -type f -name '*.sv')
 #SDB                := $(subst tb/,$(VLOG_ANALYSIS_OUT),$(subst src/,$(VLOG_ANALYSIS_OUT),$(SRC:.sv=.sdb)))
 
+SHELL 				:= bash
+.SHELLFLAGS			:= -ec
 .ONESHELL:
-.SHELLFLAGS += -e
+.NOTPARALLEL:
 
 # Func to check if vars are defined.
 check_defined = \
@@ -59,22 +61,7 @@ __check_defined = \
 all: xilinx_loaded $(BUILD_DIR)/$(TARGET)
 
 xilinx_loaded:
-	$(call check_defined, XILINX_VIVADO, Xilinx tools not found in path. Did you forget to load them?)
-
-# Terminal only sim, make sure your testbench has $print calls in it.
-sim: $(BUILD_DIR)/$(ELAB_TS)
-	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
-	echo "log_wave -recursive *; run ${sim_time}; exit" > $(TMP_TCL_PATH)
-	$(SIM) $(SIM_FLAGS) --tclbatch $(TMP_TCL_PATH) $(testbench)_snap
-	rm $(TMP_TCL_PATH)
-
-# Launches the simulator in interactive graphical mode.
-isim: $(BUILD_DIR)/$(ELAB_TS)
-	$(call check_defined, DISPLAY, Interactive sim requires X11)
-	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
-	echo "create_wave_config; add_wave /; set_property needs_save false [current_wave_config]" > $(TMP_TCL_PATH)
-	$(SIM) --gui $(SIM_FLAGS) --tclbatch $(TMP_TCL_PATH) $(testbench)_snap
-	rm $(TMP_TCL_PATH)
+	$(call check_defined, VIVADO_PATH, Xilinx tools not found in path. Did you forget to load them?)
 
 # Runs elaboration for simulation.
 $(BUILD_DIR)/$(ELAB_TS): $(BUILD_DIR)/$(VLOG_ANALYSIS_TS)
@@ -88,14 +75,7 @@ $(BUILD_DIR)/$(VLOG_ANALYSIS_TS): $(SRC) $(TB)
 	$(VLOG_ANALYSIS) $(VLOG_ANALYSIS_FLAGS) $(addprefix ../,$(SRC)) $(addprefix ../,$(TB))
 	touch $(VLOG_ANALYSIS_TS)
 
-# Shows an RTL schematic of the design.
-rtl_schematic: $(SRC)
-	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
-	echo "read_verilog -sv { $(addprefix ../,$(SRC)) }; synth_design -top $(TOP) -rtl -name $(TOP)_rtl -part $(BOARD);\
-          start_gui;" > $(TMP_TCL_PATH)
-	$(VIVADO) $(VIVADO_FLAGS) -mode tcl -source $(TMP_TCL_PATH)
-	rm $(TMP_TCL_PATH)
-
+# Generate block ram IP for build. Should only happen once.
 $(BUILD_DIR)/$(IP_TS):
 	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
 	mkdir -p ip_data
@@ -119,6 +99,7 @@ $(BUILD_DIR)/$(IP_TS):
           set CELL imem_cell_3;\
           source ../$(MEM_GEN_TCL_PATH);\
           \
+		  set_param general.maxThreads 32;\
           generate_target all [get_ips];\
           synth_ip [get_ips];\
           exit;" > $(TMP_TCL_PATH)
@@ -137,6 +118,8 @@ $(BUILD_DIR)/$(TARGET): $(BUILD_DIR)/$(IP_TS) $(SRC)
           read_ip ip_data/imem_cell_1/imem_cell_1.xci;\
           read_ip ip_data/imem_cell_2/imem_cell_2.xci;\
           read_ip ip_data/imem_cell_3/imem_cell_3.xci;\
+		  \
+		  set_param general.maxThreads 32;\
           \
           read_verilog -sv { $(addprefix ../,$(SRC)) };\
           read_xdc ../$(XDC);\
@@ -168,8 +151,36 @@ $(BUILD_DIR)/$(TARGET): $(BUILD_DIR)/$(IP_TS) $(SRC)
 	$(VIVADO) $(VIVADO_FLAGS) -mode batch -source $(TMP_TCL_PATH)
 	rm $(TMP_TCL_PATH)
 
+# Alias for bitstream generation.
+bitstream: xilinx_loaded $(BUILD_DIR)/$(TARGET)
+
+.PHONY: sim isim rtl_schematic flash clean
+
+# Terminal only sim, make sure your testbench has $print calls in it.
+sim: xilinx_loaded $(BUILD_DIR)/$(ELAB_TS)
+	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
+	echo "log_wave -recursive *; run ${sim_time}; exit" > $(TMP_TCL_PATH)
+	$(SIM) $(SIM_FLAGS) --tclbatch $(TMP_TCL_PATH) $(testbench)_snap
+	rm $(TMP_TCL_PATH)
+
+# Launches the simulator in interactive graphical mode.
+isim: xilinx_loaded $(BUILD_DIR)/$(ELAB_TS)
+	$(call check_defined, DISPLAY, Interactive sim requires X11)
+	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
+	echo "create_wave_config; add_wave /; set_property needs_save false [current_wave_config]" > $(TMP_TCL_PATH)
+	$(SIM) --gui $(SIM_FLAGS) --tclbatch $(TMP_TCL_PATH) $(testbench)_snap
+	rm $(TMP_TCL_PATH)
+
+# Shows an RTL schematic of the design.
+rtl_schematic: xilinx_loaded
+	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
+	echo "read_verilog -sv { $(addprefix ../,$(SRC)) }; synth_design -top $(TOP) -rtl -name $(TOP)_rtl -part $(BOARD);\
+          start_gui;" > $(TMP_TCL_PATH)
+	$(VIVADO) $(VIVADO_FLAGS) -mode tcl -source $(TMP_TCL_PATH)
+	rm $(TMP_TCL_PATH)
+
 # Programs the bitstream.
-flash: $(BUILD_DIR)/$(TARGET)
+flash: xilinx_loaded $(BUILD_DIR)/$(TARGET)
 	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
 	echo "open_hw_manager;\
           connect_hw_server;\
@@ -184,9 +195,6 @@ flash: $(BUILD_DIR)/$(TARGET)
           exit;" > $(TMP_TCL_PATH)
 	$(VIVADO) $(VIVADO_FLAGS) -mode batch -source $(TMP_TCL_PATH)
 	rm $(TMP_TCL_PATH)
-
-
-.PHONY: clean
 
 clean:
 	rm -rf build
