@@ -95,3 +95,6 @@ c/*.txt
 loadcoe.tcl
 clearcoe.tcl
 loadcoe.json
+
+#VSCode
+.vscode/
