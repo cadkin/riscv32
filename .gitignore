@@ -93,3 +93,5 @@ c/*.txt
 
 # Generated loadcoe file
 loadcoe.tcl
+clearcoe.tcl
+loadcoe.json
