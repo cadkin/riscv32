@@ -44,13 +44,12 @@ Line 168: Mem_Interface #(.use_sram(0))...
 ```
 
 ## Inital Compilation Setup
-1. Modify `scripts/prog/hex2coe.py` `basedir` variable to your gcc directory path in the repo.
+1. Create a copy of `loadcoe_example.json` and rename it to `loadcoe.json`.
+2. Modify the value of `path` to your Vivado project root directory.
 ```
-basedir = '/[YOUR_PATH]/Mini-Risc-V-Uart-Srcs/gcc/'
-```
-2. Modify `scripts/prog/loadcoe_base.tcl` all `get_files` paths to your Vivado project path.
-```
-get_files /[YOUR_PATH]/RISCV_Project/RISCV_Project.srcs/...
+{
+    "path": "/your/path/riscv32_proj"
+}
 ```
 
 ## Compilation
