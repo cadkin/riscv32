@@ -1,24 +1,8 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 11/09/2021 01:17:51 PM
-// Design Name: 
-// Module Name: FLT
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
+//IEEE RISC-V Floating Point Less Than or Equal (Single Precision)
+//By Tanner Joseph Fowler 
+//2021-11-15
 
 module FLE(
 		input logic [31:0] input_a,

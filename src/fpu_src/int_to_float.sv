@@ -1,6 +1,8 @@
 //IEEE Floating Point Divider (Double Precision)
 //Copyright (C) Jonathan P Dawson 2014
 //all combinational logic int to float
+//modified by Jianjun Xu
+//2021-11-11
 
 module int_to_float(
         input logic [31:0] input_a,

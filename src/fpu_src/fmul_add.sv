@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 //IEEE Floating Point Multiple adder (Single Precision)
 //Copyright (C) Jonathan P Dawson 2013
 //2013-12-12

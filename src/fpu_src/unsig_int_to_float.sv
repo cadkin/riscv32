@@ -1,8 +1,11 @@
+`timescale 1ns / 1ps
+
 // unsign Integer to IEEE Floating Point Converter (Single Precision)
 //Copyright (C) Jonathan P Dawson 2014
 //all combinational logic int to float
 //modified by Jianjun Xu
 //Date 2021-11-11
+
 module unsig_int_to_float(
     input logic [31:0] input_a,
 	input logic clk,rst,

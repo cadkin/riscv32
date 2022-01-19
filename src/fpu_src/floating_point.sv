@@ -83,14 +83,14 @@ begin
 
 
     if(g_rst == 1)begin
-	enable_add = 0;
-	enable_mul = 0;
-	enable_div = 0;
-	enable_f2i = 0;
-	enable_i2f = 0;
-	enable_f2ui = 0;
-	enable_ui2f = 0;
-	enable_mul_add = 0;
+	enable_add = 1;
+	enable_mul = 1;
+	enable_div = 1;
+	enable_f2i = 1;
+	enable_i2f = 1;
+	enable_f2ui = 1;
+	enable_ui2f = 1;
+	enable_mul_add = 1;
     end else begin
 	enable_add = 1;
 	enable_mul = 1;

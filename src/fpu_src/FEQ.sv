@@ -1,5 +1,8 @@
 `timescale 1ns / 1ps
 
+//IEEE RISC-V Floating Point Equal(Single Precision)
+//By Tanner Joseph Fowler 
+//2021-11-15
 
 module FEQ(
 	input logic [31:0] input_a,
