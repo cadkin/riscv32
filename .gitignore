@@ -54,7 +54,8 @@
 *.coe
 
 # Build folder
-build/
+/build/
+/buildip/
 
 # IDE files
 *.pro.user

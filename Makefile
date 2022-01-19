@@ -37,7 +37,7 @@ testbench           := testbench
 ELAB_TS             := $(addprefix $(testbench),_elab_timestamp.tmp)
 
 IP_TS               := ip_gen_timestamp.tmp
-IP_DIR				:= ip_data
+IP_DIR				:= buildip
 
 SIM                 := xsim
 SIM_FLAGS           :=
@@ -46,6 +46,7 @@ sim_time            := 500ns
 
 TB                  := $(shell find tb/ -type f -name '*.sv')
 SRC                 := $(shell find src/ -type f -name '*.sv')
+MEM_SRC				:= $(join $(addsuffix /sim/,$(addprefix $(IP_DIR)/,$(MEM_CELL_NAMES))),$(addsuffix .v,$(MEM_CELL_NAMES)))
 #SDB                := $(subst tb/,$(VLOG_ANALYSIS_OUT),$(subst src/,$(VLOG_ANALYSIS_OUT),$(SRC:.sv=.sdb)))
 
 SHELL 				:= bash
@@ -68,23 +69,23 @@ xilinx_loaded:
 
 # Runs elaboration for simulation.
 $(BUILD_DIR)/$(ELAB_TS): $(BUILD_DIR)/$(VLOG_ANALYSIS_TS)
-	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
+	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(PWD)/$(BUILD_DIR)
 	$(ELAB) $(ELAB_FLAGS) $(ELAB_LIBRARIES) -top $(testbench) -snapshot $(testbench)_snap
 	touch $(ELAB_TS)
 
 # Runs analysis for simulation.
-$(BUILD_DIR)/$(VLOG_ANALYSIS_TS): $(BUILD_DIR)/$(IP_TS) $(SRC) $(TB)
-	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
+$(BUILD_DIR)/$(VLOG_ANALYSIS_TS): $(IP_DIR)/$(IP_TS) $(SRC) $(TB)
+	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(PWD)/$(BUILD_DIR)
 	$(VLOG_ANALYSIS) $(VLOG_ANALYSIS_FLAGS) $(addprefix ../,$(SRC)) $(addprefix ../,$(TB))
-	$(VLOG_ANALYSIS) $(join $(addsuffix /sim/,$(addprefix $(IP_DIR)/,$(MEM_CELL_NAMES))),$(addsuffix .v,$(MEM_CELL_NAMES)))
+	$(VLOG_ANALYSIS) $(addprefix ../,$(MEM_SRC))
 	touch $(VLOG_ANALYSIS_TS)
 
-# Generate block ram IP for build. Should only happen once.
-$(BUILD_DIR)/$(IP_TS):
-	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
-	mkdir -p ip_data
+# Generate block ram IP for build. Should only happen once initally.
+$(IP_DIR)/$(IP_TS):
+	mkdir -p $(PWD)/$(IP_DIR) && cd $(PWD)/$(IP_DIR)
 	echo "create_project -part $(BOARD) -in_memory;\
-          set IP_DIR $(IP_DIR);\
+          set IP_DIR $(PWD)/$(IP_DIR);\
+          read_xdc ../$(XDC);\
           \
           set CELL $(word 1, $(MEM_CELL_NAMES));\
           source ../$(MEM_GEN_TCL_PATH);\
@@ -102,26 +103,28 @@ $(BUILD_DIR)/$(IP_TS):
           source ../$(MEM_GEN_TCL_PATH);\
           set CELL $(word 8, $(MEM_CELL_NAMES));\
           source ../$(MEM_GEN_TCL_PATH);\
-          \
-		  set_param general.maxThreads 32;\
+		  \
           generate_target all [get_ips];\
           synth_ip [get_ips];\
+          \
           exit;" > $(TMP_TCL_PATH)
 	$(VIVADO) $(VIVADO_FLAGS) -mode batch -source $(TMP_TCL_PATH)
 	touch $(IP_TS)
 	rm $(TMP_TCL_PATH)
 
 # Generates the bitstream.
-$(BUILD_DIR)/$(TARGET): $(BUILD_DIR)/$(IP_TS) $(SRC)
-	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
-	echo "read_ip ip_data/$(word 1, $(MEM_CELL_NAMES))/$(word 1, $(MEM_CELL_NAMES)).xci;\
-          read_ip ip_data/$(word 2, $(MEM_CELL_NAMES))/$(word 2, $(MEM_CELL_NAMES)).xci;\
-          read_ip ip_data/$(word 3, $(MEM_CELL_NAMES))/$(word 3, $(MEM_CELL_NAMES)).xci;\
-          read_ip ip_data/$(word 4, $(MEM_CELL_NAMES))/$(word 4, $(MEM_CELL_NAMES)).xci;\
-          read_ip ip_data/$(word 5, $(MEM_CELL_NAMES))/$(word 5, $(MEM_CELL_NAMES)).xci;\
-          read_ip ip_data/$(word 6, $(MEM_CELL_NAMES))/$(word 6, $(MEM_CELL_NAMES)).xci;\
-          read_ip ip_data/$(word 7, $(MEM_CELL_NAMES))/$(word 7, $(MEM_CELL_NAMES)).xci;\
-          read_ip ip_data/$(word 8, $(MEM_CELL_NAMES))/$(word 8, $(MEM_CELL_NAMES)).xci;\
+$(BUILD_DIR)/$(TARGET): $(IP_DIR)/$(IP_TS) $(SRC)
+	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(PWD)/$(BUILD_DIR)
+	echo "set_part $(BOARD);\
+		  \
+		  read_ip ../$(IP_DIR)/$(word 1, $(MEM_CELL_NAMES))/$(word 1, $(MEM_CELL_NAMES)).xci;\
+          read_ip ../$(IP_DIR)/$(word 2, $(MEM_CELL_NAMES))/$(word 2, $(MEM_CELL_NAMES)).xci;\
+          read_ip ../$(IP_DIR)/$(word 3, $(MEM_CELL_NAMES))/$(word 3, $(MEM_CELL_NAMES)).xci;\
+          read_ip ../$(IP_DIR)/$(word 4, $(MEM_CELL_NAMES))/$(word 4, $(MEM_CELL_NAMES)).xci;\
+          read_ip ../$(IP_DIR)/$(word 5, $(MEM_CELL_NAMES))/$(word 5, $(MEM_CELL_NAMES)).xci;\
+          read_ip ../$(IP_DIR)/$(word 6, $(MEM_CELL_NAMES))/$(word 6, $(MEM_CELL_NAMES)).xci;\
+          read_ip ../$(IP_DIR)/$(word 7, $(MEM_CELL_NAMES))/$(word 7, $(MEM_CELL_NAMES)).xci;\
+          read_ip ../$(IP_DIR)/$(word 8, $(MEM_CELL_NAMES))/$(word 8, $(MEM_CELL_NAMES)).xci;\
 		  \
 		  set_param general.maxThreads 32;\
           \
@@ -158,11 +161,11 @@ $(BUILD_DIR)/$(TARGET): $(BUILD_DIR)/$(IP_TS) $(SRC)
 # Alias for bitstream generation.
 bitstream: xilinx_loaded $(BUILD_DIR)/$(TARGET)
 
-.PHONY: sim isim rtl_schematic flash clean cleanall
+.PHONY: sim isim rtl_schematic tcl_console flash clean cleanall
 
 # Terminal only sim, make sure your testbench has $print calls in it.
 sim: xilinx_loaded $(BUILD_DIR)/$(ELAB_TS)
-	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
+	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(PWD)/$(BUILD_DIR)
 	echo "log_wave -recursive *; run ${sim_time}; exit" > $(TMP_TCL_PATH)
 	$(SIM) $(SIM_FLAGS) --tclbatch $(TMP_TCL_PATH) $(testbench)_snap
 	rm $(TMP_TCL_PATH)
@@ -170,22 +173,40 @@ sim: xilinx_loaded $(BUILD_DIR)/$(ELAB_TS)
 # Launches the simulator in interactive graphical mode.
 isim: xilinx_loaded $(BUILD_DIR)/$(ELAB_TS)
 	$(call check_defined, DISPLAY, Interactive sim requires X11)
-	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
+	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(PWD)/$(BUILD_DIR)
 	echo "create_wave_config; add_wave /; set_property needs_save false [current_wave_config]" > $(TMP_TCL_PATH)
 	$(SIM) --gui $(SIM_FLAGS) --tclbatch $(TMP_TCL_PATH) $(testbench)_snap
 	rm $(TMP_TCL_PATH)
 
 # Shows an RTL schematic of the design.
-rtl_schematic: xilinx_loaded
-	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
-	echo "read_verilog -sv { $(addprefix ../,$(SRC)) }; synth_design -top $(TOP) -rtl -name $(TOP)_rtl -part $(BOARD);\
+rtl_schematic: xilinx_loaded $(IP_DIR)/$(IP_TS)
+	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(PWD)/$(BUILD_DIR)
+	echo "set_part $(BOARD);\
+		  \
+		  read_ip ../$(IP_DIR)/$(word 1, $(MEM_CELL_NAMES))/$(word 1, $(MEM_CELL_NAMES)).xci;\
+          read_ip ../$(IP_DIR)/$(word 2, $(MEM_CELL_NAMES))/$(word 2, $(MEM_CELL_NAMES)).xci;\
+          read_ip ../$(IP_DIR)/$(word 3, $(MEM_CELL_NAMES))/$(word 3, $(MEM_CELL_NAMES)).xci;\
+          read_ip ../$(IP_DIR)/$(word 4, $(MEM_CELL_NAMES))/$(word 4, $(MEM_CELL_NAMES)).xci;\
+          read_ip ../$(IP_DIR)/$(word 5, $(MEM_CELL_NAMES))/$(word 5, $(MEM_CELL_NAMES)).xci;\
+          read_ip ../$(IP_DIR)/$(word 6, $(MEM_CELL_NAMES))/$(word 6, $(MEM_CELL_NAMES)).xci;\
+          read_ip ../$(IP_DIR)/$(word 7, $(MEM_CELL_NAMES))/$(word 7, $(MEM_CELL_NAMES)).xci;\
+          read_ip ../$(IP_DIR)/$(word 8, $(MEM_CELL_NAMES))/$(word 8, $(MEM_CELL_NAMES)).xci;\
+		  \
+		  set_param general.maxThreads 32;\
+          \
+		  read_verilog -sv { $(addprefix ../,$(SRC)) };\
+		  synth_design -top $(TOP) -rtl -name $(TOP)_rtl -part $(BOARD);\
           start_gui;" > $(TMP_TCL_PATH)
 	$(VIVADO) $(VIVADO_FLAGS) -mode tcl -source $(TMP_TCL_PATH)
 	rm $(TMP_TCL_PATH)
 
+# Brings up an interactive TCL console.
+tcl_console: xilinx_loaded
+	$(VIVADO) -mode tcl
+
 # Programs the bitstream.
 flash: xilinx_loaded $(BUILD_DIR)/$(TARGET)
-	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(BUILD_DIR)
+	mkdir -p $(PWD)/$(BUILD_DIR) && cd $(PWD)/$(BUILD_DIR)
 	echo "open_hw_manager;\
           connect_hw_server;\
           current_hw_target;\
@@ -201,7 +222,7 @@ flash: xilinx_loaded $(BUILD_DIR)/$(TARGET)
 	rm $(TMP_TCL_PATH)
 
 clean:
-	find $(BUILD_DIR)/ -mindepth 1 ! -name '$(IP_DIR)' ! -wholename '$(BUILD_DIR)/$(IP_TS)' -exec rm -f {} +
+	rm -vrf $(BUILD_DIR)
 
 cleanall:
-	rm -rf $(BUILD_DIR)
+	rm -vrf $(BUILD_DIR) $(IP_DIR)
