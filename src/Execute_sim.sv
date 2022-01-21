@@ -230,7 +230,7 @@ always_comb begin
  bus.clk = clk;
  bus.Rst = rst;
  bus.ID_EX_fpusrc = fpusrc;
- bus.ID_EX_frm = frm
+ bus.ID_EX_frm = frm;
  bus.ID_EX_dout_rs1 = rs1;
  bus.ID_EX_dout_rs2 = rs2;
  bus.ID_EX_fpusel = fpusel;
