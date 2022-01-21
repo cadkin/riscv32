@@ -55,7 +55,7 @@
 
 # Build folder
 /build/
-/buildip/
+/ip/
 
 # IDE files
 *.pro.user

@@ -9,6 +9,7 @@ VIVADO_FLAGS        :=
 TOP                 := rv_uart_top
 
 MEM_GEN_TCL_PATH    := scripts/vivado/ip_mem_gen.tcl
+MEM_COE_TCL_PATH    := scripts/vivado/ip_mem_coe.tcl
 MEM_CELL_NAMES		:= mem_cell_0 mem_cell_1 mem_cell_2 mem_cell_3 imem_cell_0 imem_cell_1 imem_cell_2 imem_cell_3
 TMP_TCL_PATH        := /tmp/$(shell bash -c 'echo $$RANDOM')-${USER}-vivado.tcl
 
@@ -37,7 +38,12 @@ testbench           := testbench
 ELAB_TS             := $(addprefix $(testbench),_elab_timestamp.tmp)
 
 IP_TS               := ip_gen_timestamp.tmp
-IP_DIR				:= buildip
+IP_DIR				:= ip
+
+COE_TS              := coe_timestamp.tmp
+COE_DIR             := c
+# Basename for loading from coe, expects $(coe_basename)0.coe - $(coe_basename)3.coe to load from $(COE_DIR). Can be modified.
+coe_basename        := test
 
 SIM                 := xsim
 SIM_FLAGS           :=
@@ -46,6 +52,7 @@ sim_time            := 500ns
 
 TB                  := $(shell find tb/ -type f -name '*.sv')
 SRC                 := $(shell find src/ -type f -name '*.sv')
+VHDL_SRC            := $(shell find src/ -type f -name '*.vhd')
 MEM_SRC				:= $(join $(addsuffix /sim/,$(addprefix $(IP_DIR)/,$(MEM_CELL_NAMES))),$(addsuffix .v,$(MEM_CELL_NAMES)))
 #SDB                := $(subst tb/,$(VLOG_ANALYSIS_OUT),$(subst src/,$(VLOG_ANALYSIS_OUT),$(SRC:.sv=.sdb)))
 
@@ -95,14 +102,6 @@ $(IP_DIR)/$(IP_TS):
           source ../$(MEM_GEN_TCL_PATH);\
           set CELL $(word 4, $(MEM_CELL_NAMES));\
           source ../$(MEM_GEN_TCL_PATH);\
-          set CELL $(word 5, $(MEM_CELL_NAMES));\
-          source ../$(MEM_GEN_TCL_PATH);\
-          set CELL $(word 6, $(MEM_CELL_NAMES));\
-          source ../$(MEM_GEN_TCL_PATH);\
-          set CELL $(word 7, $(MEM_CELL_NAMES));\
-          source ../$(MEM_GEN_TCL_PATH);\
-          set CELL $(word 8, $(MEM_CELL_NAMES));\
-          source ../$(MEM_GEN_TCL_PATH);\
 		  \
           generate_target all [get_ips];\
           synth_ip [get_ips];\
@@ -129,6 +128,7 @@ $(BUILD_DIR)/$(TARGET): $(IP_DIR)/$(IP_TS) $(SRC)
 		  set_param general.maxThreads 32;\
           \
           read_verilog -sv { $(addprefix ../,$(SRC)) };\
+          read_vhdl { $(addprefix ../,$(VHDL_SRC)) };\
           read_xdc ../$(XDC);\
           synth_design -top $(TOP) -part $(BOARD);\
           \
@@ -158,8 +158,44 @@ $(BUILD_DIR)/$(TARGET): $(IP_DIR)/$(IP_TS) $(SRC)
 	$(VIVADO) $(VIVADO_FLAGS) -mode batch -source $(TMP_TCL_PATH)
 	rm $(TMP_TCL_PATH)
 
+# Setup block rom with new COE files.
+$(IP_DIR)/$(COE_TS): $(IP_DIR)/$(IP_TS)
+	mkdir -p $(PWD)/$(IP_DIR) && cd $(PWD)/$(IP_DIR)
+	rm -rf ../$(IP_DIR)/$(word 5, $(MEM_CELL_NAMES))
+	rm -rf ../$(IP_DIR)/$(word 6, $(MEM_CELL_NAMES))
+	rm -rf ../$(IP_DIR)/$(word 7, $(MEM_CELL_NAMES))
+	rm -rf ../$(IP_DIR)/$(word 8, $(MEM_CELL_NAMES))
+	echo "create_project -part $(BOARD) -in_memory;\
+          set IP_DIR $(PWD)/$(IP_DIR);\
+          set COE_DIR $(PWD)/$(COE_DIR);\
+          read_xdc ../$(XDC);\
+		  \
+          set COE_FILE $(PWD)/$(COE_DIR)/$(coe_basename)0.coe;\
+          set CELL $(word 5, $(MEM_CELL_NAMES));\
+          source ../$(MEM_COE_TCL_PATH);\
+          set COE_FILE $(PWD)/$(COE_DIR)/$(coe_basename)1.coe;\
+          set CELL $(word 6, $(MEM_CELL_NAMES));\
+          source ../$(MEM_COE_TCL_PATH);\
+          set COE_FILE $(PWD)/$(COE_DIR)/$(coe_basename)2.coe;\
+          set CELL $(word 7, $(MEM_CELL_NAMES));\
+          source ../$(MEM_COE_TCL_PATH);\
+          set COE_FILE $(PWD)/$(COE_DIR)/$(coe_basename)3.coe;\
+          set CELL $(word 8, $(MEM_CELL_NAMES));\
+          source ../$(MEM_COE_TCL_PATH);\
+		  \
+          generate_target all [get_ips];\
+          synth_ip [get_ips];\
+          \
+          exit;" > $(TMP_TCL_PATH)
+	$(VIVADO) $(VIVADO_FLAGS) -mode batch -source $(TMP_TCL_PATH)
+	#touch $(COE_TS)
+	rm $(TMP_TCL_PATH)
+
 # Alias for bitstream generation.
 bitstream: xilinx_loaded $(BUILD_DIR)/$(TARGET)
+
+# Alias for reprogramming via COE files.
+loadcoe: xilinx_loaded $(IP_DIR)/$(COE_TS)
 
 .PHONY: sim isim rtl_schematic tcl_console flash clean cleanall
 

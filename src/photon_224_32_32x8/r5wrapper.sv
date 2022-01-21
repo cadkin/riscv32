@@ -3,7 +3,7 @@
 module photon_core(main_bus bus);
 
     photon_bus pho_bus(bus.clk, bus.Rst);
-    //photon pho0(pho_bus);
+    photon pho0(pho_bus);
 
     photon_opcode photon_opcode;
     logic illegal_ins;

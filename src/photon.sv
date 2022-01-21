@@ -19,7 +19,6 @@ interface photon_bus (
 endinterface
 
 module photon(photon_bus bus);
-
     logic [31:0] reg_input [7:0];
     logic [31:0] reg_output [7:0];
     photon_state state;
