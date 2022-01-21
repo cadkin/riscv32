@@ -1,6 +1,5 @@
 #include "uart.h"
 #include "print.h"
-#include "utils.h"
 
 int main(void)
 {

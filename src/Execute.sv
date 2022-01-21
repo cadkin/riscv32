@@ -59,9 +59,13 @@ module Execute(main_bus bus);
 
   logic EX_MEM_memread_sig, EX_MEM_regwrite_sig,EX_MEM_fpusrc;
   logic [31:0] EX_MEM_alures_sig,EX_MEM_fpures_sig;
+  logic [31:0] EX_MEM_mulres_sig;
+  logic [31:0] EX_MEM_divres_sig;
   logic [4:0]  EX_MEM_rd_sig;
   logic comp_res,f_stall;
   logic [31:0] alures,fpures;
+  logic [31:0] mulres;
+  logic [31:0] divres;
   logic [2:0]  sel;
   logic [31:0] ALUop1,ALUop2,rs2_mod;
   logic [31:0] rs2_mod_final;//new
@@ -72,6 +76,10 @@ module Execute(main_bus bus);
 
 
 
+  logic mul_ready_sig;
+  logic div_ready_sig;
+  logic mul_ready;
+  logic div_ready;
 
   Forwarding dut(
          .EX_MEM_regwrite(EX_MEM_regwrite_sig),
@@ -84,12 +92,16 @@ module Execute(main_bus bus);
          .ID_EX_rs1(bus.ID_EX_rs1),
          .ID_EX_rs2(bus.ID_EX_rs2),
          .alures(bus.EX_MEM_alures),
+         .divres(divres),
+         .mulres(mulres),
          .memres(bus.WB_res),
          .wbres(bus.WB_ID_res),
          .alusrc(bus.ID_EX_alusrc),
          .imm(bus.ID_EX_imm),
          .rs1(bus.ID_EX_dout_rs1),
          .rs2(bus.ID_EX_dout_rs2),
+         .div_ready(div_ready),
+         .mul_ready(mul_ready),
          .EX_MEM_CSR(bus.EX_MEM_CSR),
          .EX_MEM_CSR_read(bus.EX_MEM_CSR_read),
          .fw_rs1(ALUop1),
@@ -115,6 +127,27 @@ module Execute(main_bus bus);
         .ID_EX_comp_sig(bus.ID_EX_comp_sig)
         );
 
+  Multiplier mul(
+    .clk(bus.clk),
+    .rst(bus.Rst),
+    .mulsel(bus.ID_EX_mulsel),
+    .a(ALUop1),
+    .b(ALUop2),
+    .ready(mul_ready_sig),
+    .res(mulres)
+  );
+
+  Divider div
+  (
+    .clk(bus.clk),
+    .rst(bus.Rst),
+    .divsel(bus.ID_EX_divsel),
+    .a(ALUop1),
+    .b(ALUop2),
+    .ready(div_ready_sig),
+    .res(divres)
+  );
+
 FPU fut(.a(bus.ID_EX_dout_rs1),
         .b(bus.ID_EX_dout_rs2),
         .c(bus.ID_EX_dout_rs3),
@@ -135,10 +168,14 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
             bus.EX_MEM_memwrite<=1'b0;
             EX_MEM_regwrite_sig<=1'b0;
             EX_MEM_alures_sig<=32'h00000000;
+            EX_MEM_mulres_sig<=32'h00000000;
+            EX_MEM_divres_sig<=32'h00000000;
             EX_MEM_fpures_sig<=32'h00000000;
             EX_MEM_fpusrc <= 1'b0;
             bus.EX_MEM_frm <= 3'b000;
             bus.EX_MEM_dout_rs2<=32'h00000000;
+            bus.EX_MEM_mul_ready<=1'b0;
+            bus.EX_MEM_div_ready<=1'b0;
             bus.EX_MEM_rs2 <= 5'h0;
             bus.EX_MEM_rs1 <= 5'h0;
             bus.EX_MEM_comp_res<=1'b0;
@@ -150,6 +187,8 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
             bus.EX_CSR_write <= 0;
             bus.EX_MEM_CSR <= 0;
             bus.EX_MEM_CSR_read <= 0;
+            div_ready <= 0;
+            mul_ready <= 0;
             bus.f_stall <= 1'b0;
         end
         else if((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
@@ -158,6 +197,10 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
             bus.EX_MEM_memwrite<=bus.ID_EX_memwrite;
             EX_MEM_regwrite_sig<=(bus.ID_EX_regwrite&&(!bus.ID_EX_compare))+(bus.ID_EX_regwrite&&bus.ID_EX_compare&&comp_res);
             EX_MEM_alures_sig<=alures;
+            EX_MEM_mulres_sig<=mulres;
+            bus.EX_MEM_mul_ready<=mul_ready_sig;
+            EX_MEM_divres_sig<=divres;
+            bus.EX_MEM_div_ready<=div_ready_sig;
             EX_MEM_fpures_sig<=fpures;
             EX_MEM_fpusrc<=bus.ID_EX_fpusrc;
             bus.EX_MEM_frm<=bus.ID_EX_frm;
@@ -173,12 +216,18 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
             bus.EX_CSR_write <= bus.ID_EX_CSR_write;
             bus.EX_MEM_CSR <= bus.ID_EX_CSR;
             bus.EX_MEM_CSR_read <= bus.ID_EX_CSR_read;
+            div_ready <= div_ready_sig;
+            mul_ready <= mul_ready_sig;
             bus.f_stall <= f_stall;
         end
   end
 
+  assign bus.mul_ready=mul_ready_sig;
+  assign bus.div_ready=div_ready_sig;
   assign bus.EX_MEM_rd=EX_MEM_rd_sig;
   assign bus.EX_MEM_alures= EX_MEM_fpusrc ? EX_MEM_fpures_sig : EX_MEM_alures_sig;
+  assign bus.EX_MEM_mulres=EX_MEM_mulres_sig;
+  assign bus.EX_MEM_divres=EX_MEM_divres_sig;
   assign bus.EX_MEM_fpusrc = EX_MEM_fpusrc;
   assign bus.EX_MEM_memread=EX_MEM_memread_sig;
   assign bus.EX_MEM_regwrite=EX_MEM_regwrite_sig;
