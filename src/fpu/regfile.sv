@@ -1,4 +1,4 @@
-module Regfile (
+module regfile (
     main_bus_if bus
 );
 
@@ -29,4 +29,4 @@ module Regfile (
     end
   end
 `endif
-endmodule : Regfile
+endmodule : regfile

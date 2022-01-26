@@ -361,7 +361,7 @@ module riscv_core (
   fetch u1 (bus.fetch);
 
   //register file
-  Regfile u0 (bus.regfile);
+  regfile u0 (bus.regfile);
 
   decode u2 (bus.decode);
 
