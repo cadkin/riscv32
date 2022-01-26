@@ -7,7 +7,7 @@
 // Created:
 //   October 30, 2018
 //
-// Module name: Immgen
+// Module name: Immediate Generator
 // Description:
 //   Implements the RISC-V immediate generation logic (part of decoder pipeline stage)
 //
@@ -21,7 +21,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module Immgen (
+module imm_gen (
     input  logic [31:0] ins,
     output logic [31:0] imm
 );
@@ -36,4 +36,4 @@ module Immgen (
       5'b11100: imm = {27'b0, ins[19:15]};
       default:  imm = {{21{ins[31]}}, ins[30:20]};
     endcase
-endmodule : Immgen
+endmodule : imm_gen

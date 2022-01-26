@@ -368,7 +368,7 @@ module decode (
   );
 
   //Immediate generation
-  Immgen u5 (
+  imm_gen u5 (
       .ins(bus.ins),
       .imm(imm)
   );
