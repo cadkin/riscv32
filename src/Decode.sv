@@ -356,8 +356,8 @@ module Decode (
       .hz(hz_sig)
   );
 
-  //Branchoffgen
-  Branoffgen u4 (
+  //branch_off_gen
+  branch_off_gen u4 (
       .ins(bus.ins),
       .rs1_mod(rs1_mod),
       .comp_sig(bus.comp_sig),

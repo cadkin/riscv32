@@ -7,7 +7,7 @@
 // Created:
 //   October 30, 2018
 //
-// Module name: Branoffgen
+// Module name: Branch Offset Generator
 // Description:
 //   Implements the RISC-V branch offset generation logic (part of decoder)
 //
@@ -23,7 +23,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module Branoffgen (
+module branch_off_gen (
     input logic [31:0] ins,
     input logic [31:0] rs1_mod,
     input logic comp_sig,
@@ -41,4 +41,4 @@ module Branoffgen (
   assign imm = comp_sig ? comp_imm : (ins[31] ? {20'hfffff, ins[31:20]} : {20'h00000, ins[31:20]});
   assign branoff_jalr = rs1_mod + imm;
   assign branoff = jal ? branoff_jal : jalr ? branoff_jalr : branoff_branch;
-endmodule : Branoffgen
+endmodule : branch_off_gen
