@@ -47,30 +47,12 @@ module Memory(main_bus_if bus);
   logic [31:0] memforward; 
   logic MEM_WB_memwrite;
   logic [31:0] MEM_WB_dout_rs2;
-//  logic [11:0] addr;
   logic mmio_wea;
   logic set_mmio_wea;
   logic [31:0] mmio_dat;
   logic set_mmio_dat;
   assign En=1'b1;
   
-//  logic [31:0] MEM_WB_alures;
-  
-//   initial begin
-//    mmio_dat = 32'h00000000;
-//    mmio_wea = 0;
-//    set_mmio_wea = 0;
-//    set_mmio_dat = 0;
-//   end
- /*
-  always_comb
-  unique casez(EX_MEM_storecntrl)
-        3'b001: byte_write=4'b0001;
-        3'b010: byte_write=4'b0011;
-        3'b100: byte_write=4'b1111;
-        3'b000: byte_write=4'b0000;
-  endcase   
-  */
    always_comb 
    
        unique case(bus.EX_MEM_storecntrl)
@@ -92,43 +74,18 @@ module Memory(main_bus_if bus);
                          2'b11: byte_write = 4'b1001;
                       endcase
                  end
-//             3'b100:  byte_write=(bus.EX_MEM_alures == 32'haaaaa004 || bus.EX_MEM_alures == 32'haaaaa008) ? 4'b0000: 4'b1111; // store word (sw)
              3'b100: byte_write = 4'b1111; 
              3'b000:  byte_write=4'b1111; // not store
              default: byte_write=4'b1111;
        endcase
       
     
-//    assign set_mmio_wea = ((bus.EX_MEM_storecntrl == 3'b100) && (bus.EX_MEM_alures == 32'haaaaa004)) ? 1 : 0;
-//    assign set_mmio_dat = ((bus.EX_MEM_storecntrl == 3'b100) && (bus.EX_MEM_alures == 32'haaaaa008)) ? 1 : 0;
-//    assign bus.mmio_wea = mmio_wea;
-//    assign bus.mmio_dat = mmio_dat;
- /* blk_mem_gen_0 datamem (
-          .clka(clk),    // input wire clka
-          .ena(En),      // input wire ena
-          .wea(byte_write),      // input wire [ 2: 0] wea
-          .addra(EX_MEM_alures[7:2]),  // input wire [15 : 0] addra
-          .dina(EX_MEM_alusec),    // input wire [31 : 0] dina
-          .douta(MEM_WB_memres_temp) // output wire [31 : 0] douta
-        );
-   */
    
    
-  /* Memory_byteaddress datamem(
-           .clk(bus.clk),
-           .rst(bus.Rst),
-           .wea(bus.EX_MEM_memwrite),
-           .en(byte_write),
-           .addr(bus.EX_MEM_alures[11:0]),
-//           .addr(addr),
-           .din(memforward),
-           .dout(MEM_WB_memres_temp)
-           );*/
            
     assign bus.mem_wea = bus.EX_MEM_memwrite;
     assign bus.mem_rea = bus.EX_MEM_memread;
     assign bus.mem_en = byte_write; 
-//    assign bus.mem_addr = bus.EX_MEM_alures[11:0]; 
     assign bus.mem_addr = bus.EX_MEM_alures;
     assign bus.mem_din = memforward; 
     assign MEM_WB_memres_temp = bus.mem_dout;
@@ -139,24 +96,12 @@ module Memory(main_bus_if bus);
  assign d3=MEM_WB_memres_temp[31:24];
  
  assign bus.MEM_WB_memres = MEM_WB_memres;
-// assign bus.MEM_WB_memres = memforward;
  
  logic ctrl_fwd; 
  
  assign ctrl_fwd = (bus.EX_MEM_memwrite && bus.MEM_WB_regwrite) && (bus.MEM_WB_rd == bus.EX_MEM_rs2);
-// assign ctrl_fwd = (bus.EX_MEM_memwrite && bus.MEM_WB_regwrite) && ((bus.MEM_WB_rd == bus.EX_MEM_rs2) || (bus.EX_MEM_alures == bus.MEM_WB_alures));    
-// assign ctrl_fwd = (bus.EX_MEM_memwrite && bus.MEM_WB_regwrite) && (bus.MEM_WB_rd != bus.EX_MEM_rs1) &&
-//    ((bus.MEM_WB_rd == bus.EX_MEM_rs2) || (bus.EX_MEM_alures == bus.MEM_WB_alures));    
-// assign ctrl_fwd = (bus.EX_MEM_memwrite && bus.MEM_WB_regwrite) && (bus.MEM_WB_alures == bus.EX_MEM_alures);
  assign memforward = ctrl_fwd ? bus.WB_res: bus.EX_MEM_dout_rs2;
  
-//   always_comb
-//       case(MEM_WB_dout_sel)
-//            2'b00: MEM_WB_memres_sig  = {d3,d2,d1,d0};
-//            2'b01: MEM_WB_memres_sig  = {d0,d3,d2,d1};
-//            2'b10: MEM_WB_memres_sig  = {d1,d0,d3,d2};
-//            2'b11: MEM_WB_memres_sig = {d2,d1,d0,d3};
-//        endcase
   always_comb MEM_WB_memres_sig = MEM_WB_memres_temp;
   always_comb
   case(MEM_WB_loadcntrl)
@@ -168,7 +113,6 @@ module Memory(main_bus_if bus);
         default :   MEM_WB_memres=32'h0;
   endcase;
         
-  //assign MEM_WB_memres=(Rst)?32'h00000000:MEM_WB_memres_sig;
   
   //passing to the next pipeline stage
   always_ff @(posedge bus.clk) begin
@@ -189,7 +133,6 @@ module Memory(main_bus_if bus);
             mmio_wea <= 0;
             mmio_dat <= 0;
             bus.MEM_WB_pres_addr<= 32'h0;
-//            MEM_WB_alures<=32'h00000000;
             bus.MEM_WB_CSR <= 0;
             bus.MEM_WB_CSR_read <= 0;
         end
@@ -208,9 +151,6 @@ module Memory(main_bus_if bus);
             MEM_WB_memwrite<=bus.EX_MEM_memwrite;
             MEM_WB_dout_rs2 <= bus.EX_MEM_dout_rs2;
             bus.MEM_WB_pres_addr<=bus.EX_MEM_pres_addr;
-//            mmio_wea <= set_mmio_wea ? memforward[0] : mmio_wea;
-//            mmio_dat <= set_mmio_dat ? memforward : mmio_dat;
-//            MEM_WB_alures <= bus.EX_MEM_alures;
             bus.MEM_WB_CSR <= bus.EX_MEM_CSR;
             bus.MEM_WB_CSR_read <= bus.EX_MEM_CSR_read;
         end
