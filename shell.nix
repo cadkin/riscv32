@@ -31,6 +31,7 @@ let
             graphviz
             gcc
             unzip
+            envsubst
             nettools
 
             zlib

@@ -8,8 +8,8 @@ VIVADO_PATH			:= $(shell which $(VIVADO) 2> /dev/null)
 VIVADO_FLAGS        :=
 TOP                 := rv_uart_top
 
-MEM_GEN_TCL_PATH    := scripts/vivado/ip_mem_gen.tcl
-MEM_COE_TCL_PATH    := scripts/vivado/ip_mem_coe.tcl
+MEM_GEN_TCL_PATH    := scripts/vivado/ip_mem_gen_cell.tcl
+MEM_COE_TCL_PATH    := scripts/vivado/ip_mem_gen_cell_coe.tcl
 MEM_CELL_NAMES		:= mem_cell_0 mem_cell_1 mem_cell_2 mem_cell_3 imem_cell_0 imem_cell_1 imem_cell_2 imem_cell_3
 TMP_TCL_PATH        := /tmp/$(shell bash -c 'echo $$RANDOM')-${USER}-vivado.tcl
 
@@ -43,7 +43,7 @@ IP_DIR				:= ip
 COE_TS              := coe_timestamp.tmp
 COE_DIR             := c
 # Basename for loading from coe, expects $(coe_basename)0.coe - $(coe_basename)3.coe to load from $(COE_DIR). Can be modified.
-coe_basename        := test
+coe_basename        := testUart
 
 SIM                 := xsim
 SIM_FLAGS           :=
