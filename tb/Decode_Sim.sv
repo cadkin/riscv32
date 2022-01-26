@@ -252,7 +252,7 @@ logic branch_taken_sig;
 
 logic trap_ret;
 
-Decode u2(bus.decode);
+decode u2(bus.decode);
 
 logic clk, rst,stall;
 logic [31:0] res;

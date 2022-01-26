@@ -55,7 +55,7 @@
 
 
 
-module Decode (
+module decode (
     main_bus_if bus
 );
 

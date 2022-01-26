@@ -363,7 +363,7 @@ module riscv_core (
   //register file
   Regfile u0 (bus.regfile);
 
-  Decode u2 (bus.decode);
+  decode u2 (bus.decode);
 
   Execute u3 (bus.execute);
 
