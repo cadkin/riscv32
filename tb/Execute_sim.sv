@@ -218,7 +218,7 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
         ); 
  */
  //decode u2(bus.decode);
- Execute u3(bus.execute);
+ execute u3(bus.execute);
  reg frm;
 
  logic clk,rst,fpusrc,stall;

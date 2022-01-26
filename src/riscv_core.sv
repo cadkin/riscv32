@@ -365,7 +365,7 @@ module riscv_core (
 
   decode u2 (bus.decode);
 
-  Execute u3 (bus.execute);
+  execute u3 (bus.execute);
 
   Memory u4 (bus.memory);
 

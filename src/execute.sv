@@ -55,7 +55,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module Execute (
+module execute (
     main_bus_if bus
 );
 
@@ -230,4 +230,4 @@ module Execute (
   assign bus.EX_MEM_fpusrc = EX_MEM_fpusrc;
   assign bus.EX_MEM_memread = EX_MEM_memread_sig;
   assign bus.EX_MEM_regwrite = EX_MEM_regwrite_sig;
-endmodule : Execute
+endmodule : execute
