@@ -8,8 +8,8 @@ interface riscv_bus_if (
     input logic scan_en,
     input logic scan_in,
     input logic scan_clk,
-    output logic scan_out,
-    input logic [4:0] debug_input
+    input logic [4:0] debug_input,
+    output logic scan_out
 );
 
   //Memory signals
@@ -44,20 +44,20 @@ interface riscv_bus_if (
 
   modport core(
       input clk, Rst, debug, prog, debug_input, mem_dout, imem_dout,
+      input mem_hold, uart_IRQ,
+      input stack_mismatch, RAS_rdy, RAS_branch, ret,
       output debug_output, mem_wea, mem_rea, mem_en, mem_addr, mem_din, imem_en,
       output imem_addr, imem_din, imem_prog_ena, storecntrl,
-      input mem_hold, uart_IRQ,
       output trapping,
-      output IF_ID_pres_addr, IF_ID_dout_rs1, IF_ID_jal, IF_ID_rd,
       output ins, branch, branoff, next_addr,
-      input stack_mismatch, RAS_rdy, RAS_branch, ret
+      output IF_ID_pres_addr, IF_ID_dout_rs1, IF_ID_jal, IF_ID_rd
   );
 
   modport memcon(
       input clk, Rst, mem_wea, mem_en, mem_addr, mem_din, imem_en,
       input imem_addr, imem_din, imem_prog_ena, mem_rea, storecntrl,
-      output mem_dout, imem_dout, mem_hold,
       input scan_clk, scan_en, scan_in,
+      output mem_dout, imem_dout, mem_hold,
       output scan_out
   );
 
@@ -73,10 +73,10 @@ interface mmio_bus_if (
     input logic clk,
     input logic Rst,
     input logic rx,
-    input logic [4:0] debug_input,
     input logic BR_clk,
-    output logic tx,
     input logic spi_miso,
+    input logic [4:0] debug_input,
+    output logic tx,
     output logic spi_mosi,
     output logic spi_cs,
     output logic spi_sck
@@ -121,9 +121,10 @@ interface mmio_bus_if (
       input spi_data_avail, spi_buffer_empty, spi_buffer_full, spi_dout,
       output spi_rd, spi_wr, spi_din, spi_ignore_response,
 
-      output RAS_config_din, RAS_config_addr, RAS_config_wr,
       input RAS_mem_din, RAS_mem_addr, RAS_mem_rd, RAS_mem_wr,
+      output RAS_config_din, RAS_config_addr, RAS_config_wr,
       output RAS_mem_dout, RAS_mem_rdy,
+
       input cnt_dout, cnt_ovflw,
       output cnt_zero
   );
@@ -142,8 +143,8 @@ interface mmio_bus_if (
 
   modport CRAS(
       input RAS_config_din, RAS_config_addr, RAS_config_wr,
-      output RAS_ena,
       input RAS_mem_dout, RAS_mem_rdy,
+      output RAS_ena,
       output RAS_mem_din, RAS_mem_addr, RAS_mem_rd, RAS_mem_wr
   );
 
