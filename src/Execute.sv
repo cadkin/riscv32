@@ -108,7 +108,7 @@ module Execute (
       .rs2_mod(rs2_mod)
   );
 
-  ALU uut (
+  alu uut (
       .a(ALUop1),
       .b(ALUop2),
       .alusel(bus.ID_EX_alusel),

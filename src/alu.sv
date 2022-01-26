@@ -30,7 +30,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module ALU (
+module alu (
     input  logic [31:0] a,
     input  logic [31:0] b,
     input  logic [31:0] ID_EX_pres_adr,  //jal instr
@@ -87,4 +87,4 @@ module ALU (
                (ID_EX_jal) ? (ID_EX_pres_adr + addr_incr) :
                (ID_EX_jalr) ? (ID_EX_pres_adr + addr_incr) :
                ((ID_EX_compare && comp_res_temp) ? 32'h1 : s);
-endmodule : ALU
+endmodule : alu
