@@ -42,7 +42,7 @@ assign rst_n = ~Rst;
 //assign key[47:24]=24'h000000;
 //assign key[23:12]=12'h000;
 //assign key[11:0] = 12'h000;
-rv_uart_top dut(.*); 
+riscv_top dut(.*); 
 
 assign sck = dut.spi_sck;
 

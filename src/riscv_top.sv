@@ -150,7 +150,7 @@ interface mmio_bus_if (
   modport counter(input clk, Rst, cnt_zero, output cnt_ovflw, cnt_dout);
 endinterface
 
-module rv_uart_top (
+module riscv_top (
     input logic clk,
     input logic rst_n,
 
@@ -365,4 +365,4 @@ module rv_uart_top (
       end
     end
   end
-endmodule : rv_uart_top
+endmodule : riscv_top
