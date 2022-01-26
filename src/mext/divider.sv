@@ -1,4 +1,4 @@
-module Divider (
+module divider (
     input         clk,
     input         rst,
     input  [ 2:0] divsel,

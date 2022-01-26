@@ -1,4 +1,4 @@
-module Multiplier (
+module multiplier (
     input         clk,
     input         rst,
     input  [ 2:0] mulsel,

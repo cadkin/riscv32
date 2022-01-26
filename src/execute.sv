@@ -126,7 +126,7 @@ module execute (
       .ID_EX_comp_sig(bus.ID_EX_comp_sig)
   );
 
-  Multiplier mul (
+  multiplier mul (
       .clk(bus.clk),
       .rst(bus.Rst),
       .mulsel(bus.ID_EX_mulsel),
@@ -136,7 +136,7 @@ module execute (
       .res(mulres)
   );
 
-  Divider div (
+  divider div (
       .clk(bus.clk),
       .rst(bus.Rst),
       .divsel(bus.ID_EX_divsel),
