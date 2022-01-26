@@ -3,10 +3,10 @@
 // Created by:
 //   Md Badruddoja Majumder, Garrett S. Rose
 //   University of Tennessee, Knoxville
-// 
+//
 // Created:
 //   October 30, 2018
-// 
+//
 // Module name: Branoffgen
 // Description:
 //   Implements the RISC-V branch offset generation logic (part of decoder)
@@ -20,7 +20,7 @@
 //   jalr -- indicated jump and link for subrouting return
 // Output:
 //   branoff -- 16-bit branch offset value
-// 
+//
 //////////////////////////////////////////////////////////////////////////////////
 
 module Branoffgen (
