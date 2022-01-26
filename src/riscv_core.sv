@@ -358,7 +358,7 @@ module riscv_core (
     end
   end
 
-  Fetch_Reprogrammable u1 (bus.fetch);
+  fetch u1 (bus.fetch);
 
   //register file
   Regfile u0 (bus.regfile);

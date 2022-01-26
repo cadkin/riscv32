@@ -10,7 +10,7 @@
 // Modified:
 //   May 20, 2019
 //
-// Module name: Fetch_Reprogrammable
+// Module name: Fetch
 // Description:
 //   Implements the RISC-V fetch pipeline stage. This functions almost identically
 //   to the original fetch module, however this one has added functionality
@@ -36,7 +36,7 @@
 
 //This functions almost identically to the original fetch module, however this one has added functionality
 //to reprogram the instruction memory through UART.
-module Fetch_Reprogrammable (
+module fetch (
     main_bus_if bus
 );
 
