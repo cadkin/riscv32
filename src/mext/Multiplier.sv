@@ -1,12 +1,11 @@
-module Multiplier
-(
-  input         clk,
-  input         rst,
-  input  [2:0]  mulsel,
-  input  [31:0] a,
-  input  [31:0] b,
-  output        ready,
-  output [31:0] res
+module Multiplier (
+    input         clk,
+    input         rst,
+    input  [ 2:0] mulsel,
+    input  [31:0] a,
+    input  [31:0] b,
+    output        ready,
+    output [31:0] res
 );
 
   reg [32:0] factor_a;
@@ -19,42 +18,36 @@ module Multiplier
   reg        busy;
   reg [64:0] full_res;
 
-  wire mul    = (mulsel == 3'b001); // mul
-  wire mulh   = (mulsel == 3'b010); // mulh
-  wire mulhsu = (mulsel == 3'b011); // mulhsu
-  wire mulhu  = (mulsel == 3'b100); // mulhu
+  wire mul = (mulsel == 3'b001);  // mul
+  wire mulh = (mulsel == 3'b010);  // mulh
+  wire mulhsu = (mulsel == 3'b011);  // mulhsu
+  wire mulhu = (mulsel == 3'b100);  // mulhu
 
-  wire mul_op = mul || mulh || mulhsu || mulhu; 
+  wire mul_op = mul || mulh || mulhsu || mulhu;
 
   always_comb // Set operands' sign bits based on instruction type.
   begin
     case (mulsel)
-      3'b011:
-      begin
+      3'b011: begin
         op_a = {a[31], a[31:0]};
         op_b = {1'b0, b[31:0]};
       end
-      3'b010:
-      begin
+      3'b010: begin
         op_a = {a[31], a[31:0]};
         op_b = {b[31], b[31:0]};
       end
-      default:
-      begin
+      default: begin
         op_a = {1'b0, a[31:0]};
         op_b = {1'b0, b[31:0]};
       end
     endcase
   end
 
-  always @(posedge clk or posedge rst)
-  begin
+  always @(posedge clk or posedge rst) begin
     if (rdy) // Stage 3: Wait 2 clock cycles.
     begin
-      if (count)
-        count <= 0;
-      else
-        rdy <= 0;
+      if (count) count <= 0;
+      else rdy <= 0;
     end
     else if (rst || !mul_op) // Reset
     begin

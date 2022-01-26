@@ -1,12 +1,11 @@
-module Divider
-(
-  input         clk,
-  input         rst,
-  input  [2:0]  divsel,
-  input  [31:0] a,
-  input  [31:0] b,
-  output        ready,
-  output [31:0] res
+module Divider (
+    input         clk,
+    input         rst,
+    input  [ 2:0] divsel,
+    input  [31:0] a,
+    input  [31:0] b,
+    output        ready,
+    output [31:0] res
 );
 
   reg [31:0] numerator;
@@ -15,7 +14,7 @@ module Divider
   reg [31:0] remainder;
   reg [31:0] op_a;
   reg [31:0] op_b;
-  reg [5:0]  index;
+  reg [ 5:0] index;
   reg        div_inst;
   reg        invert_res;
   reg        count;
@@ -24,45 +23,38 @@ module Divider
   reg [31:0] div_result;
   reg [31:0] rem_result;
 
-  wire div  = (divsel == 3'b001); // div
-  wire divu = (divsel == 3'b010); // divu
-  wire rem  = (divsel == 3'b011); // rem
-  wire remu = (divsel == 3'b100); // remu
+  wire div = (divsel == 3'b001);  // div
+  wire divu = (divsel == 3'b010);  // divu
+  wire rem = (divsel == 3'b011);  // rem
+  wire remu = (divsel == 3'b100);  // remu
 
   wire divrem_op = div || divu || rem || remu;
-  wire div_op    = div || divu;
-  wire neg_q     = a[31] != b[31];
-  wire neg_r     = a[31];
+  wire div_op = div || divu;
+  wire neg_q = a[31] != b[31];
+  wire neg_r = a[31];
 
-  always_comb
-  begin
+  always_comb begin
     case (divsel)
-      3'b001:
-      begin
-        op_a <= a[31] ? -a : a;
-        op_b <= b[31] ? -b : b;
+      3'b001: begin
+        op_a = a[31] ? -a : a;
+        op_b = b[31] ? -b : b;
       end
-      3'b011:
-      begin
-        op_a <= a[31] ? -a : a;
-        op_b <= b[31] ? -b : b;
+      3'b011: begin
+        op_a = a[31] ? -a : a;
+        op_b = b[31] ? -b : b;
       end
-      default:
-      begin
-        op_a <= a;
-        op_b <= b;
+      default: begin
+        op_a = a;
+        op_b = b;
       end
     endcase
   end
 
-  always @(posedge clk or posedge rst)
-  begin
+  always @(posedge clk or posedge rst) begin
     if (rdy) // Stage 3: Wait 2 clock cycles.
     begin
-      if (count)
-        count <= 0;
-      else
-        rdy <= 0;
+      if (count) count <= 0;
+      else rdy <= 0;
     end
     else if (rst || !divrem_op) // Reset
     begin
@@ -82,8 +74,7 @@ module Divider
       remainder    = remainder << 1'b1;
       remainder[0] = numerator[index];
 
-      if (divisor <= remainder)
-      begin
+      if (divisor <= remainder) begin
         remainder       = remainder - divisor;
         quotient[index] = 1'b1;
       end
@@ -110,5 +101,5 @@ module Divider
   assign rem_result = invert_res ? -remainder : remainder;
 
   assign ready = rdy;
-  assign res   = div_inst ? div_result : rem_result;
+  assign res = div_inst ? div_result : rem_result;
 endmodule
