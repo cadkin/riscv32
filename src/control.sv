@@ -40,7 +40,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module Control (
+module control (
     input  logic        clk,
     input  logic [ 6:0] opcode,
     input  logic [ 2:0] funct3,
@@ -311,4 +311,4 @@ module Control (
   end
 
   assign stall = flush || hazard || ins_zero;
-endmodule : Control
+endmodule : control

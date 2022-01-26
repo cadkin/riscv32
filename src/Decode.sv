@@ -220,7 +220,7 @@ module Decode (
   assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b00000000000000000000000001110011);
 
   //control signal generation
-  Control u1 (
+  control u1 (
       .clk(bus.clk),
       .opcode(bus.ins[6:0]),
       .funct3(funct3),
