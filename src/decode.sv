@@ -342,7 +342,7 @@ module decode (
   );
 
   //Hazard detection unit
-  Hazard u3 (
+  hazard u3 (
       .zero1(zero1),
       .zero2(zero2),
       .zero3(zero3),

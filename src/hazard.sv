@@ -28,7 +28,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module Hazard (
+module hazard (
     input  logic zero1,
     input  logic zero2,
     input  logic zero3,
@@ -56,4 +56,4 @@ module Hazard (
   assign hzi5 = hzi4 && EX_MEM_memread;
   assign hzi6 = hzi3 || hzi5;
   assign hzi7 = hzi6 && IF_ID_branch;
-endmodule : Hazard
+endmodule : hazard
