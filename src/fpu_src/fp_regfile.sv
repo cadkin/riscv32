@@ -10,7 +10,6 @@ module Regfile(main_bus_if bus);
 
   assign bus.IF_ID_dout_rs1 = |bus.adr_rs1 ? regdata[bus.adr_rs1] : |bus.adr_photon_rs1 ? regdata[bus.adr_photon_rs1] : 0;
 
-  //assign bus.IF_ID_dout_rs1 = (bus.adr_rs1 != 0) ? regdata[bus.adr_rs1] : 0;
   assign bus.IF_ID_dout_rs2 = |bus.IF_ID_rs2 ? regdata[bus.IF_ID_rs2] : 0;
 
   always_ff @(posedge bus.clk)begin
@@ -26,10 +25,6 @@ module Regfile(main_bus_if bus);
     initial begin
       for(i=0; i<32 ;i=i+1)begin
       	regdata[i] = 0;
-//        if (i == 2)
-//            regdata[i] = 511;
-//        else
-//            regdata[i] = $random;
       end
         end
       `endif
