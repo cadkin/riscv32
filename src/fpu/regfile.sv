@@ -2,7 +2,6 @@ module regfile (
     main_bus_if bus
 );
 
-
   logic [31:0] regdata[31:0];  // array of 32 32-bit registers
   logic [31:0] fcsr;  //flowing point control registers
   logic        wen;
