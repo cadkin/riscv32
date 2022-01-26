@@ -11,7 +11,7 @@ module Debug_Display (
 
   integer writecount = 0;
 
-  Addressable_FIFO u0 (
+  addr_fifo u0 (
       .wea(mmio_wea),
       .*
   );

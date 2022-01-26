@@ -1,6 +1,20 @@
 `timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Created by:
+//
+// Created:
+//
+// Module name: Addressable FIFO
+// Description:
+//
+// "Mini-RISC-V" implementation of RISC-V architecture developed by UC Berkeley
+//
+// Inputs:
+// Output:
+//
+//////////////////////////////////////////////////////////////////////////////////
 
-module Addressable_FIFO (
+module addr_fifo (
     input  logic        clk,
     input  logic        rst,
     input  logic        wea,
