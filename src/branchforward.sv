@@ -64,7 +64,6 @@ module branchforward
                 (zero4 && EX_MEM_regwrite && (!EX_MEM_memread) && (!div_ready) && mul_ready)    ? 3'b011 :
                 (zerob && MEM_WB_regwrite)                                                      ? 3'b001 : 3'b100;
 
-  //assign sel2 = zero4 && EX_MEM_regwrite && (!EX_MEM_memread);
   always_comb
       case(sel1)
         3'b000:  rs1_mod = alures;
@@ -84,7 +83,4 @@ module branchforward
           3'b100:  rs2_mod = rs2;
           default: rs2_mod = rs2; 
         endcase  
-  //assign rs1_mod = (sel1) ? alures : rs1;
-
-  //assign rs2_mod = (sel2) ? alures : rs2;
 endmodule: branchforward
