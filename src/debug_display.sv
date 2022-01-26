@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module Debug_Display (
+module debug_display (
     mmio_bus_if mbus
 );
 

@@ -258,7 +258,7 @@ module riscv_top (
       .mbus(mbus.memcon)
   );
 
-  Debug_Display d0 (mbus.display);
+  debug_display d0 (mbus.display);
 
   uart_controller u0 (
       .mbus(mbus.uart),
