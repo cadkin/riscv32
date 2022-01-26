@@ -55,7 +55,7 @@
 
 
 
-module Decode(main_bus bus);
+module Decode(main_bus_if bus);
 
 logic IF_ID_lui, lui;
 logic ID_EX_memread_sig, ID_EX_regwrite_sig;

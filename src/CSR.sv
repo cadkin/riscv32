@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 module CSR (
-	main_bus bus
+	main_bus_if bus
 	);
 
     logic clk, wea, rst;

@@ -32,7 +32,7 @@ module ra_stack #(
     input logic [DATA_WIDTH-1:0] din,  din_bottom,
     output logic [DATA_WIDTH-1:0] dout, dout_bottom,
     output logic mismatch, full, empty, over_thresh, under_thresh
-//        main_bus bus
+//        main_bus_if bus
     );
 
 //    logic clk, rst, ena, push, pop, mismatch, full, empty;

@@ -23,7 +23,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module Writeback(main_bus bus);
+module Writeback(main_bus_if bus);
   
   logic [31:0] WB_res_sig; 
   assign WB_res_sig = (bus.MEM_WB_memread)  ? bus.MEM_WB_memres :

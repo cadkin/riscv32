@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps 
 
 module Debug_Display (
-//main_bus bus
+//main_bus_if bus
 mmio_bus_if mbus
 //input logic clk, rst, mmio_wea, addr_up_in, addr_dn_in,
 //input logic [31:0] din,

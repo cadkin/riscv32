@@ -36,7 +36,7 @@
 
 //This functions almost identically to the original fetch module, however this one has added functionality
 //to reprogram the instruction memory through UART.
-module Fetch_Reprogrammable(main_bus bus);
+module Fetch_Reprogrammable(main_bus_if bus);
 
 logic [31:0] pc_incr;
 logic [31:0] memdout;

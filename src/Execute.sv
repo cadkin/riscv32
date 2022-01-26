@@ -55,7 +55,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module Execute(main_bus bus);
+module Execute(main_bus_if bus);
 
   logic EX_MEM_memread_sig, EX_MEM_regwrite_sig,EX_MEM_fpusrc;
   logic [31:0] EX_MEM_alures_sig,EX_MEM_fpures_sig;

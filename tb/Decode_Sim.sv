@@ -19,7 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-interface main_bus ();
+interface main_bus_if ();
     logic clk, Rst, debug, dbg, prog, mem_hold, uart_IRQ, RAS_rdy;//rx, //addr_dn, addr_up,
     logic[4:0] debug_input;
     logic         PC_En;
@@ -205,7 +205,7 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
 
 module Decode_Sim();
 
-main_bus bus();
+main_bus_if bus();
 
 logic ID_EX_memread_sig, ID_EX_regwrite_sig;
 
