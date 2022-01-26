@@ -80,7 +80,7 @@ module execute (
   logic mul_ready;
   logic div_ready;
 
-  Forwarding dut (
+  forwarding dut (
       .EX_MEM_regwrite(EX_MEM_regwrite_sig),
       .EX_MEM_memread(EX_MEM_memread_sig),
       .MEM_WB_regwrite(bus.MEM_WB_regwrite),

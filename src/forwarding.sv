@@ -32,7 +32,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module Forwarding (
+module forwarding (
     input  logic        EX_MEM_regwrite,
     input  logic        EX_MEM_memread,
     input  logic        MEM_WB_regwrite,
@@ -134,4 +134,4 @@ module Forwarding (
       3'b001:  rs2_mod = wbres;
       default: rs2_mod = rs2;
     endcase
-endmodule : Forwarding
+endmodule : forwarding
