@@ -164,7 +164,7 @@ module Memory_Controller (
   end
 
   Mem_Interface #(
-      .use_sram(0)
+      .USE_SRAM(0)
   ) sharedmem (
       .clk(clk),
       .imem_en(imem_en),
