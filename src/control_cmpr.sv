@@ -1,4 +1,4 @@
-module Compressed_Control (
+module control_cmpr (
     input logic [31:0] ins,
     input logic ins_zero,
     input logic flush,

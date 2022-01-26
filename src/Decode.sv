@@ -256,7 +256,7 @@ module Decode (
   );
 
   //Compressed Instruction Control Unit
-  Compressed_Control u7 (
+  control_cmpr u7 (
       .ins(bus.ins),
       .ins_zero(ins_zero),
       .flush(flush),
