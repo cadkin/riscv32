@@ -7,7 +7,7 @@
 // Created:
 //   October 30, 2018
 //
-// Module name: Branchdecision
+// Module name: Branch Decision
 // Description:
 //   Implements the RISC-V branch decision logic (part of decoder pipeline stage)
 //
@@ -25,7 +25,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module Branchdecision (
+module branch_decision (
     input  logic [31:0] rs1_mod,
     input  logic [31:0] rs2_mod,
     input  logic        branch,
@@ -61,4 +61,4 @@ module Branchdecision (
                          jal ||
                          jalr) &&
                         (!hazard);
-endmodule : Branchdecision
+endmodule : branch_decision

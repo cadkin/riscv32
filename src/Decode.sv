@@ -330,7 +330,7 @@ module Decode (
   );
 
   //Branch decision module
-  Branchdecision u2 (
+  branch_decision u2 (
       .rs1_mod(rs1_mod),
       .rs2_mod(rs2_mod),
       .hazard(hz_sig),
