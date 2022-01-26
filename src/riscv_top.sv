@@ -253,7 +253,7 @@ module riscv_top (
 
   riscv_core rv_core (rbus.core);
 
-  Memory_Controller memcon0 (
+  mem_controller memcon0 (
       .rbus(rbus.memcon),
       .mbus(mbus.memcon)
   );

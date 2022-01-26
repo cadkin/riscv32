@@ -38,9 +38,9 @@ Uncheck Primitives Output Register and RSTA Pin
 Other Options:
 Check Fill Remaining Memory Locations
 ```
-14. To test on FPGA, set core to use BRAM in Memory_Controller.sv. Change USE_SRAM to 0.
+14. To test on FPGA, set core to use BRAM in mem_controller.sv. Change USE_SRAM to 0.
 ```
-Line 168: Mem_Interface #(.USE_SRAM(0))...
+Line 168: mem_interface #(.USE_SRAM(0))...
 ```
 
 ## Inital Compilation Setup

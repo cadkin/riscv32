@@ -1,4 +1,4 @@
-module Mem_Interface #(
+module mem_interface #(
     parameter int USE_SRAM = 1,  // 0 to use BRAM, 1 to use SRAM
     // Scanchain Parameters
     parameter int N_ADDR = 32,  // Number of bits in address

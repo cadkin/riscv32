@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module Memory_Controller (
+module mem_controller (
     riscv_bus_if rbus,
     mmio_bus_if  mbus
 );
@@ -163,7 +163,7 @@ module Memory_Controller (
     blkmem_strctrl = RAS_mem_rdy ? (RAS_wr ? 3'b100 : 3'b000) : rbus.storecntrl;
   end
 
-  Mem_Interface #(
+  mem_interface #(
       .USE_SRAM(0)
   ) sharedmem (
       .clk(clk),
@@ -184,4 +184,4 @@ module Memory_Controller (
       .scan_in(rbus.scan_in),
       .scan_out(rbus.scan_out)
   );
-endmodule : Memory_Controller
+endmodule : mem_controller
