@@ -373,5 +373,5 @@ module riscv_core (
 
   photon_core photon (bus);
 
-  CSR uC (.bus(bus));
+  csr uC (.bus(bus));
 endmodule

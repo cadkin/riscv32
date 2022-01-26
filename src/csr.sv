@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module CSR (
+module csr (
 	main_bus_if bus
 	);
 
@@ -77,4 +77,4 @@ module CSR (
 		end
 
 
-endmodule : CSR
+endmodule : csr
