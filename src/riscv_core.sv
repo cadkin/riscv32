@@ -369,7 +369,7 @@ module riscv_core (
 
   memory u4 (bus.memory);
 
-  Writeback u5 (bus.writeback);
+  writeback u5 (bus.writeback);
 
   photon_core photon (bus);
 

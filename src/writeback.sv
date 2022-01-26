@@ -22,7 +22,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module Writeback (
+module writeback (
     main_bus_if bus
 );
 
@@ -46,4 +46,4 @@ module Writeback (
       bus.WB_ID_regwrite <= bus.MEM_WB_regwrite;
     end
   end
-endmodule : Writeback
+endmodule : writeback
