@@ -71,10 +71,6 @@ module ALU
   
   logic [31:0] s;
   logic [32:0] comp_res_temp;
-//  logic [31:0] csr_s; 
-
-//  assign comp_res_temp = a - b;
-//  assign comp_res= (a < b);
     assign comp_res_temp = (a < b);
     
     logic [31:0] addr_incr;
@@ -106,14 +102,6 @@ module ALU
  end
 
 
-//    ALU_chaos ac0(.a(a), .b(b), .opcode(alusel), .key(key), .y(s));
-
-//  assign res = (ID_EX_lui) ? b : (ID_EX_jal||ID_EX_jalr) ? {24'h000000,ID_EX_pres_adr} : 
-//                                         ((ID_EX_compare&&comp_res) ? 
-//                                          32'h1 : s);
-//    assign res = (ID_EX_lui) ? b : (ID_EX_jal||ID_EX_jalr) ? {24'h000000,ID_EX_pres_adr} : 
-//                                         ((ID_EX_compare&&comp_res_temp) ? 
-//                                          32'h1 : s);
     assign res = (ID_EX_lui) ? b : (ID_EX_auipc) ? (b + ID_EX_pres_adr[11:0]) :  (ID_EX_jal) ? (ID_EX_pres_adr+addr_incr) : (ID_EX_jalr) ? (ID_EX_pres_adr+addr_incr) : 
                                          ((ID_EX_compare&&comp_res_temp) ? 
                                           32'h1 : s);
