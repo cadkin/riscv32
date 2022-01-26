@@ -306,8 +306,8 @@ module Decode (
       .rm(IF_ID_frm)
   );
 
-  //branchforward
-  branchforward u0 (
+  //branch_forward
+  branch_forward u0 (
       .rs1(bus.IF_ID_dout_rs1),
       .rs2(bus.IF_ID_dout_rs2),
       .zero3(zero3),

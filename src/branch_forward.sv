@@ -7,7 +7,7 @@
 // Created:
 //   October 30, 2018
 //
-// Module name: branchforward
+// Module name: Branch Forward
 // Description:
 //   Implements the RISC-V branch forward logic (part of decoder pipeline stage)
 //
@@ -29,7 +29,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module branchforward (
+module branch_forward (
     input  logic [31:0] rs1,
     input  logic [31:0] rs2,
     input  logic        zero3,
@@ -81,4 +81,4 @@ module branchforward (
       3'b100:  rs2_mod = rs2;
       default: rs2_mod = rs2;
     endcase
-endmodule : branchforward
+endmodule : branch_forward

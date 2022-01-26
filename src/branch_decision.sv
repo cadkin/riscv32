@@ -14,8 +14,8 @@
 // "Mini-RISC-V" implementation of RISC-V architecture developed by UC Berkeley
 //
 // Inputs:
-//   rs1_mod -- modified rs1 value from branchforward
-//   rs2_mod -- modified rs1 value from branchforward
+//   rs1_mod -- modified rs1 value from branch_forward
+//   rs2_mod -- modified rs1 value from branch_forward
 //   branch -- indicates branch
 //   funct3 -- funct3 opcode field
 //   jal -- indicates jump and link
