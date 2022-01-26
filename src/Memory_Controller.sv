@@ -1,8 +1,8 @@
 `timescale 1ns / 1ps
 
 module Memory_Controller (
-    riscv_bus rbus,
-    mmio_bus mbus
+    riscv_bus_if rbus,
+    mmio_bus_if mbus
 );
 
 logic clk, rst;

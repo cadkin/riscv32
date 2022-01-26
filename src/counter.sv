@@ -1,5 +1,5 @@
 module counter (
-	mmio_bus mbus
+	mmio_bus_if mbus
 	);
 
 	logic clk, rst; 

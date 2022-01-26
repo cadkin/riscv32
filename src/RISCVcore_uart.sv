@@ -300,7 +300,7 @@ interface main_bus (
 endinterface
 
 module RISCVcore_uart(
-    riscv_bus rbus
+    riscv_bus_if rbus
 //    input   logic         clk,
 //    input   logic         Rst,
 //    input   logic         debug,

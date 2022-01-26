@@ -2,7 +2,7 @@
 
 module Debug_Display (
 //main_bus bus
-mmio_bus mbus
+mmio_bus_if mbus
 //input logic clk, rst, mmio_wea, addr_up_in, addr_dn_in,
 //input logic [31:0] din,
 //output logic [31:0] dout

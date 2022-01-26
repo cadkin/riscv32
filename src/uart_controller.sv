@@ -21,8 +21,8 @@
 
 
 module uart_controller(
-    mmio_bus mbus,
-    riscv_bus rbus
+    mmio_bus_if mbus,
+    riscv_bus_if rbus
 //    input logic clk, rst, rx, rx_ren, tx_wen,
 //    input logic [7:0] din,
 //    output logic tx, rx_data_present,

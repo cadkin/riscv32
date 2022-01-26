@@ -21,7 +21,7 @@
 `default_nettype wire
 
 module spi_controller(
-	mmio_bus mbus
+	mmio_bus_if mbus
 //	input logic clk, rst,
 //	input logic rd, wr,
 //	input logic [7:0] din,

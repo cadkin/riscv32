@@ -28,8 +28,8 @@ module CRAS_top #(
 	parameter int EMPTY_THRESH = 32
 )(
 `ifndef SIMTEST
-	riscv_bus rbus,
-	mmio_bus mbus
+	riscv_bus_if rbus,
+	mmio_bus_if mbus
 `else
 	input logic clk, rst,
 	 
