@@ -367,7 +367,7 @@ module riscv_core (
 
   execute u3 (bus.execute);
 
-  Memory u4 (bus.memory);
+  memory u4 (bus.memory);
 
   Writeback u5 (bus.writeback);
 

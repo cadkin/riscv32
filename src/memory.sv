@@ -33,7 +33,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-module Memory (
+module memory (
     main_bus_if bus
 );
 
@@ -152,4 +152,4 @@ module Memory (
       bus.MEM_WB_CSR_read <= bus.EX_MEM_CSR_read;
     end
   end
-endmodule : Memory
+endmodule : memory
