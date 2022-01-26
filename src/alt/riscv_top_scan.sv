@@ -251,7 +251,7 @@ module riscv_top (
       .clk_out(clk_uart)
   );  // 25 MHz -> 115200 kHz
 
-  RISCVcore_uart rv_core (rbus.core);
+  riscv_core rv_core (rbus.core);
 
   Memory_Controller memcon0 (
       .rbus(rbus.memcon),

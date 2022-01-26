@@ -36,7 +36,7 @@ module tb_RISCVcore ();
   logic [11:0] mem_addr;
   logic [31:0] mem_din, mem_dout;
 
-  RISCVcore_uart uut (.*);
+  riscv_core uut (.*);
 
   //clock generator
   always #5 clk = !clk;

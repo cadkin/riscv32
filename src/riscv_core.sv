@@ -280,7 +280,7 @@ interface main_bus_if (
 
 endinterface
 
-module RISCVcore_uart (
+module riscv_core (
     riscv_bus_if rbus
 );
 
