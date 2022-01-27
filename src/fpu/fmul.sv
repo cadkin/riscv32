@@ -3,7 +3,7 @@
 //2013-12-12
 //
 
-module multiplier(
+module fmultiplier(
   input logic  [31:0] input_a,input_b,
   input logic  clk,rst,
   output logic [31:0] output_z,

@@ -32,7 +32,7 @@ module mul_sim(
       end
                 
               
-      multiplier mul(input_a, input_b, input_a_stb, input_b_stb, output_z_ack, clk, rst, output_z, output_z_stb, input_a_ack, input_b_ack);
+      fmultiplier mul(input_a, input_b, input_a_stb, input_b_stb, output_z_ack, clk, rst, output_z, output_z_stb, input_a_ack, input_b_ack);
 
         
        initial begin

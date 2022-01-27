@@ -33,7 +33,7 @@ module sim_div(  input reg  [31:0] input_a,input_b,
       end
                 
               
-      divider div(input_a,input_b, clk, rst, output_z, output_z_stb);
+      fdivider div(input_a,input_b, clk, rst, output_z, output_z_stb);
 
         
        initial begin

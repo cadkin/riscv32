@@ -47,8 +47,8 @@ module FPU
 
   //impermented using finate state machine.
   adder a1(input_a,input_b,clk_add,enable_add,output_add,out_stb_add);
-  divider a2(input_a,input_b,clk_div,enable_div,output_div,out_stb_div);
-  multiplier a3(input_a,input_b,clk_mul,enable_mul,output_mul,out_stb_mul);
+  fdivider a2(input_a,input_b,clk_div,enable_div,output_div,out_stb_div);
+  fmultiplier a3(input_a,input_b,clk_mul,enable_mul,output_mul,out_stb_mul);
 
   float_to_int a4(input_a,clk_f2i,enable_f2i,output_f2i,out_stb_f2i);
   float_to_unsig_int a5(input_a,clk_f2ui,g_rst,enable_f2ui,output_f2ui,out_stb_f2ui);

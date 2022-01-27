@@ -4,7 +4,7 @@
 //modified by Jianjun Xu
 //2021-11-11
 
-module divider(
+module fdivider(
   input logic  [31:0] input_a,input_b,
   input logic  clk,rst,
   output logic [31:0] output_z,
