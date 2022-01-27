@@ -95,7 +95,7 @@ module mem_controller (
                   (mem_addr_lower <= 12'h61c);
     cnt_region = (mem_addr_upper == 20'haaaaa) &
                  (mem_addr_lower >= 12'h700) &
-                  (mem_addr_lower < 12'h708);
+                 (mem_addr_lower < 12'h708);
   end
 
   always_comb begin
