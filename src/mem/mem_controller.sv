@@ -95,7 +95,7 @@ module mem_controller (
                   (mem_addr_lower <= 12'h61c);
     cnt_region = (mem_addr_upper == 20'haaaaa) &
                  (mem_addr_lower >= 12'h700) &
-                 (mem_addr_lower < 12'h708);
+                  (mem_addr_lower < 12'h708);
   end
 
   always_comb begin
@@ -138,8 +138,8 @@ module mem_controller (
 
       if (spi_region && (mem_wea | mem_rea)) begin
         spi_last_cond <= 1;
-        if (mem_addr_lower == 12'h500) spi_last <= mbus.spi_dout;
-        else spi_last <= {5'b0, mbus.spi_buffer_full, mbus.spi_buffer_empty, mbus.spi_data_avail};
+        if (mem_addr_lower == 12'h500) spi_last = mbus.spi_dout;
+        else spi_last = {5'b0, mbus.spi_buffer_full, mbus.spi_buffer_empty, mbus.spi_data_avail};
       end else spi_last_cond <= 0;
 
       if (cnt_region & (mem_rea)) begin

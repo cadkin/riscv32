@@ -32,16 +32,15 @@ module clk_div #(
 
   always_ff @(posedge clk_in) begin
     if (rst) begin
-      cnt <= DIVISOR / 2 - 1;
-      clk_sig <= 0;
+      cnt = DIVISOR / 2 - 1;
+      clk_sig = 0;
     end else begin  // Input clock edge
       if (cnt >= DIVISOR / 2 - 1) begin
-        cnt <= 0;
-        clk_sig <= ~clk_sig;
-      end else cnt <= cnt + 1;
+        cnt = 0;
+        clk_sig = ~clk_sig;
+      end else cnt = cnt + 1;
     end
   end
 
   assign clk_out = !clk_sig;
 endmodule
-

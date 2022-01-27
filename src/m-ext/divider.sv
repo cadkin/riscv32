@@ -36,16 +36,16 @@ module divider (
   always_comb begin
     case (divsel)
       3'b001: begin
-        op_a = a[31] ? -a : a;
-        op_b = b[31] ? -b : b;
+        op_a <= a[31] ? -a : a;
+        op_b <= b[31] ? -b : b;
       end
       3'b011: begin
-        op_a = a[31] ? -a : a;
-        op_b = b[31] ? -b : b;
+        op_a <= a[31] ? -a : a;
+        op_b <= b[31] ? -b : b;
       end
       default: begin
-        op_a = a;
-        op_b = b;
+        op_a <= a;
+        op_b <= b;
       end
     endcase
   end
