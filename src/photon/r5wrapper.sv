@@ -2,7 +2,6 @@
 
 module photon_core(main_bus_if bus);
 
-    /*
     photon_bus pho_bus(bus.clk, bus.Rst);
     photon pho0(pho_bus);
 
@@ -61,6 +60,5 @@ module photon_core(main_bus_if bus);
             endcase
         end
     end
-    */
 
 endmodule
