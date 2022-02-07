@@ -1,5 +1,5 @@
 module regfile (
-    main_bus_if bus
+    main_bus_if.regfile bus
 );
 
   logic [31:0] regdata[31:0];  // array of 32 32-bit registers

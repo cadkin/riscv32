@@ -54,7 +54,8 @@
 *.coe
 
 # Build folder
-build/
+/build/
+/ip/
 
 # IDE files
 *.pro.user
@@ -81,20 +82,4 @@ cmake-build-relwithdebinfo/
 viva*.jou
 viva*.log
 viva*.str
-vivado/
-webtalk.jou
-webtalk.log
-
-# Instruction lists
-c/*.txt
-
-# BIN file
-*.bin
-
-# Generated loadcoe file
-loadcoe.tcl
-clearcoe.tcl
-loadcoe.json
-
-#VSCode
-.vscode/
+/vivado/

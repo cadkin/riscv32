@@ -37,7 +37,7 @@
 //This functions almost identically to the original fetch module, however this one has added functionality
 //to reprogram the instruction memory through UART.
 module fetch (
-    main_bus_if bus
+    main_bus_if.fetch bus
 );
 
   logic [31:0] pc_incr;
