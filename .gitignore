@@ -83,3 +83,17 @@ viva*.jou
 viva*.log
 viva*.str
 /vivado/
+
+# Instruction lists
+c/*.txt
+
+# BIN file
+*.bin
+
+# Generated loadcoe file
+loadcoe.tcl
+clearcoe.tcl
+loadcoe.json
+
+#VSCode
+.vscode/
