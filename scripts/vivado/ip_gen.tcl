@@ -1,3 +1,4 @@
+# !!!! This file should not be run directly. It should only be invoked by the build system.
 create_project -part ${BOARD} -in_memory
 set IP_DIR ${PROJECT_ROOT}/${IP_DIR}
 read_xdc ${PROJECT_ROOT}/${CONSTR_DIR}/${XDC}

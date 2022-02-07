@@ -1,3 +1,4 @@
+# !!!! This file should not be run directly. It should only be invoked by the build system.
 set_part ${BOARD}
 
 read_ip ${PROJECT_ROOT}/${IP_DIR}/${MEM_CELL_0}/${MEM_CELL_0}.xci
