@@ -13,6 +13,7 @@ read_ip ${PROJECT_ROOT}/${IP_DIR}/${IMEM_CELL_3}/${IMEM_CELL_3}.xci
 set_param general.maxThreads 32
 
 read_verilog -sv { ${SRC} }
+read_vhdl { ${VHDL_PKGS} }
 read_vhdl { ${VHDL_SRC} }
 read_xdc ${PROJECT_ROOT}/${CONSTR_DIR}/${XDC}
 synth_design -top ${TOP} -part ${BOARD}
