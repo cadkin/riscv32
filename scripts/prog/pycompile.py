@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import os
 import sys
-import argparse 
+import argparse
 
 def runbash(cmd):
 	exitCode = os.system(cmd)
@@ -10,8 +10,8 @@ def runbash(cmd):
 		exit()
 
 def prep_hex(filename, iscoe=True):
-	b = open(filename + '.bin', 'rb').read() 
-	i = 0 
+	b = open(filename + '.bin', 'rb').read()
+	i = 0
 	ext = '.hex'
 	if (iscoe):
 		ext = '.coe'
@@ -25,10 +25,10 @@ def prep_hex(filename, iscoe=True):
 			hexstr = f'{t:0{2}x}' + hexstr
 			# hexstr = hex(t)[2:] + hexstr
 		f.write(hexstr + '\n')
-		i += 4 
+		i += 4
 	if (iscoe):
 		f.write(';')
-	f.close() 
+	f.close()
 
 
 
@@ -44,7 +44,7 @@ parser.add_argument('-o', '--output', type=str, default='a.hex')
 parser.add_argument('-k', '--compile_kernel', action='store_true')
 args = parser.parse_args()
 
-cmd = 'riscv32-unknown-elf-gcc -nostdlib -O0 -Wl,-T,' + args.linker_script + ' -o ' #',-e,0 -o '
+cmd = 'riscv32-unknown-elf-gcc -march=rv32imf -nostdlib -O0 -Wl,-T,' + args.linker_script + ' -o ' #',-e,0 -o '
 dmp = 'riscv32-unknown-elf-objdump -d '
 
 # asm = 'heapthing.S'
@@ -56,7 +56,7 @@ if (args.compile_kernel):
 if ('.coe' in args.output):
 	args.output = args.output.replace('.coe', '')
 if ('.hex' in args.output):
-	args.output = args.output.replace('.hex', '')	
+	args.output = args.output.replace('.hex', '')
 
 cmd += (args.output + '.elf ')
 cmd += args.bootloader
@@ -70,7 +70,7 @@ for f in args.files:
 # if (exitCode > 0):
 # 	print("ERROR :(")
 # 	exit()
-runbash(cmd) 
+runbash(cmd)
 
 cmd2 = 'riscv32-unknown-elf-objcopy -O binary ' + args.output + '.elf' + ' ' + args.output + '.bin'
 
