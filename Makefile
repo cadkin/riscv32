@@ -54,7 +54,7 @@ $(IP_DIR)/$(IP_TS):
 	rm $(TMP_TCL_PATH)
 
 # Setup block rom with new COE files.
-$(IP_DIR)/$(COE_TS): $(IP_DIR)/$(IP_TS)
+$(IP_DIR)/$(COE_TS): $(COE_FILES)
 	$(call init,$(IP_DIR))
 	rm -rf $(PROJECT_ROOT)/$(IP_DIR)/$(IMEM_CELL_0)
 	rm -rf $(PROJECT_ROOT)/$(IP_DIR)/$(IMEM_CELL_1)
