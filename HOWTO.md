@@ -30,7 +30,7 @@ Algorithm Options: Minimum Area
 
 Port A Options:
 Write & Read Width: 8
-Write & Read Depth: 16384
+Write & Read Depth: 32768
 Operating Mode: Write First
 Enable Port Type: Use ENA Pin
 Uncheck Primitives Output Register and RSTA Pin

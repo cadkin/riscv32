@@ -425,7 +425,7 @@ module decode (
       div_ready_sig <= 0;
       mul_ready_sig <= 0;
     end else if ((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
-      if (bus.RAS_rdy) begin
+      if ((!hz_sig) & bus.RAS_rdy) begin
         bus.ID_EX_alusel <= IF_ID_alusel;
         bus.ID_EX_mulsel <= IF_ID_mulsel;
         bus.ID_EX_divsel <= IF_ID_divsel;
@@ -464,7 +464,7 @@ module decode (
       end else begin
         bus.ID_EX_alusel <= 3'b000;
         bus.ID_EX_alusrc <= 1'b1;
-        bus.ID_EX_fpusel <= 5'h00;
+        bus.ID_EX_fpusel <= 5'b11111; // Fix infinite pipeline stall, TODO: maybe refactor FPU to use 0b00000 as default.
         bus.ID_EX_fpusrc <= 1'b0;
         bus.ID_EX_frm <= 3'h0;
         ID_EX_memread_sig <= 1'b0;

@@ -173,7 +173,7 @@ module mem_controller (
       .storecntrl_b(blkmem_strctrl),
       .imem_addr(imem_addr),
       .imem_din(32'hz),
-      .mem_addr(blkmem_addr - 'h2000),
+      .mem_addr(blkmem_addr),
       .mem_din(blkmem_din),
       .imem_wen(4'b0000),
       .mem_wen(blkmem_en),
