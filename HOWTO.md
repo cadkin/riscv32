@@ -53,9 +53,9 @@ Line 168: mem_interface #(.USE_SRAM(0))...
 ```
 
 ## Compilation
-1. Compile the C code into a `.hex` file.
+1. Compile the C code into a `.hex` file. (Replace .c files with whatever you're compiling)
 ```
-../scripts/prog/pycompile.py -x -o test.hex test.c uart.c print.c utils.c
+../scripts/prog/pycompile.py -x -o test.hex test.c uart.c print.c
 ```
 2. Convert the `.hex` file into 4 separate `.coe` files and generate a `loadcoe.tcl` file.
 ```
@@ -76,14 +76,19 @@ riscv32-unknown-elf-objdump -d test.elf > test.txt
 > For each `imem_cell`, check Load Init File and browse to and select
 > each `.coe` file.
 
-2. **SUCCESSIVE LOADS:** In Tcl Console, run `loadcoe.tcl` script and load instruction memory with the 4 .coe files.
+2. **IF LOADING SAME PROGRAM:** In Tcl Console, run `clearcoe.tcl` script and clear BRAM before loading updated `.coe files`.
+```
+source scripts/prog/tcl/clearcoe.tcl
+```
+
+3. **SUCCESSIVE LOADS:** In Tcl Console, run `loadcoe.tcl` script and load instruction memory with the 4 .coe files.
 ```
 source scripts/prog/tcl/loadcoe.tcl
 ```
-3. Click Generate Bitstream.
-4. Click Open Hardware Manager
-5. Click Open target > Auto Connect
-6. Click Program device > Program
+4. Click Generate Bitstream.
+5. Click Open Hardware Manager
+6. Click Open target > Auto Connect
+7. Click Program device > Program
 
 ## Simulating Core
 1. In Simulation Sources, right-click `tb_rvtop.sv` and click Set as Top.
