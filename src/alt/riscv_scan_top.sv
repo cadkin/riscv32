@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-interface riscv_bus_if (
+interface riscv_scan_bus_if (
     input logic clk,
     input logic Rst,
     input logic debug,
@@ -69,7 +69,7 @@ interface riscv_bus_if (
   modport uart(output uart_IRQ);
 endinterface
 
-interface mmio_bus_if (
+interface mmio_scan_bus_if (
   input logic clk,
   input logic Rst,
   input logic rx,
@@ -151,7 +151,7 @@ interface mmio_bus_if (
   modport counter(input clk, Rst, cnt_zero, output cnt_ovflw, cnt_dout);
 endinterface
 
-module riscv_top (
+module riscv_scan_top (
     input logic clk,
     input logic rst_n,
 
@@ -367,4 +367,4 @@ module riscv_top (
       end
     end
   end
-endmodule : riscv_top
+endmodule : riscv_scan_top

@@ -56,7 +56,7 @@
 
 
 module decode (
-    main_bus_if bus
+    main_bus_if.decode bus
 );
 
   logic IF_ID_lui, lui;

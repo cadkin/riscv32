@@ -1,23 +1,24 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
+// Company:
+// Engineer:
+//
 // Create Date: 11/22/2021 10:21:37 PM
-// Design Name: 
+// Design Name:
 // Module Name: Execute_sim
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
+// Project Name:
+// Target Devices:
+// Tool Versions:
+// Description:
+//
+// Dependencies:
+//
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
-// 
+//
 //////////////////////////////////////////////////////////////////////////////////
+/*
 interface main_bus_if ();
     logic clk, Rst, debug, dbg, prog, mem_hold, uart_IRQ, RAS_rdy;//rx, //addr_dn, addr_up,
     logic[4:0] debug_input;
@@ -137,15 +138,15 @@ interface main_bus_if ();
     //modport declarations. These ensure each pipeline stage only sees and has access to the
     //ports and signals that it needs
 
- /*   //modport for register file
+   //modport for register file
     modport regfile(
         input clk, adr_rs1, adr_photon_rs1, IF_ID_rs1,IF_ID_rs2, IF_ID_rs3, MEM_WB_rd, addr_corereg_photon, Rst,f_stall,
         input WB_res, MEM_WB_regwrite, mem_hold, photon_data_out, photon_regwrite,IF_ID_fpusrc,MEM_WB_fpusrc,
-		output IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_dout_rs3 
+		output IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_dout_rs3
     );
 
     //modport for decode stage
-    modport decode(            
+    modport decode(
         input clk, Rst, dbg, ins, IF_ID_pres_addr, MEM_WB_rd, WB_res, mem_hold, comp_sig,f_stall,
         input EX_MEM_memread, EX_MEM_regwrite, MEM_WB_regwrite, EX_MEM_alures,
         input EX_MEM_rd, IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_dout_rs3,
@@ -157,11 +158,11 @@ interface main_bus_if ();
         output ID_EX_rs1, ID_EX_rs2,ID_EX_rs3,ID_EX_rd, ID_EX_alusel,ID_EX_fpusel,ID_EX_frm,
         output ID_EX_storecntrl, ID_EX_loadcntrl, ID_EX_cmpcntrl,
         output ID_EX_auipc, ID_EX_lui, ID_EX_alusrc, ID_EX_fpusrc,
-        output ID_EX_memwrite, ID_EX_imm, ID_EX_compare, ID_EX_jal, 
-        output IF_ID_CSR_addr, ID_EX_CSR_addr, ID_EX_CSR, ID_EX_CSR_write, csrsel, ID_EX_CSR_read, ecall, ID_EX_comp_sig, 
+        output ID_EX_memwrite, ID_EX_imm, ID_EX_compare, ID_EX_jal,
+        output IF_ID_CSR_addr, ID_EX_CSR_addr, ID_EX_CSR, ID_EX_CSR_write, csrsel, ID_EX_CSR_read, ecall, ID_EX_comp_sig,
         output trap_ret
     );
-*/
+
     //modport for execute stage
     modport execute(
         input clk, Rst, dbg, ID_EX_lui, ID_EX_auipc, ID_EX_loadcntrl, mem_hold,f_stall,
@@ -185,16 +186,17 @@ interface main_bus_if ();
 
 
 endinterface
+*/
 
 module Execute_sim();
-    
+
   main_bus_if bus();
 
-  
+
   logic f_stall;
   logic [31:0] alures,fpures;
   logic [31:0] ALUop1,ALUop2,rs2_mod;
-  
+
   assign ALUop1 =u3.ALUop1;
   assign ALUop2 =u3.ALUop2;
 
@@ -215,7 +217,7 @@ FPU fut(.a(bus.ID_EX_dout_rs1),
         .g_rst(bus.Rst),
         .res(fpures),
         .stall(f_stall)
-        ); 
+        );
  */
  //decode u2(bus.decode);
  execute u3(bus.execute);
@@ -241,7 +243,7 @@ always_comb begin
 end
 
  always begin
-    #3 clk = !clk;  
+    #3 clk = !clk;
  end
 
 
@@ -258,7 +260,7 @@ end
     bus.mem_hold =0;
     bus.f_stall =0;
 
-    
+
     #15
     rst = 0;
     #15
@@ -286,13 +288,13 @@ end
     bus.ID_EX_jal=0;
     bus.ID_EX_jalr=0;
     bus.ID_EX_auipc=0;
-    
+
 
     #200;
-    
-    
-    
-    
+
+
+
+
  end
 
 

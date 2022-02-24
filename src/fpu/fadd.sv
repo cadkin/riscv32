@@ -1,6 +1,8 @@
 //IEEE Floating Point Adder (Single Precision)
 //Copyright (C) Jonathan P Dawson 2013
 //2013-12-12
+//modified by Jianjun Xu
+//2021-11-11
 
 module adder(
   input logic [31:0] input_a,input_b,

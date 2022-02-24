@@ -1,24 +1,8 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 11/11/2021 01:10:00 PM
-// Design Name: 
-// Module Name: FClass
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
+//IEEE RISC-V Floating Point Classification (Single Precision)
+//By Tanner Joseph Fowler 
+//2021-11-15
 
 module FClass(
 		input logic [31:0] input_a,

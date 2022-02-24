@@ -34,7 +34,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module memory (
-    main_bus_if bus
+    main_bus_if.memory bus
 );
 
   logic [31:0] MEM_WB_memres_sig, MEM_WB_memres_temp;

@@ -1,47 +1,28 @@
 # RISCV32
 
 ### Setup
-You can setup the repository for development on a NEXYS4 FPGA fairly easily.
-1. Download and install [Vivado 2020.2](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/2020-2.html)
- \- you'll need an account. If you are using one of the lab computers, Vivado should already be available by running
-`module load Vivado/2020.2` in the shell.
+You can setup the repository for development on a NEXYS4 FPGA fairly easily:
+1. Download and install [Vivado 2020.2](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/archive.html)
+ \- you'll need an account. If you are using one of the lab computers, Vivado should already be available.
 
 2. Clone the repo.
    ```
    $ git clone git@github.com:cadkin/riscv32.git
    ```
 
-3. Export the `RISCV32` environment variable to where you downloaded the repo. For instance:
+3. Load the Xilinx tools. If you installed it on a personal computer, you should be able to load it by sourcing the included `settings64.sh` file. In a default installation:
    ```
-   $ export RISCV32=/home/cadkin17/files/riscv32
+   $ source /opt/Xilinx/Vivado/2020.2/settings64.sh
    ```
-
-4. Run Vivado in the same terminal and go to `Window->TCL Console`.
-
-5. In the console, run the setup script:
+   On the lab computers:
    ```
-   source $::env(RISCV32)/scripts/vivado_setup.tcl
+   $ module load Vivado/2020.2
    ```
-
-And that's it. This will setup a new Vivado project with the sources in the repo and generate the necessary IP blocks. This is a
-one-time setup, you can simply launch Vivado and select the RISCV32 project in the future.
-
-### Updating
-If you do a git pull, there's a chance that some files have either moved or been deleted. There is also a TCL script
-to perform this update.
-
-1. Export the `RISCV32` environment variable to where you downloaded the repo. For instance:
+   
+4. Run make to generate a bitstream:
    ```
-   $ export RISCV32=/home/cadkin17/files/riscv32
+   $ make
    ```
-
-2. Run Vivado in the same terminal open up the `riscv32` project. You might get a warning about missing files - this is
-   fine.
-
-3. Go to `Window->TCL Console` and source the script:
-   ```
-   source $::env(RISCV32)/scripts/vivado_setup.tcl
-   ```
-   This will update the sources fileset with the files in repo.
-
-4. In the sources pane, click on the missing sources tool button and remove any files here from the project.
+   This will generate all required IP and load the instruction memory with a sample program. The output bitstream will be located at `build/riscv32_fpga.bit`.
+   
+   Checkout the [wiki](https://github.com/cadkin/riscv32/wiki) for more details and to learn about more options like simulations.

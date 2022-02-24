@@ -56,7 +56,7 @@
 
 
 module execute (
-    main_bus_if bus
+    main_bus_if.execute bus
 );
 
   logic EX_MEM_memread_sig, EX_MEM_regwrite_sig, EX_MEM_fpusrc;

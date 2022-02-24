@@ -54,7 +54,8 @@
 *.coe
 
 # Build folder
-build/
+/build/
+/ip/
 
 # IDE files
 *.pro.user
@@ -81,9 +82,7 @@ cmake-build-relwithdebinfo/
 viva*.jou
 viva*.log
 viva*.str
-vivado/
-webtalk.jou
-webtalk.log
+/vivado/
 
 # Instruction lists
 c/*.txt

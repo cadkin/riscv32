@@ -1,4 +1,6 @@
-//IEEE RISC-V Floating Point sign injuction (Single Precision)
+`timescale 1ns / 1ps
+
+//IEEE RISC-V Floating Point Move(Single Precision)
 //By Jianjun Xu
 //2021-11-11
 

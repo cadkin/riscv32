@@ -23,7 +23,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module writeback (
-    main_bus_if bus
+    main_bus_if.writeback bus
 );
 
   logic [31:0] WB_res_sig;
