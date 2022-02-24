@@ -48,8 +48,6 @@ static void selection_sort(unsigned int n, int arr[])
 
 void sort(unsigned int n, int arr[])
 {
-    unsigned int i = 0;
-
     int *ir = arr + n;
     int *l = arr + 1;
     int *stack[NSTACK];
@@ -118,12 +116,6 @@ void sort(unsigned int n, int arr[])
             }
         }
     }
-
-    for(i = 0; i < n; i++)
-    {
-        print(arr[i]);
-		uart_write_blocking(h[i]);
-    }
 }
 
 //--------------------------------------------------------------------------
@@ -131,16 +123,47 @@ void sort(unsigned int n, int arr[])
 
 int main(void)
 {
+	uart_init();
+    
     unsigned int i = 0;
+    unsigned int num = 0;
 
-    int input_data[DATA_SIZE] = {3, 4, 2, 1};
+    char num_str[12];
+	char start[20] = "---BEGIN TEST---";
+	char end[20] = "---END TEST---";
+	char comma[20] = ", ";
+	char newline[3] = "\r\n";
+
+    int input_data[DATA_SIZE] = {43690, 699050, 2730, 170};
+
+    uart_print(start);
+	uart_print(newline);
+
+	for (i = 0; i < DATA_SIZE; i++)
+	{
+        if (i != 0)
+            uart_print(comma);
+		num = input_data[i];
+		itoa(num, num_str);
+        uart_print(num_str);
+	}
+	uart_print(newline);
 
     sort(DATA_SIZE, input_data);
-/*
-    for(i = 0; i < DATA_SIZE; i++)
-    {
-        print(input_data[i]);
-    }
-*/
+
+	for (i = 0; i < DATA_SIZE; i++)
+	{
+        if (i != 0)
+            uart_print(comma);
+		num = input_data[i];
+		itoa(num, num_str);
+        uart_print(num_str);
+	}
+	uart_print(newline);
+    print(num);
+
+    uart_print(end);
+	uart_print(newline);
+
     return 0;
 }

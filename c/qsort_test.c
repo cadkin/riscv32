@@ -2,6 +2,8 @@
 #define NSTACK 50
 #define DATA_SIZE 4
 #include "print.h"
+#include "uart.h"
+#include "malloc.h"
 
 #define SWAP(a, b)            \
     do                        \
@@ -122,26 +124,53 @@ void sort(unsigned int n, int arr[])
 
 int main(void)
 {
-    int i = 0;
-
-    int input_data[DATA_SIZE] = {3, 4, 2, 1};
+	uart_init();
     
-    /*print(input_data[0]);
-    for(i = 0; i < DATA_SIZE; i++)
-    {
-        printf("%d\n", input_data[i]);
-    }*/
+    unsigned int i = 0;
+    unsigned int num = 0;
+
+    char num_str[12];
+	char start[20] = "---BEGIN TEST---";
+	char end[20] = "---END TEST---";
+	char comma[20] = ", ";
+	char newline[3] = "\r\n";
+
+    int *input_data = malloc(DATA_SIZE * sizeof(int));
+    input_data[0] = 43690;
+    input_data[1] = 699050;
+    input_data[2] = 2730;
+    input_data[3] = 170;
+
+    uart_print(start);
+	uart_print(newline);
+
+	for (i = 0; i < DATA_SIZE; i++)
+	{
+        if (i != 0)
+            uart_print(comma);
+		num = input_data[i];
+		itoa(num, num_str);
+        uart_print(num_str);
+	}
+	uart_print(newline);
 
     sort(DATA_SIZE, input_data);
-    printf("\n");
-    for(i = 0; i < DATA_SIZE; i++)
-    {
-        printf("%d\n", input_data[i]);
-    }
+
+	for (i = 0; i < DATA_SIZE; i++)
+	{
+        if (i != 0)
+            uart_print(comma);
+		num = input_data[i];
+		itoa(num, num_str);
+        uart_print(num_str);
+	}
+	uart_print(newline);
+
+    print(num);
+    free(input_data);
+
+    uart_print(end);
+	uart_print(newline);
+
     return 0;
-    /*
-    for(i = 0; i < DATA_SIZE; i++)
-    {
-        print(input_data[i]);
-    }*/
 }
