@@ -158,6 +158,7 @@ void itoa(int a, char *c)
 	if (a < 10)
 	{
 		c[idx] = a + INT_OFFSET;
+		c[idx + 1] = '\0';
 
 		return;
 	}
@@ -176,7 +177,10 @@ void itoa(int a, char *c)
 		idx++;
 
 		if ((p2 == 1) || (idx == 12))
+		{
+			c[idx] = '\0';
 			return;
+		}
 
 		p2 = p2 / 10;
 		p1 = p1 / 10;
