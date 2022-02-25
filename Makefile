@@ -115,8 +115,12 @@ rtl_schematic: xilinx_loaded $(IP_DIR)/$(IP_TS) $(IP_DIR)/$(COE_TS)
 tcl_console: xilinx_loaded
 	$(VIVADO) -mode tcl
 
+# Show the serial console.
+serial:
+	$(SCREEN) $(SCREEN_FLAGS) $(SCREEN_DEVICE) $(SCREEN_BAUD)
+
 # Programs the bitstream.
-flash: xilinx_loaded $(BUILD_DIR)/$(TARGET)
+flash: xilinx_loaded
 	$(call init,$(BUILD_DIR))
 	$(call gen_script,$(FLASH_TCL))
 	$(VIVADO) $(VIVADO_FLAGS) -mode batch -source $(TMP_TCL_PATH)

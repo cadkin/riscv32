@@ -1,8 +1,6 @@
 { pkgs ? import <nixpkgs> {} }:
 
 let
-    #xrt = pkgs.callPackage ./xrt.nix {};
-
     fhs = pkgs.buildFHSUserEnv {
         name = "xilinx-env";
 
@@ -10,8 +8,8 @@ let
 
         targetPkgs = pkgs: with pkgs; [
             bash
+            screen
             coreutils
-            #xrt
 
             xorg.libXext
             xorg.libX11
