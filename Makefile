@@ -88,6 +88,10 @@ loadcoe: xilinx_loaded $(IP_DIR)/$(COE_TS)
 # Terminal only sim, make sure your testbench has $print calls in it.
 sim: xilinx_loaded $(BUILD_DIR)/$(ELAB_TS)
 	$(call init,$(BUILD_DIR))
+	cp $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_0)/$(MEM_CELL_0).mif $(PROJECT_ROOT)/$(BUILD_DIR)/
+	cp $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_1)/$(MEM_CELL_1).mif $(PROJECT_ROOT)/$(BUILD_DIR)/
+	cp $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_2)/$(MEM_CELL_2).mif $(PROJECT_ROOT)/$(BUILD_DIR)/
+	cp $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_3)/$(MEM_CELL_3).mif $(PROJECT_ROOT)/$(BUILD_DIR)/
 	cp $(PROJECT_ROOT)/$(IP_DIR)/$(IMEM_CELL_0)/$(IMEM_CELL_0).mif $(PROJECT_ROOT)/$(BUILD_DIR)/
 	cp $(PROJECT_ROOT)/$(IP_DIR)/$(IMEM_CELL_1)/$(IMEM_CELL_1).mif $(PROJECT_ROOT)/$(BUILD_DIR)/
 	cp $(PROJECT_ROOT)/$(IP_DIR)/$(IMEM_CELL_2)/$(IMEM_CELL_2).mif $(PROJECT_ROOT)/$(BUILD_DIR)/
@@ -100,6 +104,10 @@ sim: xilinx_loaded $(BUILD_DIR)/$(ELAB_TS)
 isim: xilinx_loaded $(BUILD_DIR)/$(ELAB_TS)
 	$(call check_defined,DISPLAY,Interactive sim requires X11)
 	$(call init,$(BUILD_DIR))
+	cp $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_0)/$(MEM_CELL_0).mif $(PROJECT_ROOT)/$(BUILD_DIR)/
+	cp $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_1)/$(MEM_CELL_1).mif $(PROJECT_ROOT)/$(BUILD_DIR)/
+	cp $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_2)/$(MEM_CELL_2).mif $(PROJECT_ROOT)/$(BUILD_DIR)/
+	cp $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_3)/$(MEM_CELL_3).mif $(PROJECT_ROOT)/$(BUILD_DIR)/
 	cp $(PROJECT_ROOT)/$(IP_DIR)/$(IMEM_CELL_0)/$(IMEM_CELL_0).mif $(PROJECT_ROOT)/$(BUILD_DIR)/
 	cp $(PROJECT_ROOT)/$(IP_DIR)/$(IMEM_CELL_1)/$(IMEM_CELL_1).mif $(PROJECT_ROOT)/$(BUILD_DIR)/
 	cp $(PROJECT_ROOT)/$(IP_DIR)/$(IMEM_CELL_2)/$(IMEM_CELL_2).mif $(PROJECT_ROOT)/$(BUILD_DIR)/
