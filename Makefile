@@ -31,7 +31,7 @@ $(BUILD_DIR)/$(ELAB_TS): $(BUILD_DIR)/$(ANALYSIS_TS)
 	touch $(ELAB_TS)
 
 # Runs analysis for simulation.
-$(BUILD_DIR)/$(ANALYSIS_TS): $(IP_DIR)/$(IP_TS) $(IP_DIR)/$(COE_TS) $(SRC) $(TB)
+$(BUILD_DIR)/$(ANALYSIS_TS): $(IP_DIR)/$(COE_TS) $(SRC) $(TB)
 	$(call init,$(BUILD_DIR))
 	# No pkgs in verilog yet, uncomment if any are added.
 	#$(VLOG_ANALYSIS) $(VLOG_ANALYSIS_FLAGS) $(PKGS)
@@ -42,20 +42,25 @@ $(BUILD_DIR)/$(ANALYSIS_TS): $(IP_DIR)/$(IP_TS) $(IP_DIR)/$(COE_TS) $(SRC) $(TB)
 	touch $(ANALYSIS_TS)
 
 # Generate block ram IP for build. Should only happen once initally.
-$(IP_DIR)/$(IP_TS):
+# Unused since all IP cores now have some coe file.
+#$(IP_DIR)/$(IP_TS):
+#	$(call init,$(IP_DIR))
+#	rm -rf $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_0)
+#	rm -rf $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_1)
+#	rm -rf $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_2)
+#	rm -rf $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_3)
+#	$(call gen_script,$(MEM_GEN_TCL))
+#	$(VIVADO) $(VIVADO_FLAGS) -mode batch -source $(TMP_TCL_PATH)
+#	touch $(IP_TS)
+#	rm $(TMP_TCL_PATH)
+
+# Setup block rom with new COE files.
+$(IP_DIR)/$(COE_TS): $(COE_FILES)
 	$(call init,$(IP_DIR))
 	rm -rf $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_0)
 	rm -rf $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_1)
 	rm -rf $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_2)
 	rm -rf $(PROJECT_ROOT)/$(IP_DIR)/$(MEM_CELL_3)
-	$(call gen_script,$(MEM_GEN_TCL))
-	$(VIVADO) $(VIVADO_FLAGS) -mode batch -source $(TMP_TCL_PATH)
-	touch $(IP_TS)
-	rm $(TMP_TCL_PATH)
-
-# Setup block rom with new COE files.
-$(IP_DIR)/$(COE_TS): $(COE_FILES)
-	$(call init,$(IP_DIR))
 	rm -rf $(PROJECT_ROOT)/$(IP_DIR)/$(IMEM_CELL_0)
 	rm -rf $(PROJECT_ROOT)/$(IP_DIR)/$(IMEM_CELL_1)
 	rm -rf $(PROJECT_ROOT)/$(IP_DIR)/$(IMEM_CELL_2)
@@ -66,7 +71,7 @@ $(IP_DIR)/$(COE_TS): $(COE_FILES)
 	rm $(TMP_TCL_PATH)
 
 # Generates the bitstream.
-$(BUILD_DIR)/$(TARGET): $(IP_DIR)/$(IP_TS) $(IP_DIR)/$(COE_TS) $(SRC)
+$(BUILD_DIR)/$(TARGET): $(IP_DIR)/$(COE_TS) $(SRC)
 	$(call init,$(BUILD_DIR))
 	$(call gen_script,$(BITSTREAM_TCL))
 	$(VIVADO) $(VIVADO_FLAGS) -mode batch -source $(TMP_TCL_PATH)
@@ -104,7 +109,7 @@ isim: xilinx_loaded $(BUILD_DIR)/$(ELAB_TS)
 	rm $(TMP_TCL_PATH)
 
 # Shows an RTL schematic of the design.
-rtl_schematic: xilinx_loaded $(IP_DIR)/$(IP_TS) $(IP_DIR)/$(COE_TS)
+rtl_schematic: xilinx_loaded $(IP_DIR)/$(COE_TS)
 	$(call check_defined,DISPLAY,Schematic requires X11)
 	$(call init,$(BUILD_DIR))
 	$(call gen_script,$(RTL_SCHEME_TCL))
