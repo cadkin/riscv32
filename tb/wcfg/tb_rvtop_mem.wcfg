@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_riscv_top_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="\$unit_CRAS_top_sv " />
+            <top_module name="glbl" />
+            <top_module name="hashpkg" />
+            <top_module name="simon_const_pkg" />
+            <top_module name="tb_riscv_top" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="95155fs"></ZoomStartTime>
+      <ZoomEndTime time="197823fs"></ZoomEndTime>
+      <Cursor1Time time="135000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="160"></NameColumnWidth>
+      <ValueColumnWidth column_width="66"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="15" />
+   <wvobject type="logic" fp_name="/tb_riscv_top/dut/rv_core/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_riscv_top/dut/rbus/ins">
+      <obj_property name="ElementShortName">ins[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ins[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_riscv_top/dut/rv_core/u5/bus/MEM_WB_memread">
+      <obj_property name="ElementShortName">MEM_WB_memread</obj_property>
+      <obj_property name="ObjectShortName">MEM_WB_memread</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_riscv_top/dut/memcon0/doutb">
+      <obj_property name="ElementShortName">doutb[31:0]</obj_property>
+      <obj_property name="ObjectShortName">doutb[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_riscv_top/dut/memcon0/sharedmem/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_riscv_top/dut/memcon0/sharedmem/mem_en">
+      <obj_property name="ElementShortName">mem_en</obj_property>
+      <obj_property name="ObjectShortName">mem_en</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_riscv_top/dut/memcon0/sharedmem/mem_wen">
+      <obj_property name="ElementShortName">mem_wen[3:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_wen[3:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_riscv_top/dut/rv_core/u2/u5/imm">
+      <obj_property name="ElementShortName">imm[31:0]</obj_property>
+      <obj_property name="ObjectShortName">imm[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_riscv_top/dut/memcon0/blkmem_addr">
+      <obj_property name="ElementShortName">blkmem_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">blkmem_addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_riscv_top/dut/memcon0/sharedmem/mem_addr">
+      <obj_property name="ElementShortName">mem_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_riscv_top/dut/memcon0/sharedmem/addrb0_rv">
+      <obj_property name="ElementShortName">addrb0_rv[29:0]</obj_property>
+      <obj_property name="ObjectShortName">addrb0_rv[29:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_riscv_top/dut/memcon0/sharedmem/addrb0">
+      <obj_property name="ElementShortName">addrb0[29:0]</obj_property>
+      <obj_property name="ObjectShortName">addrb0[29:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_riscv_top/dut/memcon0/sharedmem/mem_din">
+      <obj_property name="ElementShortName">mem_din[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_din[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_riscv_top/dut/memcon0/sharedmem/mem_dout">
+      <obj_property name="ElementShortName">mem_dout[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_dout[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_riscv_top/dut/memcon0/sharedmem/\gen_bram.cell0 /inst/\native_mem_module.blk_mem_gen_v8_4_4_inst /memory[0]">
+      <obj_property name="ElementShortName">[0][7:0]</obj_property>
+      <obj_property name="ObjectShortName">[0][7:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+</wave_config>
