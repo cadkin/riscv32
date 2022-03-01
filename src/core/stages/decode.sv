@@ -309,22 +309,32 @@ module decode (
       .branoff(bus.branoff)
   );
 
+  // Indicates whether branch is taken
+  assign bus.branch = branch_taken_sig;
+  // Stalls pipeline if instruction is 0x00000000
+  assign ins_zero = !(|bus.ins);
+  // Stalls program counter if hazard is present or MUL/DIV execution in progress
+  assign bus.hz = hz_sig || (mul_inst && !bus.mul_ready) || (div_inst && !bus.div_ready);
+  // Clears branch/jump signal after a branch/jump
+  assign flush = flush_sig | bus.trigger_trap | bus.trap_ret;
+
+  // CSR Signals
   assign IF_ID_CSR_addr = bus.ins[31:20];
   assign bus.IF_ID_CSR_addr = IF_ID_CSR_addr;
-  assign bus.branch = branch_taken_sig;
-  assign ins_zero = !(|bus.ins);
-  assign bus.hz = hz_sig || (mul_inst && !bus.mul_ready) || (div_inst && !bus.div_ready);
   assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b00000000000000000000000001110011);
+
+  // MUL/DIV Signals
+  assign div_ready = div_ready_sig;
+  assign mul_ready = mul_ready_sig;
+
+  // Pipeline Signals
   assign bus.IF_ID_rs1 = IF_ID_rs1;
   assign bus.IF_ID_rs2 = IF_ID_rs2;
   assign bus.IF_ID_rs3 = IF_ID_rs3;
-  assign bus.ID_EX_memread = ID_EX_memread_sig;
-  assign bus.ID_EX_regwrite = ID_EX_regwrite_sig;
-  assign flush = flush_sig | bus.trigger_trap | bus.trap_ret;
   assign bus.IF_ID_jalr = IF_ID_jalr_sig;
   assign bus.IF_ID_jal = IF_ID_jal;
-  assign div_ready = div_ready_sig;
-  assign mul_ready = mul_ready_sig;
+  assign bus.ID_EX_memread = ID_EX_memread_sig;
+  assign bus.ID_EX_regwrite = ID_EX_regwrite_sig;
 
   always_comb begin
     if (bus.comp_sig) begin
