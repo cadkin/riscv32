@@ -139,20 +139,6 @@ module decode (
   logic mul_inst;
   logic div_inst;
 
-  function static logic [4:0] RVC_Reg(input logic [2:0] rs);
-    case (rs)
-      3'b000: return 8;
-      3'b001: return 9;
-      3'b010: return 10;
-      3'b011: return 11;
-      3'b100: return 12;
-      3'b101: return 13;
-      3'b110: return 14;
-      3'b111: return 15;
-      default: return 0;
-    endcase
-  endfunction
-
   assign IF_ID_CSR_addr = bus.ins[31:20];
   assign bus.IF_ID_CSR_addr = IF_ID_CSR_addr;
 
