@@ -394,7 +394,7 @@ module decode (
       bus.ID_EX_mulsel <= 3'h0;
       bus.ID_EX_divsel <= 3'h0;
       bus.ID_EX_alusrc <= 1'b0;
-      bus.ID_EX_fpusel <= 5'h00;
+      bus.ID_EX_fpusel <= 5'b11111; // TODO: Refactor FPU to use 0b00000 as default.
       bus.ID_EX_fpusrc <= 1'b0;
       bus.ID_EX_frm <= 3'h0;
       ID_EX_memread_sig <= 1'b0;
@@ -464,7 +464,7 @@ module decode (
       end else begin
         bus.ID_EX_alusel <= 3'b000;
         bus.ID_EX_alusrc <= 1'b1;
-        bus.ID_EX_fpusel <= 5'b11111; // Fix infinite pipeline stall, TODO: maybe refactor FPU to use 0b00000 as default.
+        bus.ID_EX_fpusel <= 5'b11111; // TODO: Refactor FPU to use 0b00000 as default.
         bus.ID_EX_fpusrc <= 1'b0;
         bus.ID_EX_frm <= 3'h0;
         ID_EX_memread_sig <= 1'b0;
