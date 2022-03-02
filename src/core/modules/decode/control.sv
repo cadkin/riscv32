@@ -79,6 +79,9 @@ module control (
   // Instruction Classification Signal
   logic stall;
 
+  // Prevents writes to registers if flushing, a hazard is present, or instruction is 0
+  assign stall = flush || hazard || ins_zero;
+
   always_comb begin
     alusel = 3'b000;
     mulsel = 3'b000;
@@ -289,7 +292,4 @@ module control (
       default: illegal_ins = (!flush) && (1'b1);
     endcase
   end
-
-  // Prevents writes to registers if flushing, a hazard is present, or instruction is 0
-  assign stall = flush || hazard || ins_zero;
 endmodule : control
