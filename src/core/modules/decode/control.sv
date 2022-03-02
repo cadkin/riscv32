@@ -54,9 +54,9 @@ module control (
     output logic [ 2:0] alusel,
     output logic [ 2:0] mulsel,
     output logic [ 2:0] divsel,
-    output logic [ 2:0] storecntrl,  //sw,sh,sb
-    output logic [ 4:0] loadcntrl,  //lhu,lbu,lw,lh,lb
-    output logic [ 3:0] cmpcntrl,  //slt,slti,sltu,sltiu
+    output logic [ 2:0] storecntrl,
+    output logic [ 4:0] loadcntrl,
+    output logic [ 3:0] cmpcntrl,
     output logic        branch,
     output logic        memread,
     output logic        memwrite,
@@ -76,7 +76,7 @@ module control (
     output logic        illegal_ins
 );
 
-  // intruction classification signal
+  // Instruction Classification Signal
   logic stall;
 
   always_comb begin
@@ -290,5 +290,6 @@ module control (
     endcase
   end
 
+  // Prevents writes to registers if flushing, a hazard is present, or instruction is 0
   assign stall = flush || hazard || ins_zero;
 endmodule : control
