@@ -58,12 +58,6 @@ module control (
     output logic [ 4:0] loadcntrl,  //lhu,lbu,lw,lh,lb
     output logic [ 3:0] cmpcntrl,  //slt,slti,sltu,sltiu
     output logic        branch,
-    output logic        beq,
-    output logic        bne,
-    output logic        blt,
-    output logic        bge,
-    output logic        bltu,
-    output logic        bgeu,
     output logic        memread,
     output logic        memwrite,
     output logic        regwrite,
@@ -73,13 +67,13 @@ module control (
     output logic        lui,
     output logic        jal,
     output logic        jalr,
-    output logic        illegal_ins,
     output logic [ 2:0] csrsel,
     output logic        csrwrite,
     output logic        csrread,
     output logic        trap_ret,
     output logic        mul_inst,
-    output logic        div_inst
+    output logic        div_inst,
+    output logic        illegal_ins
 );
 
   // intruction classification signal
@@ -93,12 +87,6 @@ module control (
     loadcntrl = 5'b00000;
     cmpcntrl = 2'b00;
     branch = 1'b0;
-    beq = 1'b0;
-    bne = 1'b0;
-    blt = 1'b0;
-    bge = 1'b0;
-    bltu = 1'b0;
-    bgeu = 1'b0;
     memread = 1'b0;
     memwrite = 1'b0;
     regwrite = 1'b0;
@@ -228,15 +216,6 @@ module control (
       end
       7'b1100011: begin  // branch
         branch = (!flush) && 1'b1;
-        unique case (funct3)
-          3'b000:  beq = 1'b1;
-          3'b001:  bne = 1'b1;
-          3'b010:  blt = 1'b1;
-          3'b011:  bge = 1'b1;
-          3'b100:  bltu = 1'b1;
-          3'b101:  bgeu = 1'b1;
-          default: illegal_ins = (!flush) && (1'b1);
-        endcase
       end
       7'b1101111: begin  // jal
         jal = (!flush) && 1'b1;
