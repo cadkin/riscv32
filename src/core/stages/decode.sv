@@ -315,12 +315,12 @@ module decode (
   assign bus.branch = branch_taken_sig;
   // Stalls program counter if hazard is present or MUL/DIV execution in progress
   assign bus.hz = hz_sig || (mul_inst && !bus.mul_ready) || (div_inst && !bus.div_ready);
-  // Triggers trap if flush is low and instruction is 0x00000073
-  assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b00000000000000000000000001110011);
 
   // CSR Signals
   assign IF_ID_CSR_addr = bus.ins[31:20];
   assign bus.IF_ID_CSR_addr = IF_ID_CSR_addr;
+  // Indicates ECALL instruction, used to make a request to the supporting execution environment
+  assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b00000000000000000000000001110011);
 
   // MUL/DIV Signals
   assign div_ready = div_ready_sig;
