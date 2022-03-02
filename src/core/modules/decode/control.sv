@@ -50,7 +50,7 @@ module control (
     input  logic        flush,
     input  logic        hazard,
     input  logic [ 4:0] rs1,
-    rd,
+    input  logic [ 4:0] rd,
     output logic [ 2:0] alusel,
     output logic [ 2:0] mulsel,
     output logic [ 2:0] divsel,
