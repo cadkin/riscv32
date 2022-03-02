@@ -62,15 +62,13 @@ module decode (
   logic IF_ID_lui, lui;
   logic ID_EX_memread_sig, ID_EX_regwrite_sig;
 
-  //fluhed instruction detector
+  // Flushed Instruction Detector
   logic flush;
 
-  //logic debug;
   logic ins_zero;
   logic flush_sig;
   logic [31:0] rs1_mod, rs2_mod, rs3_mod;
 
-  //logic jal,jalr;
   logic [ 1:0] funct2;
   logic [ 2:0] funct3;
   logic [ 3:0] funct4;
@@ -83,14 +81,14 @@ module decode (
   logic jal, compare, jalr_sig;
   logic IF_ID_jalr_sig;
 
-  //hazard detection and compare unit
+  // Hazard Detection and Compare Unit
   logic zero1, zero2, zero3, zero4, zeroa, zerob;
 
-  //register file
+  // Register File
   logic [4:0] IF_ID_rd;
   logic [31:0] dout_rs1, dout_rs2, dout_rs3;
 
-  //control
+  // Control
   logic [2:0] IF_ID_alusel, alusel, IF_ID_frm, rm;
   logic [4:0] IF_ID_fpusel, fpusel_s;
   logic [2:0] IF_ID_mulsel;
@@ -111,7 +109,7 @@ module decode (
   logic csrread;
   logic [11:0] IF_ID_CSR_addr;
 
-  //imm gen
+  // Immediate Generation
   logic [31:0] imm, IF_ID_imm;
   logic hz_sig;
   logic branch_taken_sig;
@@ -120,7 +118,7 @@ module decode (
   logic mul_ready_sig;
   logic mul_ready;
 
-  //Compressed signals
+  // Compressed Signals
   logic [4:0] c_rd, c_rs1, c_rs2;
   logic [1:0] c_funct2;
   logic [2:0] c_funct3;
@@ -309,19 +307,20 @@ module decode (
       .branoff(bus.branoff)
   );
 
-  // Indicates whether branch is taken
-  assign bus.branch = branch_taken_sig;
   // Stalls pipeline if instruction is 0x00000000
   assign ins_zero = !(|bus.ins);
+  // Clears branch/jump signal after a branch/jump or triggered trap
+  assign flush = flush_sig | bus.trigger_trap | bus.trap_ret;
+  // Indicates whether branch is taken
+  assign bus.branch = branch_taken_sig;
   // Stalls program counter if hazard is present or MUL/DIV execution in progress
   assign bus.hz = hz_sig || (mul_inst && !bus.mul_ready) || (div_inst && !bus.div_ready);
-  // Clears branch/jump signal after a branch/jump
-  assign flush = flush_sig | bus.trigger_trap | bus.trap_ret;
+  // Triggers trap if flush is low and instruction is 0x00000073
+  assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b00000000000000000000000001110011);
 
   // CSR Signals
   assign IF_ID_CSR_addr = bus.ins[31:20];
   assign bus.IF_ID_CSR_addr = IF_ID_CSR_addr;
-  assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b00000000000000000000000001110011);
 
   // MUL/DIV Signals
   assign div_ready = div_ready_sig;
@@ -430,6 +429,8 @@ module decode (
       bus.trap_ret <= 0;
       div_ready_sig <= 0;
       mul_ready_sig <= 0;
+    // Set ID/EX pipeline register with IF/ID values
+    // Freeze pipeline if debug or prog activated
     end else if ((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
       if ((!hz_sig) & bus.RAS_rdy) begin
         bus.ID_EX_alusel <= IF_ID_alusel;
