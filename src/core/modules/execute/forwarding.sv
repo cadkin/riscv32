@@ -61,7 +61,7 @@ module forwarding (
 );
 
   logic [31:0] exres;
-  logic [2:0] sel_fw1, sel_fw2, sel_ex;
+  logic [1:0] sel_fw1, sel_fw2, sel_ex;
   logic cond1_1, cond1_2, cond1_3, cond2_1, cond2_2, cond2_3;
 
   // Selects which value to forward to rs2, immediate or rs2
