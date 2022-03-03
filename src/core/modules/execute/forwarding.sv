@@ -64,30 +64,52 @@ module forwarding (
   logic [2:0] sel_fw1, sel_fw2, sel_ex;
   logic cond1_1, cond1_2, cond1_3, cond2_1, cond2_2, cond2_3;
 
-  //selecting between immediate and rs2
+  // Selects which value to forward to rs2, immediate or rs2
   assign fw_rs2 = alusrc ? imm : rs2_mod;
 
-  //takes operands of ALU from rs1 or forwarded from subsequent stages
-  // Forward result from rd of instruction 1 to rs1 of instruction 2.
-  assign cond1_1 = ((EX_MEM_regwrite && (!EX_MEM_memread)) && (EX_MEM_rd == ID_EX_rs1) && (EX_MEM_rd != 0));
-  assign cond1_2 = ((MEM_WB_regwrite) && (MEM_WB_rd == ID_EX_rs1) && (MEM_WB_rd != 0));
-  assign cond1_3 = ((WB_ID_regwrite) && (WB_ID_rd == ID_EX_rs1) && (WB_ID_rd != 0));
-  assign cond2_1 = ((EX_MEM_regwrite && (!EX_MEM_memread)) && (EX_MEM_rd == ID_EX_rs2));
-  assign cond2_2 = ((MEM_WB_regwrite) && (MEM_WB_rd == ID_EX_rs2));
-  assign cond2_3 = ((WB_ID_regwrite) && (WB_ID_rd == ID_EX_rs2));
+  // Detects data hazards and forwards data to EX unit (ALU, MUL, DIV).
+  // EX Hazard 1a
+  // Forward EX result from last instruction to 1st operand of current instruction
+  assign cond1_1 = ((EX_MEM_regwrite && (!EX_MEM_memread)) &&
+                   (EX_MEM_rd == ID_EX_rs1) &&
+                   (EX_MEM_rd != 0));
+  // MEM Hazard 2a
+  // Forward MEM result from 2 instructions ago to 1st operand of current instruction
+  assign cond1_2 = ((MEM_WB_regwrite) &&
+                   (MEM_WB_rd == ID_EX_rs1) &&
+                   (MEM_WB_rd != 0));
+  // WB Hazard 3a
+  // Forward WB result from 3 instructions ago to 1st operand of current instruction
+  assign cond1_3 = ((WB_ID_regwrite) &&
+                   (WB_ID_rd == ID_EX_rs1) &&
+                   (WB_ID_rd != 0));
+  // EX Hazard 1b
+  // Forward EX result from last instruction to 2nd operand of current instruction
+  assign cond2_1 = ((EX_MEM_regwrite &&
+                   (!EX_MEM_memread)) &&
+                   (EX_MEM_rd == ID_EX_rs2));
+  // MEM Hazard 2b
+  // Forward MEM result from 2 instructions ago to 2nd operand of current instruction
+  assign cond2_2 = ((MEM_WB_regwrite) &&
+                   (MEM_WB_rd == ID_EX_rs2));
+  // WB Hazard 3b
+  // Forward WB result from 3 instructions ago to 2nd operand of current instruction
+  assign cond2_3 = ((WB_ID_regwrite) &&
+                   (WB_ID_rd == ID_EX_rs2));
 
-  assign sel_fw1 = (ID_EX_rs1 == 0) ? 2'b00 :
-                   cond1_1          ? 2'b10 :
-                   cond1_2          ? 2'b11 :
-                   cond1_3          ? 2'b01 : 2'b00;
-  assign sel_fw2 = (ID_EX_rs2 == 0) ? 2'b00 :
-                   cond2_1          ? 2'b10 :
-                   cond2_2          ? 2'b11 :
-                   cond2_3          ? 2'b01 : 2'b00;
-  assign sel_ex = (!div_ready) && (!mul_ready) ? 2'b00 :
-                  div_ready && (!mul_ready)    ? 2'b10 :
-                  (!div_ready) && mul_ready    ? 2'b01 : 2'b00;
+  assign sel_fw1 = (ID_EX_rs1 == 0) ? 2'b00 :         // Don't forward if rs1 is zero register
+                   cond1_1          ? 2'b10 :         // EX Hazard 1a
+                   cond1_2          ? 2'b11 :         // MEM Hazard 2a
+                   cond1_3          ? 2'b01 : 2'b00;  // WB Hazard 3a
+  assign sel_fw2 = (ID_EX_rs2 == 0) ? 2'b00 :         // Don't forward if rs2 is zero register
+                   cond2_1          ? 2'b10 :         // EX Hazard 1b
+                   cond2_2          ? 2'b11 :         // MEM Hazard 2b
+                   cond2_3          ? 2'b01 : 2'b00;  // WB Hazard 3b
+  assign sel_ex = (!div_ready) && (!mul_ready) ? 2'b00 :         // ALU result
+                  div_ready && (!mul_ready)    ? 2'b10 :         // DIV result
+                  (!div_ready) && mul_ready    ? 2'b01 : 2'b00;  // MUL result
 
+  // Selects which stage's result to forward to current instruction's rs1 in case of hazard
   always_comb
     case (sel_fw1)
       2'b00:   fw_rs1 = rs1;
@@ -97,6 +119,7 @@ module forwarding (
       default: fw_rs1 = rs1;
     endcase
 
+  // Selects which stage's result to forward to current instruction's rs2 in case of hazard
   always_comb
     case (sel_fw2)
       2'b00:   rs2_mod = rs2;
@@ -106,6 +129,7 @@ module forwarding (
       default: rs2_mod = rs2;
     endcase
 
+  // Selects which EX unit's result to forward
   always_comb
     case (sel_ex)
       2'b00:   exres = alures;
