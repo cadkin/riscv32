@@ -45,15 +45,15 @@ module hazard (
   logic hzi1, hzi2, hzi3, hzi4, hzi5, hzi6, hzi7;
   logic mute;
 
+  // Detects if stalling is needed for Load and Branch hazards
   assign mute = !(IF_ID_jalr + IF_ID_alusrc);
   assign hzi1 = zero1 || (zero2 && mute);
   assign hzi2 = hzi1 && ID_EX_memread;
-
-  assign hz   = hzi2 || hzi7;
-
   assign hzi3 = hzi1 && ID_EX_regwrite;
   assign hzi4 = zero3 || (zero4 && mute);
   assign hzi5 = hzi4 && EX_MEM_memread;
   assign hzi6 = hzi3 || hzi5;
   assign hzi7 = hzi6 && IF_ID_branch;
+
+  assign hz   = hzi2 || hzi7;
 endmodule : hazard

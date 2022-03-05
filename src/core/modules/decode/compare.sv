@@ -34,6 +34,9 @@ module compare (
 );
 
   logic [4:0] res1, res2, res3, res4, resa, resb;
+
+  // Checks pipeline registers
+  // Used in stall control for Load and Branch Hazards
   assign res1  = IF_ID_rs1 - ID_EX_rd;
   assign res2  = IF_ID_rs2 - ID_EX_rd;
   assign res3  = IF_ID_rs1 - EX_MEM_rd;

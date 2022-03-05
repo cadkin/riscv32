@@ -54,6 +54,7 @@ module branch_forward (
   logic [31:0] exres;
   logic [1:0] sel1, sel2, sel_ex;
 
+  // Detects branch hazards and forwards data
   assign sel1 = (zero3 && EX_MEM_regwrite && (!EX_MEM_memread)) ? 2'b00 :
                 (zeroa && MEM_WB_regwrite)                      ? 2'b01 : 2'b11;
   assign sel2 = (zero4 && EX_MEM_regwrite && (!EX_MEM_memread)) ? 2'b00 :
