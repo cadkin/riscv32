@@ -45,15 +45,26 @@ module hazard (
   logic hzi1, hzi2, hzi3, hzi4, hzi5, hzi6, hzi7;
   logic mute;
 
-  // Detects if stalling is needed for Load and Branch hazards
+  // Checks instruction types for load and branch hazards
+  // No hazard if rs2 is source register and instr. with source register is jalr or ALU instr.
   assign mute = !(IF_ID_jalr + IF_ID_alusrc);
+
+  // Load or branch hazard: Back-to-back dependent instructions
   assign hzi1 = zero1 || (zero2 && mute);
+  // Checks if instr. with destination register is load instr.
   assign hzi2 = hzi1 && ID_EX_memread;
+  // Checks if instr. with destination register is register write instr.
   assign hzi3 = hzi1 && ID_EX_regwrite;
+
+  // Load/branch or branch hazard: Dependent instructions 1 instr. apart
   assign hzi4 = zero3 || (zero4 && mute);
+  // Checks if instr. with destination register is load instr.
   assign hzi5 = hzi4 && EX_MEM_memread;
+
+  // For branch hazards, checks if instr. with source register is branch instr.
   assign hzi6 = hzi3 || hzi5;
   assign hzi7 = hzi6 && IF_ID_branch;
 
+  // Pipeline set to stall for load or branch hazards
   assign hz   = hzi2 || hzi7;
 endmodule : hazard

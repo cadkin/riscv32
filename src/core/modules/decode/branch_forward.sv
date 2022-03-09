@@ -55,14 +55,15 @@ module branch_forward (
   logic [1:0] sel1, sel2, sel_ex;
 
   // Detects branch hazards and forwards data
-  assign sel1 = (zero3 && EX_MEM_regwrite && (!EX_MEM_memread)) ? 2'b00 :
-                (zeroa && MEM_WB_regwrite)                      ? 2'b01 : 2'b11;
-  assign sel2 = (zero4 && EX_MEM_regwrite && (!EX_MEM_memread)) ? 2'b00 :
-                (zerob && MEM_WB_regwrite)                      ? 2'b01 : 2'b11;
+  assign sel1 = (zero3 && EX_MEM_regwrite && (!EX_MEM_memread)) ? 2'b00 :         // Forward EX to ID (Branch)
+                (zeroa && MEM_WB_regwrite)                      ? 2'b01 : 2'b11;  // Forward MEM to ID (Branch)
+  assign sel2 = (zero4 && EX_MEM_regwrite && (!EX_MEM_memread)) ? 2'b00 :         // Forward EX to ID (Branch)
+                (zerob && MEM_WB_regwrite)                      ? 2'b01 : 2'b11;  // Forward MEM to ID (Branch)
   assign sel_ex = (!div_ready) && (!mul_ready) ? 2'b00 :         // ALU result
                   div_ready && (!mul_ready)    ? 2'b10 :         // DIV result
                   (!div_ready) && mul_ready    ? 2'b01 : 2'b00;  // MUL result
 
+  // Selects which stage's result to forward to current branch instruction's rs1 in case of hazard
   always_comb
     case (sel1)
       2'b00:   rs1_mod = exres;
@@ -71,6 +72,7 @@ module branch_forward (
       default: rs1_mod = rs1;
     endcase
 
+  // Selects which stage's result to forward to current branch instruction's rs2 in case of hazard
   always_comb
     case (sel2)
       2'b00:   rs2_mod = exres;
@@ -79,6 +81,7 @@ module branch_forward (
       default: rs2_mod = rs2;
     endcase
 
+  // Selects which EX unit's result to forward
   always_comb
     case (sel_ex)
       2'b00:   exres = alures;

@@ -67,44 +67,39 @@ module forwarding (
   // Selects which value to forward to rs2, immediate or rs2
   assign fw_rs2 = alusrc ? imm : rs2_mod;
 
-  // Detects data hazards and forwards data to EX unit (ALU, MUL, DIV).
-  // EX Hazard 1a
-  // Forward EX result from last instruction to 1st operand of current instruction
+  // Detects data hazards and forwards data when destination register matches a source register
+  // Forwarding disabled when destination register is x0
+
+  // Forward EX to EX
+  // Example: add rd -> sub rs1/rs2
   assign cond1_1 = ((EX_MEM_regwrite && (!EX_MEM_memread)) &&
                    (EX_MEM_rd == ID_EX_rs1) &&
                    (EX_MEM_rd != 0));
-  // MEM Hazard 2a
-  // Forward MEM result from 2 instructions ago to 1st operand of current instruction
+  assign cond2_1 = ((EX_MEM_regwrite && (!EX_MEM_memread)) &&
+                   (EX_MEM_rd == ID_EX_rs2));
+  // Forward MEM to EX
+  // Example: add/ld rd -> [1 instr.] -> sub rs1/rs2
   assign cond1_2 = ((MEM_WB_regwrite) &&
                    (MEM_WB_rd == ID_EX_rs1) &&
                    (MEM_WB_rd != 0));
-  // WB Hazard 3a
-  // Forward WB result from 3 instructions ago to 1st operand of current instruction
+  assign cond2_2 = ((MEM_WB_regwrite) &&
+                   (MEM_WB_rd == ID_EX_rs2));
+  // Forward WB to EX
+  // Example: add/ld rd -> [2 instr.] -> sub rs1/rs2
   assign cond1_3 = ((WB_ID_regwrite) &&
                    (WB_ID_rd == ID_EX_rs1) &&
                    (WB_ID_rd != 0));
-  // EX Hazard 1b
-  // Forward EX result from last instruction to 2nd operand of current instruction
-  assign cond2_1 = ((EX_MEM_regwrite &&
-                   (!EX_MEM_memread)) &&
-                   (EX_MEM_rd == ID_EX_rs2));
-  // MEM Hazard 2b
-  // Forward MEM result from 2 instructions ago to 2nd operand of current instruction
-  assign cond2_2 = ((MEM_WB_regwrite) &&
-                   (MEM_WB_rd == ID_EX_rs2));
-  // WB Hazard 3b
-  // Forward WB result from 3 instructions ago to 2nd operand of current instruction
   assign cond2_3 = ((WB_ID_regwrite) &&
                    (WB_ID_rd == ID_EX_rs2));
 
-  assign sel_fw1 = (ID_EX_rs1 == 0) ? 2'b00 :         // Don't forward if rs1 is zero register
-                   cond1_1          ? 2'b10 :         // EX Hazard 1a
-                   cond1_2          ? 2'b11 :         // MEM Hazard 2a
-                   cond1_3          ? 2'b01 : 2'b00;  // WB Hazard 3a
-  assign sel_fw2 = (ID_EX_rs2 == 0) ? 2'b00 :         // Don't forward if rs2 is zero register
-                   cond2_1          ? 2'b10 :         // EX Hazard 1b
-                   cond2_2          ? 2'b11 :         // MEM Hazard 2b
-                   cond2_3          ? 2'b01 : 2'b00;  // WB Hazard 3b
+  assign sel_fw1 = (ID_EX_rs1 == 0) ? 2'b00 :         // Don't forward if rs1 is x0
+                   cond1_1          ? 2'b10 :         // Forward EX to EX
+                   cond1_2          ? 2'b11 :         // Forward MEM to EX
+                   cond1_3          ? 2'b01 : 2'b00;  // Forward WB to EX
+  assign sel_fw2 = (ID_EX_rs2 == 0) ? 2'b00 :         // Don't forward if rs2 is x0
+                   cond2_1          ? 2'b10 :         // Forward EX to EX
+                   cond2_2          ? 2'b11 :         // Forward MEM to EX
+                   cond2_3          ? 2'b01 : 2'b00;  // Forward WB to EX
   assign sel_ex = (!div_ready) && (!mul_ready) ? 2'b00 :         // ALU result
                   div_ready && (!mul_ready)    ? 2'b10 :         // DIV result
                   (!div_ready) && mul_ready    ? 2'b01 : 2'b00;  // MUL result
