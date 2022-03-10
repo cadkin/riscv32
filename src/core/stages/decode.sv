@@ -138,7 +138,7 @@ module decode (
   logic div_inst;
 
   // Control Signal Generation Unit
-  control u0_control (
+  control u0_ctrl (
       .clk(bus.clk),
       .opcode(bus.ins[6:0]),
       .funct3(funct3),
@@ -174,7 +174,7 @@ module decode (
   );
 
   // Compressed Instruction Control Unit
-  control_cmpr u1_control_cmpr (
+  control_cmpr u1_ctrl_cmpr (
       .ins(bus.ins),
       .ins_zero(ins_zero),
       .flush(flush),
@@ -205,7 +205,7 @@ module decode (
   );
 
   // Floating Point Control Unit
-  Control_fp u2_control_fp (
+  Control_fp u2_ctrl_fp (
       .opcode(bus.ins[6:0]),
       .funct3(funct3),
       .funct7(funct7),
@@ -232,7 +232,7 @@ module decode (
 
   // Compare Unit
   // For branch decision and hazard detection
-  compare u4_compare (
+  compare u4_cmp (
       .IF_ID_rs1(IF_ID_rs1),
       .IF_ID_rs2(IF_ID_rs2),
       .ID_EX_rd(bus.ID_EX_rd),
@@ -247,7 +247,7 @@ module decode (
   );
 
   // Hazard Detection Unit
-  hazard u5_hazard (
+  hazard u5_hz (
       .zero1(zero1),
       .zero2(zero2),
       .zero3(zero3),
@@ -262,7 +262,7 @@ module decode (
   );
 
   // Branch Forward Unit
-  branch_forward u6_branch_forward (
+  branch_forward u6_br_fwd (
       .rs1(bus.IF_ID_dout_rs1),
       .rs2(bus.IF_ID_dout_rs2),
       .zero3(zero3),
@@ -285,7 +285,7 @@ module decode (
   );
 
   // Branch Decision Unit
-  branch_decision u7_branch_decision (
+  branch_decision u7_br_dec (
       .rs1_mod(rs1_mod),
       .rs2_mod(rs2_mod),
       .hazard(hz_sig),
@@ -297,7 +297,7 @@ module decode (
   );
 
   // Branch Offset Generation Unit
-  branch_off_gen u8_branch_off_gen (
+  branch_off_gen u8_br_off_gen (
       .ins(bus.ins),
       .rs1_mod(rs1_mod),
       .comp_sig(bus.comp_sig),

@@ -80,7 +80,7 @@ module execute (
   logic mul_ready;
   logic div_ready;
 
-  forwarding dut (
+  forwarding u1_fwd (
       .EX_MEM_regwrite(EX_MEM_regwrite_sig),
       .EX_MEM_memread(EX_MEM_memread_sig),
       .MEM_WB_regwrite(bus.MEM_WB_regwrite),
@@ -108,7 +108,7 @@ module execute (
       .rs2_mod(rs2_mod)
   );
 
-  alu uut (
+  alu u2_alu (
       .a(ALUop1),
       .b(ALUop2),
       .alusel(bus.ID_EX_alusel),
@@ -126,7 +126,7 @@ module execute (
       .ID_EX_comp_sig(bus.ID_EX_comp_sig)
   );
 
-  multiplier mul (
+  multiplier u3_mul (
       .clk(bus.clk),
       .rst(bus.Rst),
       .mulsel(bus.ID_EX_mulsel),
@@ -136,7 +136,7 @@ module execute (
       .res(mulres)
   );
 
-  divider div (
+  divider u4_div (
       .clk(bus.clk),
       .rst(bus.Rst),
       .divsel(bus.ID_EX_divsel),
@@ -146,7 +146,7 @@ module execute (
       .res(divres)
   );
 
-  FPU fut (
+  FPU u5_fpu (
       .a(bus.ID_EX_dout_rs1),
       .b(bus.ID_EX_dout_rs2),
       .c(bus.ID_EX_dout_rs3),
