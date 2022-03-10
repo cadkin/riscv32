@@ -46,7 +46,7 @@ module hazard (
   logic mute;
 
   // Checks instruction types for load and branch hazards
-  // No hazard if rs2 is source register and instr. with source register is jalr or ALU instr.
+  // No hazard if rs2 is source register and instr. with source register is JALR or immediate instr.
   assign mute = !(IF_ID_jalr + IF_ID_alusrc);
 
   // Load or branch hazard: Back-to-back dependent instructions

@@ -64,7 +64,11 @@ module forwarding (
   logic [1:0] sel_fw1, sel_fw2, sel_ex;
   logic cond1_1, cond1_2, cond1_3, cond2_1, cond2_2, cond2_3;
 
-  // Selects which value to forward to rs2, immediate or rs2
+  // Determines 2nd input to ALU based on instruction
+  // Immediate: I-type Arithmetic, Load, Store, LUI, AUIPC
+  //            CSRRWI, CSRRSI, CSRRCI
+  // Data in rs2: R-type Arithmetic, Compare, Branch
+  //              CSRRW, CSRRS, CSRRC
   assign fw_rs2 = alusrc ? imm : rs2_mod;
 
   // Detects data hazards and forwards data when destination register matches a source register

@@ -29,12 +29,12 @@ module imm_gen (
   // Separates the immediate fields from the 32-bit instructions
   always_comb
     unique case (ins[6:2])
-      5'b00100: imm = {{21{ins[31]}}, ins[30:20]};  // I-type Arithmetic Instructions
-      5'b00000: imm = {{21{ins[31]}}, ins[30:20]};  // I-type Load Instructions
+      5'b00100: imm = {{21{ins[31]}}, ins[30:20]};             // I-type Arithmetic Instructions
+      5'b00000: imm = {{21{ins[31]}}, ins[30:20]};             // I-type Load Instructions
       5'b01000: imm = {{21{ins[31]}}, ins[30:25], ins[11:7]};  // S-type Store Instructions
-      5'b01101: imm = {ins[31:12], {12{1'b0}}};  // U-type Instruction: LUI
-      5'b00101: imm = {ins[31:12], {12{1'b0}}};  // U-type Instruction: AUIPC
-      5'b11100: imm = {27'b0, ins[19:15]};  // I-type SYSTEM Instructions
+      5'b01101: imm = {ins[31:12], {12{1'b0}}};                // U-type Instruction: LUI
+      5'b00101: imm = {ins[31:12], {12{1'b0}}};                // U-type Instruction: AUIPC
+      5'b11100: imm = {27'b0, ins[19:15]};                     // I-type SYSTEM Instructions
       default:  imm = {{21{ins[31]}}, ins[30:20]};
     endcase
 endmodule : imm_gen
