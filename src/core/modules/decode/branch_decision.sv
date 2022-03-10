@@ -36,22 +36,29 @@ module branch_decision (
     input  logic        jalr
 );
 
-  logic [32:0] sub_res;  //comparison result of rs1 and rs2 including carry out;
+  logic [32:0] sub_res;
   logic sel, zero, less, lessu;
   logic beq, bne, blt, bge, bltu, bgeu;
 
+  // BEQ/BNE: Checks if data (or forwarded data) in rs1 and rs2 are equal
   assign sub_res = rs1_mod - rs2_mod;
-
   assign zero = !(|sub_res[31:0]);
-  assign less = ($signed(rs1_mod) < $signed(rs2_mod));
-  assign lessu = (rs1_mod < rs2_mod);
-  assign beq = !(|funct3) && branch;
-  assign bne = (!funct3[2]) && (!funct3[1]) && (funct3[0]) && branch;
-  assign blt = (funct3[2]) && (!funct3[1]) && (!funct3[0]) && branch;
-  assign bge = (funct3[2]) && (!funct3[1]) && funct3[0] && branch;
-  assign bltu = (funct3[2]) && (funct3[1]) && (!funct3[0]) && branch;
-  assign bgeu = (funct3[2]) && (funct3[1]) && (funct3[0]) && branch;
 
+  // BLT/BGE: Checks if data (or forwarded data) in rs1 is less than rs2 using signed values
+  assign less = ($signed(rs1_mod) < $signed(rs2_mod));
+
+  // BLT/BGE: Checks if data (or forwarded data) in rs1 is less than rs2 using unsigned values
+  assign lessu = (rs1_mod < rs2_mod);
+
+  // Checks the type of branch operation.
+  assign beq = !(|funct3) && branch;                                  // Branch if Equal
+  assign bne = (!funct3[2]) && (!funct3[1]) && (funct3[0]) && branch; // Branch if Not Equal
+  assign blt = (funct3[2]) && (!funct3[1]) && (!funct3[0]) && branch; // Branch if Less than, Signed
+  assign bge = (funct3[2]) && (!funct3[1]) && funct3[0] && branch;    // Branch if Greater than or Equal, Signed
+  assign bltu = (funct3[2]) && (funct3[1]) && (!funct3[0]) && branch; // Branch if Less than, Unsigned
+  assign bgeu = (funct3[2]) && (funct3[1]) && (funct3[0]) && branch;  // Branch if Greater than or Equal, Unsigned
+
+  // Designates branch as taken if instruction and condition match
   assign branch_taken = ((beq && zero) ||
                          (bne && (!zero)) ||
                          (blt && less) ||
