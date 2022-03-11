@@ -37,7 +37,7 @@ module memory (
     main_bus_if.memory bus
 );
 
-  logic [31:0] MEM_WB_memres_sig, MEM_WB_memres_temp;
+  logic [31:0] MEM_WB_memres_sig;
   logic [31:0] MEM_WB_memres;
   logic [ 1:0] MEM_WB_dout_sel;
   logic        En;
@@ -45,7 +45,6 @@ module memory (
   logic MEM_WB_lb, MEM_WB_lh, MEM_WB_lw, MEM_WB_lbu, MEM_WB_lhu;
   logic [4:0] MEM_WB_loadcntrl;
   logic [3:0] byte_write;
-  logic [7:0] d0, d1, d2, d3;
   logic [31:0] memforward;
   logic MEM_WB_memwrite;
   logic [31:0] MEM_WB_dout_rs2;
@@ -64,14 +63,7 @@ module memory (
   assign bus.mem_en = byte_write;
   assign bus.mem_addr = bus.EX_MEM_alures;
   assign bus.mem_din = memforward;
-  assign MEM_WB_memres_temp = bus.mem_dout;
-
-  assign MEM_WB_memres_sig = MEM_WB_memres_temp;
-
-  assign d0 = MEM_WB_memres_temp[7:0];
-  assign d1 = MEM_WB_memres_temp[15:8];
-  assign d2 = MEM_WB_memres_temp[23:16];
-  assign d3 = MEM_WB_memres_temp[31:24];
+  assign MEM_WB_memres_sig = bus.mem_dout;
 
   // Detects store hazard
   // Example: lw rd -> sw rs1/rs2
