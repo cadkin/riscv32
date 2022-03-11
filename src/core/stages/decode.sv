@@ -393,6 +393,7 @@ module decode (
     end
   end
 
+  // Setting pipeline registers
   always_ff @(posedge bus.clk) begin
     if (bus.Rst) begin
       bus.ID_EX_alusel <= 3'h0;

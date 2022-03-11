@@ -35,12 +35,13 @@ module writeback (
                       (bus.MEM_WB_div_ready) ? bus.MEM_WB_divres : bus.MEM_WB_alures;
   assign bus.WB_res = WB_res_sig;
 
+  // Setting pipeline registers
   always_ff @(posedge bus.clk) begin
     if (bus.Rst) begin
       bus.WB_ID_rd <= 5'b00000;
       bus.WB_ID_res <= 32'h00000000;
       bus.WB_ID_regwrite <= 1'b0;
-    // Set ID/EX pipeline register with EX/MEM values
+    // Set WB/ID pipeline register with MEM/WB values
     // Freeze pipeline if debug or prog activated
     end else if ((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
       bus.WB_ID_fpusrc <= bus.MEM_WB_fpusrc;

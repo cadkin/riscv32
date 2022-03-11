@@ -176,6 +176,7 @@ module execute (
   assign bus.EX_MEM_memread = EX_MEM_memread_sig;
   assign bus.EX_MEM_regwrite = EX_MEM_regwrite_sig;
 
+  // Setting pipeline registers
   always_ff @(posedge bus.clk) begin
     if (bus.Rst) begin
       EX_MEM_rd_sig <= 5'b00000;
@@ -205,7 +206,7 @@ module execute (
       div_ready <= 0;
       mul_ready <= 0;
       bus.f_stall <= 1'b0;
-    // Set ID/EX pipeline register with EX/MEM values
+    // Set EX/MEM pipeline register with ID/EX values
     // Freeze pipeline if debug or prog activated
     end else if ((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
       EX_MEM_rd_sig <= bus.ID_EX_rd;
