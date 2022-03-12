@@ -10,7 +10,6 @@ module control_cmpr (
     output logic [2:0] funct3,
     output logic [3:0] funct4,
     output logic [5:0] funct6,
-    output logic [6:0] funct7,
     output logic [2:0] alusel,
     output logic [2:0] storecntrl,
     output logic [4:0] loadcntrl,

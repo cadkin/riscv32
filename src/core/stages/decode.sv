@@ -124,7 +124,6 @@ module decode (
   logic [2:0] c_funct3;
   logic [3:0] c_funct4;
   logic [5:0] c_funct6;
-  logic [6:0] c_funct7;
   logic [2:0] c_alusel;
   logic [2:0] c_storecntrl;
   logic [4:0] c_loadcntrl;
@@ -139,7 +138,6 @@ module decode (
 
   // Control Signal Generation Unit
   control u0_ctrl (
-      .clk(bus.clk),
       .opcode(bus.ins[6:0]),
       .funct3(funct3),
       .funct7(funct7),
@@ -186,7 +184,6 @@ module decode (
       .funct3(c_funct3),
       .funct4(c_funct4),
       .funct6(c_funct6),
-      .funct7(c_funct7),
       .alusel(c_alusel),
       .storecntrl(c_storecntrl),
       .loadcntrl(c_loadcntrl),
@@ -269,7 +266,6 @@ module decode (
       .zero4(zero4),
       .zeroa(zeroa),
       .zerob(zerob),
-      .alusrc(IF_ID_alusrc),
       .imm(IF_ID_imm),
       .alures(bus.EX_MEM_alures),
       .wbres(bus.WB_res),
@@ -341,7 +337,6 @@ module decode (
       funct3 = c_funct3;
       funct4 = c_funct4;
       funct6 = c_funct6;
-      funct7 = c_funct7;
       IF_ID_rs1 = c_rs1;
       IF_ID_rs2 = c_rs2;
       IF_ID_rs3 = 5'h0;

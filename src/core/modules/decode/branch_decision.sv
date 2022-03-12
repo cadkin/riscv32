@@ -37,7 +37,7 @@ module branch_decision (
 );
 
   logic [32:0] sub_res;
-  logic sel, zero, less, lessu;
+  logic zero, less, lessu;
   logic beq, bne, blt, bge, bltu, bgeu;
 
   // BEQ/BNE: Checks if data (or forwarded data) in rs1 and rs2 are equal

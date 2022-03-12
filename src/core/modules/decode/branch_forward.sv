@@ -36,7 +36,6 @@ module branch_forward (
     input  logic        zero4,
     input  logic        zeroa,
     input  logic        zerob,
-    input  logic        alusrc,
     input  logic [31:0] imm,
     input  logic [31:0] alures,
     input  logic [31:0] wbres,
