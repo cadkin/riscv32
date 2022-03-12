@@ -41,11 +41,11 @@ module alu (
     input  logic        ID_EX_auipc,
     input  logic        ID_EX_compare,
     input  logic [ 2:0] csrsel,
+    input  logic [31:0] CSR_in,
+    input  logic        ID_EX_comp_sig,
     output logic [31:0] res,
     output logic        comp_res,
-    output logic [31:0] CSR_res,
-    input  logic [31:0] CSR_in,
-    input  logic        ID_EX_comp_sig
+    output logic [31:0] CSR_res
 );
 
   logic [31:0] s;

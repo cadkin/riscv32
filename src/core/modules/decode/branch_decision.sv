@@ -30,10 +30,10 @@ module branch_decision (
     input  logic [31:0] rs2_mod,
     input  logic        branch,
     input  logic [ 2:0] funct3,
-    output logic        branch_taken,
     input  logic        hazard,
     input  logic        jal,
-    input  logic        jalr
+    input  logic        jalr,
+    output logic        branch_taken
 );
 
   logic [32:0] sub_res;

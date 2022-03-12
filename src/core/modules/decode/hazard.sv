@@ -37,9 +37,9 @@ module hazard (
     input  logic ID_EX_regwrite,
     input  logic EX_MEM_memread,
     input  logic IF_ID_branch,
-    output logic hz,
     input  logic IF_ID_alusrc,
-    input  logic IF_ID_jalr
+    input  logic IF_ID_jalr,
+    output logic hz
 );
 
   logic hzi1, hzi2, hzi3, hzi4, hzi5, hzi6, hzi7;
