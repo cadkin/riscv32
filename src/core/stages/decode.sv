@@ -252,12 +252,12 @@ module decode (
       .zero2(zero2),
       .zero3(zero3),
       .zero4(zero4),
-      .IF_ID_alusrc(IF_ID_alusrc),
-      .IF_ID_jalr(IF_ID_jalr_sig),
-      .IF_ID_branch(IF_ID_branch),
       .ID_EX_memread(bus.ID_EX_memread),
       .ID_EX_regwrite(bus.ID_EX_regwrite),
       .EX_MEM_memread(bus.EX_MEM_memread),
+      .IF_ID_branch(IF_ID_branch),
+      .IF_ID_alusrc(IF_ID_alusrc),
+      .IF_ID_jalr(IF_ID_jalr_sig),
       .hz(hz_sig)
   );
 
@@ -276,8 +276,8 @@ module decode (
       .divres(bus.EX_MEM_divres),
       .mulres(bus.EX_MEM_mulres),
       .EX_MEM_regwrite(bus.EX_MEM_regwrite),
-      .EX_MEM_memread(bus.EX_MEM_memread),
       .MEM_WB_regwrite(bus.MEM_WB_regwrite),
+      .EX_MEM_memread(bus.EX_MEM_memread),
       .div_ready(div_ready_sig),
       .mul_ready(mul_ready_sig),
       .rs1_mod(rs1_mod),
@@ -288,9 +288,9 @@ module decode (
   branch_decision u7_br_dec (
       .rs1_mod(rs1_mod),
       .rs2_mod(rs2_mod),
-      .hazard(hz_sig),
       .branch(IF_ID_branch),
       .funct3(funct3),
+      .hazard(hz_sig),
       .jal(IF_ID_jal),
       .jalr(IF_ID_jalr_sig),
       .branch_taken(branch_taken_sig)

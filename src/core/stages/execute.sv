@@ -113,19 +113,19 @@ module execute (
   alu u2_alu (
       .a(ALUop1),
       .b(ALUop2),
-      .alusel(bus.ID_EX_alusel),
-      .ID_EX_compare(bus.ID_EX_compare),
       .ID_EX_pres_adr(bus.ID_EX_pres_addr),
+      .alusel(bus.ID_EX_alusel),
       .ID_EX_lui(bus.ID_EX_lui),
       .ID_EX_jal(bus.ID_EX_jal),
       .ID_EX_jalr(bus.ID_EX_jalr),
       .ID_EX_auipc(bus.ID_EX_auipc),
+      .ID_EX_compare(bus.ID_EX_compare),
+      .csrsel(bus.csrsel),
+      .CSR_in(bus.ID_EX_CSR),
+      .ID_EX_comp_sig(bus.ID_EX_comp_sig),
       .res(alures),
       .comp_res(comp_res),
-      .CSR_res(CSR_res),
-      .CSR_in(bus.ID_EX_CSR),
-      .csrsel(bus.csrsel),
-      .ID_EX_comp_sig(bus.ID_EX_comp_sig)
+      .CSR_res(CSR_res)
   );
 
   // Multiplier Unit
