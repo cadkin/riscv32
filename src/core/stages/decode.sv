@@ -67,7 +67,7 @@ module decode (
 
   logic ins_zero;
   logic flush_sig;
-  logic [31:0] rs1_mod, rs2_mod, rs3_mod;
+  logic [31:0] rs1_mod, rs2_mod;
 
   logic [ 1:0] funct2;
   logic [ 2:0] funct3;
@@ -75,7 +75,6 @@ module decode (
   logic [ 5:0] funct6;
   logic [ 6:0] funct7;
   logic [11:0] funct12;
-  logic [31:0] comp_imm;
 
   logic IF_ID_jal, IF_ID_compare;
   logic jal, compare, jalr_sig;
@@ -136,6 +135,8 @@ module decode (
   logic mul_inst;
   logic div_inst;
 
+  logic illegal_ins;
+
   // Control Signal Generation Unit
   control u0_ctrl (
       .opcode(bus.ins[6:0]),
@@ -168,7 +169,8 @@ module decode (
       .csrread(csrread),
       .trap_ret(trap_ret),
       .mul_inst(mul_inst),
-      .div_inst(div_inst)
+      .div_inst(div_inst),
+      .illegal_ins(illegal_ins)  // Unused
   );
 
   // Compressed Instruction Control Unit
@@ -188,8 +190,8 @@ module decode (
       .storecntrl(c_storecntrl),
       .loadcntrl(c_loadcntrl),
       .branch(c_branch),
-      .beq(c_beq),
-      .bne(c_bne),
+      .beq(c_beq),  // Unused
+      .bne(c_bne),  // Unused
       .memread(c_memread),
       .memwrite(c_memwrite),
       .regwrite(c_regwrite),

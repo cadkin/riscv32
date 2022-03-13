@@ -168,7 +168,7 @@ interface main_bus_if (
   // WB/ID
   logic [31:0] WB_res, WB_ID_res;
 
-
+  // Toggles trap when interrupt/ECALL instruction occurs
   assign trap = ecall;
   always_ff @(posedge clk) begin
     if (Rst) begin
@@ -357,7 +357,7 @@ module riscv_core (
   // Controls if the PC increments. Disables PC if pipeline hazard occurs
   assign bus.PC_En = (!bus.hz) & (rbus.RAS_rdy);
   assign bus.memcon_prog_ena = rbus.prog;
-  // debugging resister
+  // Debugging resister
   assign bus.adr_rs1 = debug ? debug_input : bus.IF_ID_rs1;
 
   assign rbus.trapping = bus.trapping;
@@ -399,12 +399,13 @@ module riscv_core (
     rbus.next_addr = bus.next_addr;
   end
 
+  // Output current instruction or register to 7 segment display
   always_ff @(posedge clk) begin
     if (Rst) begin
       debug_output <= 32'h00000000;
-    end else if (prog) begin  //debug instruction memory
+    end else if (prog) begin   // Debug instruction memory
       debug_output <= bus.ins;
-    end else if (debug) begin  //debug register
+    end else if (debug) begin  // Debug register
       debug_output <= bus.IF_ID_dout_rs1;
     end else begin
       debug_output <= 32'h00000000;

@@ -14,8 +14,8 @@ module control_cmpr (
     output logic [2:0] storecntrl,
     output logic [4:0] loadcntrl,
     output logic branch,
-    output logic beq,
-    output logic bne,
+    output logic beq,  // Unused
+    output logic bne,  // Unused
     output logic memread,
     output logic memwrite,
     output logic regwrite,

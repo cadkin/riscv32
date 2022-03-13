@@ -72,7 +72,7 @@ module control (
     output logic        trap_ret,
     output logic        mul_inst,
     output logic        div_inst,
-    output logic        illegal_ins  // Currently unused
+    output logic        illegal_ins  // Unused
 );
 
   // Instruction Classification Signal
