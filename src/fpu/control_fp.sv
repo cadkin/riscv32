@@ -68,7 +68,7 @@ module Control_fp (
     fpusrc = 1'b0;
     illegal_ins = 1'b0;
     rm = 3'b000;
-    unique case (opcode)
+    unique case (opcode) inside
       7'b0000111: begin  //fp I-type (load)
         memread  = 1'b1;
         regwrite = (!stall) && (1'b1);
@@ -193,7 +193,7 @@ module Control_fp (
           end
         endcase
       end
-      7'h001 ** 11: begin  // R4 type
+      7'b100??11: begin  // R4 type
         regwrite = (!stall) && (1'b1);
         fpusrc = 1'b1;
         rm = funct3;
