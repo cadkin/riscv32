@@ -12,7 +12,7 @@ interface riscv_bus_if (
     output logic scan_out
 );
 
-  //Memory signals
+  // Memory Signals
   logic mem_wea, mem_rea;
   logic [ 3:0] mem_en;
   logic [31:0] mem_addr;
@@ -20,7 +20,7 @@ interface riscv_bus_if (
   logic [ 2:0] storecntrl;
   logic [31:0] debug_output;
 
-  //Instruction memory signals
+  // Instruction Memory Signals
   logic imem_en, imem_prog_ena;
   logic [31:0] imem_addr;
   logic [31:0] imem_dout, imem_din;
@@ -29,7 +29,7 @@ interface riscv_bus_if (
   logic uart_IRQ;
   logic trapping;
 
-  //RAS signals
+  // RAS Signals
   logic RAS_branch, ret, stack_full, stack_empty, stack_mismatch;
   logic [31:0] RAS_addr_in;
 
@@ -37,10 +37,6 @@ interface riscv_bus_if (
   logic [31:0] IF_ID_pres_addr, ins, IF_ID_dout_rs1, branoff, next_addr;
   logic branch, IF_ID_jal;
   logic [4:0] IF_ID_rd;
-
-  assign ret = (branch & ((ins == 32'h8082) | (ins == 32'h8067)));
-  assign RAS_branch = branch & IF_ID_jal & (IF_ID_rd == 1);
-  assign RAS_addr_in = RAS_branch ? (next_addr) : (ret ? branoff : 1'b0);
 
   modport core(
       input clk, Rst, debug, prog, debug_input, mem_dout, imem_dout,
@@ -66,7 +62,14 @@ interface riscv_bus_if (
       output stack_full, stack_empty, stack_mismatch, RAS_rdy
   );
 
-  modport uart(output uart_IRQ);
+  modport uart(
+      output uart_IRQ
+  );
+
+  // RAS
+  assign ret = (branch & ((ins == 32'h8082) | (ins == 32'h8067)));
+  assign RAS_branch = branch & IF_ID_jal & (IF_ID_rd == 1);
+  assign RAS_addr_in = RAS_branch ? (next_addr) : (ret ? branoff : 1'b0);
 endinterface
 
 interface mmio_bus_if (
@@ -81,35 +84,35 @@ interface mmio_bus_if (
     output logic spi_cs,
     output logic spi_sck
 );
+
   logic [31:0] led;
   logic disp_wea;
   logic [31:0] disp_dat;
   logic [31:0] disp_out;
 
-  //uart ports
+  // UART Ports
   logic [7:0] uart_din, uart_dout;
   logic rx_ren, tx_wen, rx_data_present;
   logic tx_full;
   logic [2:0] uart_addr;
 
-  //SPI interface
+  // SPI Interface
   logic spi_rd, spi_wr;
   logic [7:0] spi_din;
   logic spi_ignore_response;
   logic spi_data_avail, spi_buffer_empty, spi_buffer_full;
   logic [ 7:0] spi_dout;
 
-  //CRAS interface
+  // CRAS Interface
   logic [31:0] RAS_config_din;
   logic [ 2:0] RAS_config_addr;
   logic RAS_config_wr, RAS_ena;
   logic [31:0] RAS_mem_dout, RAS_mem_din, RAS_mem_addr;
   logic RAS_mem_rdy, RAS_mem_rd, RAS_mem_wr;
 
-  //Counter Stuff
+  // Counter Signals
   logic [31:0] cnt_dout;
   logic cnt_zero, cnt_ovflw;
-
 
   modport memcon(
       input clk, Rst,
@@ -129,7 +132,10 @@ interface mmio_bus_if (
       output cnt_zero
   );
 
-  modport display(input clk, Rst, disp_wea, disp_dat, debug_input, output disp_out);
+  modport display(
+      input clk, Rst, disp_wea, disp_dat, debug_input,
+      output disp_out
+  );
 
   modport uart(
       input clk, Rst, rx, rx_ren, tx_wen, uart_din, uart_addr, BR_clk,
@@ -148,25 +154,28 @@ interface mmio_bus_if (
       output RAS_mem_din, RAS_mem_addr, RAS_mem_rd, RAS_mem_wr
   );
 
-  modport counter(input clk, Rst, cnt_zero, output cnt_ovflw, cnt_dout);
+  modport counter(
+      input clk, Rst, cnt_zero,
+      output cnt_ovflw, cnt_dout
+  );
 endinterface
 
 module riscv_top (
     input logic clk,
     input logic rst_n,
 
-    //FPGA Debugging
+    // FPGA Debugging
     input logic debug,
     input logic [4:0] debug_input,
     output logic [6:0] sev_out,
     output logic [7:0] an,
     output logic [15:0] led,
 
-    //UART
+    // UART
     input  logic rx,
     output logic tx,
 
-    //SPI
+    // SPI
     input  logic miso,
     output logic mosi,
     output logic cs
@@ -186,14 +195,9 @@ module riscv_top (
   logic scan_in;
   logic scan_clk;
   logic scan_out;
-  assign scan_en = 0;
-  assign scan_in = 0;
-  assign scan_clk = 0;
-  assign Rst = !rst_n;
 
-  // Debug Output Driving
-  assign led = {12'h0, rbus.stack_mismatch, mbus.RAS_ena, rbus.trapping, rbus.uart_IRQ};
-  assign debug_output = (prog | debug) ? rbus.debug_output : mbus.disp_out;
+  logic spi_mosi, spi_miso, spi_cs, spi_sck;
+
   typedef enum logic [7:0] {
     a0 = 8'b11111110,
     a1 = 8'b11111101,
@@ -206,26 +210,11 @@ module riscv_top (
   } an_e;
   an_e an_cur, an_nxt;
 
-  clk_div #(1000) cdiv_7seg (
-      .clk_in(clk),
-      .rst(Rst),
-      .clk_out(clk_7seg)
-  );
-  assign an = an_cur;
-
-  //SPI
-  logic spi_mosi, spi_miso, spi_cs, spi_sck;
-  assign spi_miso = miso;
-  assign mosi = spi_mosi;
-  assign cs = spi_cs;
-
-  //Scanchain
-  assign prog = scan_en;
-
   riscv_bus_if rbus (
       .clk(clk_rv),
       .*
   );
+
   mmio_bus_if mbus (
       .clk(clk_rv),
       .Rst(Rst),
@@ -239,12 +228,18 @@ module riscv_top (
       .spi_sck(spi_sck)
   );
 
-  assign clk_rv = clk;
+  clk_div #(1000) cdiv_7seg (
+      .clk_in(clk),
+      .rst(Rst),
+      .clk_out(clk_7seg)
+  );
+
   clk_div #(2) cdiv_spi (
       .clk_in(clk),
       .rst(Rst),
       .clk_out(clk_spi)
   );  // 25 MHz -> 12.5 MHz
+
   clk_div #(217) cdiv_uart (
       .clk_in(clk),
       .rst(Rst),
@@ -278,14 +273,47 @@ module riscv_top (
 
   counter cnt0 (mbus.counter);
 
-  always_ff @(posedge clk_7seg) begin
-    if (Rst) begin
-      an_cur  <= a0;
-      seg_cur <= debug_output[3:0];
-    end else begin
-      an_cur  <= an_nxt;
-      seg_cur <= seg_nxt;
-    end
+  assign scan_en = 0;
+  assign scan_in = 0;
+  assign scan_clk = 0;
+  assign Rst = !rst_n;
+
+  // Debug Output Driving
+  assign led = {12'h0, rbus.stack_mismatch, mbus.RAS_ena, rbus.trapping, rbus.uart_IRQ};
+  assign debug_output = (prog | debug) ? rbus.debug_output : mbus.disp_out;
+
+  assign an = an_cur;
+
+  // SPI
+  assign spi_miso = miso;
+  assign mosi = spi_mosi;
+  assign cs = spi_cs;
+
+  // Scanchain
+  assign prog = scan_en;
+
+  assign clk_rv = clk;
+
+  always_comb begin
+    case (seg_cur)
+      4'b0000: sev_out = 7'b0000001;
+      4'b0001: sev_out = 7'b1001111;
+      4'b0010: sev_out = 7'b0010010;
+      4'b0011: sev_out = 7'b0000110;
+      4'b0100: sev_out = 7'b1001100;
+      4'b0101: sev_out = 7'b0100100;
+      4'b0110: sev_out = 7'b0100000;
+      4'b0111: sev_out = 7'b0001111;
+      4'b1000: sev_out = 7'b0000000;
+      4'b1001: sev_out = 7'b0000100;
+      4'b1010: sev_out = 7'b0001000;
+      4'b1011: sev_out = 7'b1100000;
+      4'b1100: sev_out = 7'b0110001;
+      4'b1101: sev_out = 7'b1000010;
+      4'b1110: sev_out = 7'b0110000;
+      4'b1111: sev_out = 7'b0111000;
+      default: sev_out = 7'b0000000;
+    endcase
   end
 
   always_comb begin
@@ -329,26 +357,14 @@ module riscv_top (
     endcase
   end
 
-  always_comb begin
-    case (seg_cur)
-      4'b0000: sev_out = 7'b0000001;
-      4'b0001: sev_out = 7'b1001111;
-      4'b0010: sev_out = 7'b0010010;
-      4'b0011: sev_out = 7'b0000110;
-      4'b0100: sev_out = 7'b1001100;
-      4'b0101: sev_out = 7'b0100100;
-      4'b0110: sev_out = 7'b0100000;
-      4'b0111: sev_out = 7'b0001111;
-      4'b1000: sev_out = 7'b0000000;
-      4'b1001: sev_out = 7'b0000100;
-      4'b1010: sev_out = 7'b0001000;
-      4'b1011: sev_out = 7'b1100000;
-      4'b1100: sev_out = 7'b0110001;
-      4'b1101: sev_out = 7'b1000010;
-      4'b1110: sev_out = 7'b0110000;
-      4'b1111: sev_out = 7'b0111000;
-      default: sev_out = 7'b0000000;
-    endcase
+  always_ff @(posedge clk_7seg) begin
+    if (Rst) begin
+      an_cur  <= a0;
+      seg_cur <= debug_output[3:0];
+    end else begin
+      an_cur  <= an_nxt;
+      seg_cur <= seg_nxt;
+    end
   end
 
   integer cnt = 0;
