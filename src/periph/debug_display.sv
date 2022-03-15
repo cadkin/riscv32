@@ -11,11 +11,13 @@ module debug_display (
 
   integer writecount = 0;
 
+  // Addressable FIFO stores inputs and outputs to debug display
   addr_fifo u0 (
       .wea(mmio_wea),
       .*
   );
 
+  // Connects to MMIO debug display
   always_comb begin : proc_bustransfer
     clk = mbus.clk;
     rst = mbus.Rst;
