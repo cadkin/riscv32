@@ -197,6 +197,7 @@ module riscv_top (
 
   logic spi_mosi, spi_miso, spi_cs, spi_sck;
 
+  // Interfaces
   riscv_bus_if rbus (
       .clk(clk_rv),
       .*
@@ -215,6 +216,7 @@ module riscv_top (
       .spi_sck(spi_sck)
   );
 
+  // Clock Dividers
   clk_div #(1000) cdiv_7seg (
       .clk_in(clk),
       .rst(Rst),
@@ -233,6 +235,7 @@ module riscv_top (
       .clk_out(clk_uart)
   );  // 25 MHz -> 115200 kHz
 
+  // 7 Segment Display
   sev_seg ss0 (
       .clk(clk_7seg),
       .rst(Rst),
@@ -241,22 +244,25 @@ module riscv_top (
       .an_out(an)
   );
 
-  riscv_core rv_core (rbus.core);
-
+  // Memory Controller
   mem_controller memcon0 (
       .rbus(rbus.memcon),
       .mbus(mbus.memcon)
   );
 
+  // Debug Display
   debug_display d0 (mbus.display);
 
+  // UART Controller
   uart_controller u0 (
       .mbus(mbus.uart),
       .rbus(rbus.uart)
   );
 
+  // SPI Controller
   spi_controller spi0 (mbus.spi);
 
+  // CRAS
   CRAS_top #(
       .DEPTH(32),
       .FILL_THRESH(24),
@@ -266,12 +272,21 @@ module riscv_top (
       .mbus(mbus.CRAS)
   );
 
+  // Counter
   counter cnt0 (mbus.counter);
 
+  // RISC-V Core
+  riscv_core rv_core (rbus.core);
+
+  // Clock & Reset
+  assign clk_rv = clk;
+  assign Rst = !rst_n;
+
+  // Scanchain
   assign scan_en = 0;
   assign scan_in = 0;
   assign scan_clk = 0;
-  assign Rst = !rst_n;
+  assign prog = scan_en;
 
   // Debug Output Driving
   assign led = {12'h0, rbus.stack_mismatch, mbus.RAS_ena, rbus.trapping, rbus.uart_IRQ};
@@ -282,11 +297,7 @@ module riscv_top (
   assign mosi = spi_mosi;
   assign cs = spi_cs;
 
-  // Scanchain
-  assign prog = scan_en;
-
-  assign clk_rv = clk;
-
+  // Counter
   integer cnt = 0;
   integer maxcnt = 100000000;
   always_ff @(posedge clk) begin
