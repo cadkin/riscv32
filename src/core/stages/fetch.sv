@@ -91,6 +91,7 @@ module fetch (
   assign bus.imem_en = En_mem;
 
   // Loads the current instruction (either 16-bit compressed or 32-bit) from instruction memory
+  // If compressed instruction, clear the upper 16-bits which belongs to the next instruction
   assign bus.ins = bus.Rst ? 32'h00000000 : comp_sig ? {16'h0000, memdout[15:0]} : memdout;
   assign memdout = bus.imem_dout;
 
