@@ -3,10 +3,16 @@
 #define INT_OFFSET 48
 
 char uart_init() {
-	volatile char * base_ptr = (char *)UART_BASE_ADDR;
-	//set LCR 
+	volatile char * base_ptr = (char *)UART_BASE_ADDR;  // 0xaaaaa400
+	// Set Line Control Register (LCR)
+	// I/O port: base + 3
+	// 8 data bits
+	// 1 stop bit
+	// No parity
+	// Break signal disabled
+	// DLAB: DLL and DLM accessible
 	*(base_ptr + 3) = (1 << 7) | (3);
-	//set baud rate divisor 
+	// Baud Rate Divisor 
 	char baud_lower = 54;//2;//54; 
 	*(base_ptr) = baud_lower; 
 	*(base_ptr + 1) = 0;
