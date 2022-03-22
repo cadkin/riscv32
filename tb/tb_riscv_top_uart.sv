@@ -68,7 +68,7 @@ module tb_riscv_top_uart ();
   logic [7:0] debug_byte;
 
   task static delay();
-    #320;
+    #8640;
   endtask
 
   task static send_byte(input logic [7:0] rx_char);
@@ -148,15 +148,14 @@ module tb_riscv_top_uart ();
     #10;
     Rst = 0;
 
-    #10;
-    //send_byte(0);
-    //delay();
-    //send_word(arr_len);
+    #9000;
+    send_byte(74);
+    #9000;
   end
 
   always begin
     @(posedge tx_avail);
     debug_byte = tx_byte;
-    $write("%s", debug_byte);
+    $display("%s", debug_byte);
   end
 endmodule
