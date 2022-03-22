@@ -100,7 +100,7 @@ module control_cmpr (
             memwrite = (!stall) && 1'b1;
             alusrc = 1'b1;
             alusel = 3'b000;
-            storecntrl = 3'b111;
+            storecntrl = 3'b100;
           end
           default: begin
           end
@@ -279,7 +279,7 @@ module control_cmpr (
             memwrite = (!stall) && 1'b1;
             alusrc = 1'b1;
             alusel = 3'b000;
-            storecntrl = 3'b111;
+            storecntrl = 3'b100;
           end
           default: begin
           end
