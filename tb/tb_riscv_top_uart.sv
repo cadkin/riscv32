@@ -22,55 +22,51 @@
 
 
 module tb_riscv_top_uart ();
-  logic clk, Rst, rst_n, debug, rx, prog;
+  // Clock and Reset
+  logic clk;
+  logic Rst, rst_n;
+
+  // FPGA Debugging
+  logic debug;
   logic [4:0] debug_input;
-  logic tx, clk_out;
   logic [ 6:0] sev_out;
   logic [ 7:0] an;
   logic [15:0] led;
-  logic [95:0] key;
+
+  // Core UART
+  logic rx;
+  logic tx;
+
+  // Core SPI
   logic miso, mosi, cs;
-  logic sck;
 
-  assign key[95:48] = 48'h3cf3cf3cf3cf;
-  assign key[47:24] = 24'h30c30c;
-  assign key[23:12] = 12'hbae;
-  assign key[11:0] = 12'h3cf;
-  assign rst_n = ~Rst;
-
-  riscv_top dut (.*);
-
-  assign sck  = dut.spi_sck;
-
-  assign miso = mosi;
-
-  always #5 clk = !clk;
-
-  realtime t0, t1;
-  realtime en_tot, tot;
-  logic begin_second = 0;
-  logic get_second;
-
-  logic byte_sent;
-  logic [7:0] tx_byte;
-  int tx_cnt, tx_idx;
-
+  // Testbench UART Transmitter
   typedef enum {
     idle,
     reading
   } tx_rcv_e;
   tx_rcv_e tx_rcv;
-
+  logic [7:0] tx_byte;
   logic tx_avail;
+  int tx_cnt, tx_idx;
 
-  logic [31:0] cnt0, cnt1;
+  // Testbench UART Receiver
+  logic byte_sent;
+  logic [31:0] debug_byte;
 
-  logic [7:0] debug_byte;
+  // RISC-V Top Module
+  riscv_top dut (.*);
 
+  // Clock and Reset
+  always #5 clk = !clk;
+  assign rst_n = ~Rst;
+
+  // UART Delay
   task static delay();
     #8640;
   endtask
 
+  // Transmits a byte through UART to core
   task static send_byte(input logic [7:0] rx_char);
     byte_sent = 0;
     rx = 0;
@@ -79,20 +75,22 @@ module tb_riscv_top_uart ();
       rx = rx_char[i];
       delay();
     end
-    rx = 1;
     byte_sent = 1;
+    rx = 1;
   endtask
 
+  // Transmits a word through UART to core
   task static send_word(input logic [31:0] rx_word);
-    send_byte(rx_word[7:0]);
-    delay();
-    send_byte(rx_word[15:8]);
+    send_byte(rx_word[31:24]);
     delay();
     send_byte(rx_word[23:16]);
     delay();
-    send_byte(rx_word[31:24]);
+    send_byte(rx_word[15:8]);
+    delay();
+    send_byte(rx_word[7:0]);
   endtask
 
+  // Testbench UART Transmitter
   always_ff @(posedge dut.u0.B_CLK or posedge Rst) begin
     if (Rst) begin
       tx_cnt   <= 0;
@@ -125,37 +123,44 @@ module tb_riscv_top_uart ();
     end
   end
 
+  // Stop simulation if core execution reaches endloop instruction
   always_ff @(posedge dut.clk_50M) begin
     if ((dut.rbus.IF_ID_pres_addr == 32'h14) & (dut.rbus.branch)) begin
       $stop;
     end
   end
 
-  int arr_len = 256;
+  // String to test in UART
+  logic [31:0] test_str = "abcd";
 
+  // Transmit a word to the core through UART
   initial begin
     $display("Begin simulaton");
-    get_second = 0;
-    byte_sent = 0;
     clk = 0;
     Rst = 1;
     debug = 0;
-    rx = 1;
-    prog = 0;
     debug_input = 0;
-    cnt0 = 0;
-    cnt1 = 0;
+    byte_sent = 0;
+    rx = 1;
+
     #10;
     Rst = 0;
 
-    #9000;
-    send_byte(74);
-    #9000;
+    $write("UART TEST: ");
+    send_word(test_str);
   end
 
-  always begin
+  // Receive a word from the core through UART
+  initial begin
     @(posedge tx_avail);
-    debug_byte = tx_byte;
-    $display("%s", debug_byte);
+    debug_byte[31:24] = tx_byte;
+    @(posedge tx_avail);
+    debug_byte[23:16] = tx_byte;
+    @(posedge tx_avail);
+    debug_byte[15:8] = tx_byte;
+    @(posedge tx_avail);
+    debug_byte[7:0] = tx_byte;
+    $write("%s\n", debug_byte);
+    $display("End UART TEST");
   end
 endmodule

@@ -161,6 +161,7 @@ interface mmio_bus_if (
 endinterface
 
 module riscv_top (
+    // Clock and Reset
     input logic clk,
     input logic rst_n,
 
