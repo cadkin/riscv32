@@ -116,14 +116,13 @@ module control_cmpr (
             rd = ins[11:7];
             rs1 = ins[11:7];
             rs2 = 0;
-            imm = ins[12] ? {26'h3ffffff, ins[12], ins[6:2]} : {26'h0, ins[12], ins[6:2]};
+            imm = {ins[12] ? 26'h3ffffff : 26'h0, ins[12], ins[6:2]};
             regwrite = (!stall) && 1'b1;
             alusrc = 1'b1;
             alusel = 3'b000;
           end
           3'b001: begin  // C.JAL - Jump and Link
-            imm = ins[12] ? {20'hfffff, ins[12], ins[8], ins[10:9], ins[6], ins[7], ins[2], ins[11], ins[5:3], 1'b0} :
-                            {20'h0, ins[12], ins[8], ins[10:9], ins[6], ins[7], ins[2], ins[11], ins[5:3], 1'b0};
+            imm = {ins[12] ? 20'hfffff : 20'h0, ins[12], ins[8], ins[10:9], ins[6], ins[7], ins[2], ins[11], ins[5:3], 1'b0};
             rd = 1;
             rs1 = 0;
             rs2 = 0;
@@ -134,27 +133,25 @@ module control_cmpr (
             rd = ins[11:7];
             rs1 = 0;
             rs2 = 0;
-            imm = ins[12] ? {26'h3ffffff, ins[12], ins[6:2]} : {26'h0, ins[12], ins[6:2]};
+            imm = {ins[12] ? 26'h3ffffff : 26'h0, ins[12], ins[6:2]};
             regwrite = (!stall) && 1'b1;
             alusrc = 1;
             alusel = 3'b000;
           end
-          3'b011: begin  // C.ADDI16SP - Add Immediate Scaled by 16 to SP, C.LUI - Load Upper Immediate
-            if (ins[11:7] == 2) begin
+          3'b011: begin
+            if (ins[11:7] == 2) begin  // C.ADDI16SP - Add Immediate Scaled by 16 to SP
               rd = ins[11:7];
               rs1 = ins[11:7];
               rs2 = 0;
-              imm = ins[12] ? {22'h3fffff, ins[12], ins[4:3], ins[5], ins[2], ins[6], 4'h0} :
-                              {22'h0, ins[12], ins[4:3], ins[5], ins[2], ins[6], 4'h0};
+              imm = {ins[12] ? 22'h3fffff : 22'h0, ins[12], ins[4:3], ins[5], ins[2], ins[6], 4'h0};
               regwrite = (!stall) && 1'b1;
               alusrc = 1;
               alusel = 3'b000;
-            end else begin
+            end else begin  // C.LUI - Load Upper Immediate
               rd = ins[11:7];
               rs1 = 0;
               rs2 = 0;
-              imm = ins[17] ? {14'h3fff, ins[17], ins[6:2], 12'h0} :
-                              {14'h0, ins[17], ins[6:2], 12'h0};
+              imm = {ins[12] ? 14'h3fff : 14'h0, ins[12], ins[6:2], 12'h0};
               lui = 1'b1;
               alusrc = 1'b1;
               regwrite = stall ? 0 : 1;
@@ -167,18 +164,18 @@ module control_cmpr (
             imm = {26'h0, ins[12], ins[6:2]};
             regwrite = (!stall) && (1'b1);
             case (ins[11:10])
-              2'b00: begin  // SRLI - Logical Right Shift by Immediate
+              2'b00: begin  // C.SRLI - Logical Right Shift by Immediate
                 alusrc = 1;
                 alusel = 3'b110;
               end
-              2'b01: begin  // SRAI - Arithmetic Right Shift by Immediate
+              2'b01: begin  // C.SRAI - Arithmetic Right Shift by Immediate
                 alusrc = 1;
                 alusel = 3'b111;
               end
-              2'b10: begin  // ANDI - Bitwise AND with Immediate
+              2'b10: begin  // C.ANDI - Bitwise AND with Immediate
                 alusrc = 1;
                 alusel = 3'b010;
-                imm = ins[12] ? {26'h3ffffff, ins[12], ins[6:2]} : {26'h0, ins[12], ins[6:2]};
+                imm = {ins[12] ? 26'h3ffffff : 26'h0, ins[12], ins[6:2]};
               end
               2'b11: begin
                 alusrc = 0;
@@ -198,23 +195,20 @@ module control_cmpr (
             endcase
           end
           3'b101: begin  // C.J - Jump
-            imm = ins[12] ? {20'hfffff, ins[12], ins[8], ins[10:9], ins[6], ins[7], ins[2], ins[11], ins[5:3], 1'b0} :
-                            {20'h0, ins[12], ins[8], ins[10:9], ins[6], ins[7], ins[2], ins[11], ins[5:3], 1'b0};
+            imm = {ins[12] ? 20'hfffff : 20'h0, ins[12], ins[8], ins[10:9], ins[6], ins[7], ins[2], ins[11], ins[5:3], 1'b0};
             jal = (!flush) && 1;
           end
           3'b110: begin  // C.BEQZ - Branch if Equal to Zero
             rs1 = RVC_Reg(ins[9:7]);
             funct3 = 3'b000;
-            imm = ins[12] ? {23'h7fffff, ins[12], ins[6:5], ins[2], ins[11:10], ins[4:3], 1'h0} :
-                            {23'h0, ins[12], ins[6:5], ins[2], ins[11:10], ins[4:3], 1'h0};
+            imm = {ins[12] ? 23'h7fffff : 23'h0, ins[12], ins[6:5], ins[2], ins[11:10], ins[4:3], 1'h0};
             branch = (!flush) && 1;
             beq = 1;
           end
           3'b111: begin  // C.BNEZ - Branch if Not Equal to Zero
             rs1 = RVC_Reg(ins[9:7]);
             funct3 = 3'b001;
-            imm = ins[12] ? {23'h7fffff, ins[12], ins[6:5], ins[2], ins[11:10], ins[4:3], 1'h0} :
-                            {23'h0, ins[12], ins[6:5], ins[2], ins[11:10], ins[4:3], 1'h0};
+            imm = {ins[12] ? 23'h7fffff : 23'h0, ins[12], ins[6:5], ins[2], ins[11:10], ins[4:3], 1'h0};
             branch = (!flush) && 1;
             bne = 1;
           end
@@ -237,7 +231,7 @@ module control_cmpr (
           3'b010: begin  // C.LWSP - Load Word from SP + off
             rd = ins[11:7];
             rs1 = 2;
-            imm = {26'h0, ins[12], ins[6:2]};
+            imm = {24'h0, ins[3:2], ins[12], ins[6:4], 2'b00};
             memread = 1'b1;
             regwrite = (!stall) && (1'b1);
             alusel = 3'b000;
