@@ -147,6 +147,7 @@ module tb_riscv_top_uart ();
     Rst = 0;
 
     $write("UART TEST: ");
+    #50000
     send_word(test_str);
   end
 

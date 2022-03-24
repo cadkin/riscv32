@@ -1,4 +1,25 @@
-#include "qsort.h"
+#define INSERTION_THRESHOLD 10
+#define NSTACK 50
+#define DATA_SIZE 4
+#include "print.h"
+#include "uart.h" 
+
+#define SWAP(a, b)            \
+    do                        \
+    {                         \
+        typeof(a) temp = (a); \
+        (a) = (b);            \
+        (b) = temp;           \
+    } while (0)
+#define SWAP_IF_GREATER(a, b) \
+    do                        \
+    {                         \
+        if ((a) > (b))        \
+            SWAP(a, b);       \
+    } while (0)
+
+//--------------------------------------------------------------------------
+// Quicksort function
 
 static void insertion_sort(unsigned int n, int arr[])
 {
@@ -95,4 +116,54 @@ void sort(unsigned int n, int arr[])
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------
+// Main
+
+int main(void)
+{
+	uart_init();
+    
+    unsigned int i = 0;
+    unsigned int num = 0;
+
+    char num_str[12];
+	char start[20] = "---BEGIN TEST---";
+	char end[20] = "---END TEST---";
+	char comma[20] = ", ";
+	char newline[3] = "\r\n";
+
+    int input_data[DATA_SIZE] = {43690, 699050, 2730, 170};
+
+    uart_print(start);
+	uart_print(newline);
+
+	for (i = 0; i < DATA_SIZE; i++)
+	{
+        if (i != 0)
+            uart_print(comma);
+		num = input_data[i];
+		itoa(num, num_str);
+        uart_print(num_str);
+	}
+	uart_print(newline);
+
+    sort(DATA_SIZE, input_data);
+
+	for (i = 0; i < DATA_SIZE; i++)
+	{
+        if (i != 0)
+            uart_print(comma);
+		num = input_data[i];
+		itoa(num, num_str);
+        uart_print(num_str);
+	}
+	uart_print(newline);
+    print(num);
+
+    uart_print(end);
+	uart_print(newline);
+
+    return 0;
 }

@@ -63,6 +63,9 @@ module mem_controller (
   ) sharedmem (
       .clk(clk),
       .imem_en(imem_en),
+      // blkmem_wr = Write Enable
+      // blkmem_rd = Read Enable
+      // Can't be in MMIO Region
       .mem_en((blkmem_wr | blkmem_rd) & (~mmio_region)),
       .storecntrl_a(3'b000),
       .storecntrl_b(blkmem_strctrl),
@@ -174,12 +177,12 @@ module mem_controller (
 
   // RAS
   always_comb begin
-    blkmem_din = RAS_mem_rdy ? RAS_din : mem_din;
-    blkmem_addr = RAS_mem_rdy ? RAS_addr : rbus.mem_addr;
-    blkmem_en = RAS_mem_rdy ? (RAS_wr ? 4'b1111 : 4'b0000) : mem_en;
-    blkmem_wr = RAS_mem_rdy ? RAS_wr : mem_wea;
-    blkmem_rd = RAS_mem_rdy ? RAS_rd : mem_rea;
-    blkmem_strctrl = RAS_mem_rdy ? (RAS_wr ? 3'b100 : 3'b000) : rbus.storecntrl;
+    blkmem_din = /*RAS_mem_rdy ? RAS_din :*/ mem_din;
+    blkmem_addr = /*RAS_mem_rdy ? RAS_addr :*/ rbus.mem_addr;
+    blkmem_en = /*RAS_mem_rdy ? (RAS_wr ? 4'b1111 : 4'b0000) :*/ mem_en;
+    blkmem_wr = /*RAS_mem_rdy ? RAS_wr :*/ mem_wea;
+    blkmem_rd = /*RAS_mem_rdy ? RAS_rd :*/ mem_rea;
+    blkmem_strctrl = /*RAS_mem_rdy ? (RAS_wr ? 3'b100 : 3'b000) :*/ rbus.storecntrl;
   end
 
   always_ff @(posedge clk) begin
