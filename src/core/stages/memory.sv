@@ -37,7 +37,7 @@ module memory (
     main_bus_if.memory bus
 );
 
-  logic [31:0] MEM_WB_memres_sig, MEM_WB_memres_temp;
+  logic [31:0] MEM_WB_memres_sig;
   logic [31:0] MEM_WB_memres;
   logic [ 1:0] MEM_WB_dout_sel;
   logic        En;
@@ -45,7 +45,6 @@ module memory (
   logic MEM_WB_lb, MEM_WB_lh, MEM_WB_lw, MEM_WB_lbu, MEM_WB_lhu;
   logic [4:0] MEM_WB_loadcntrl;
   logic [3:0] byte_write;
-  logic [7:0] d0, d1, d2, d3;
   logic [31:0] memforward;
   logic MEM_WB_memwrite;
   logic [31:0] MEM_WB_dout_rs2;
@@ -54,11 +53,32 @@ module memory (
   logic [31:0] mmio_dat;
   logic set_mmio_dat;
 
+  logic ctrl_fwd;
+
   assign En = 1'b1;
 
+  // Connections to the data memory unit
+  assign bus.mem_wea = bus.EX_MEM_memwrite;
+  assign bus.mem_rea = bus.EX_MEM_memread;
+  assign bus.mem_en = byte_write;
+  assign bus.mem_addr = bus.EX_MEM_alures;
+  assign bus.mem_din = memforward;
+  assign MEM_WB_memres_sig = bus.mem_dout;
+
+  // Detects store hazard
+  // Example: lw rd -> sw rs1/rs2
+  assign ctrl_fwd = (bus.EX_MEM_memwrite && bus.MEM_WB_regwrite) &&
+                    (bus.MEM_WB_rd == bus.EX_MEM_rs2);
+
+  // Forwards MEM to MEM if store hazard is detected
+  // Otherwise, stores the data in rs2 to memory
+  assign memforward = ctrl_fwd ? bus.WB_res : bus.EX_MEM_dout_rs2;
+
+  // Controls the write enable signals for the 4 SRAM/BRAM data memory cells
+  // Every 4 bytes is stored separately in the 4 data memory cells
   always_comb
     unique case (bus.EX_MEM_storecntrl)
-      3'b001: begin  // store byte (sb)
+      3'b001: begin  // SB - Store Byte
         unique case (bus.EX_MEM_alures[1:0])
           2'b00:   byte_write = 4'b0001;
           2'b01:   byte_write = 4'b0010;
@@ -67,7 +87,7 @@ module memory (
           default: byte_write = 4'b0000;
         endcase
       end
-      3'b010: begin  // store half word (sh)
+      3'b010: begin  // SH - Store Halfword
         unique case (bus.EX_MEM_alures[1:0])
           2'b00:   byte_write = 4'b0011;
           2'b01:   byte_write = 4'b0110;
@@ -76,43 +96,29 @@ module memory (
           default: byte_write = 4'b0000;
         endcase
       end
-      3'b100:  byte_write = 4'b1111;
-      3'b000:  byte_write = 4'b1111;  // not store
+      3'b100:  byte_write = 4'b1111;  // SW - Store Word
+      3'b000:  byte_write = 4'b1111;  // Not a store instruction
       default: byte_write = 4'b1111;
     endcase
 
-  assign bus.mem_wea = bus.EX_MEM_memwrite;
-  assign bus.mem_rea = bus.EX_MEM_memread;
-  assign bus.mem_en = byte_write;
-  assign bus.mem_addr = bus.EX_MEM_alures;
-  assign bus.mem_din = memforward;
-  assign MEM_WB_memres_temp = bus.mem_dout;
-
-  assign d0 = MEM_WB_memres_temp[7:0];
-  assign d1 = MEM_WB_memres_temp[15:8];
-  assign d2 = MEM_WB_memres_temp[23:16];
-  assign d3 = MEM_WB_memres_temp[31:24];
-
-  assign bus.MEM_WB_memres = MEM_WB_memres;
-
-  logic ctrl_fwd;
-
-  assign ctrl_fwd = (bus.EX_MEM_memwrite && bus.MEM_WB_regwrite) &&
-                    (bus.MEM_WB_rd == bus.EX_MEM_rs2);
-  assign memforward = ctrl_fwd ? bus.WB_res : bus.EX_MEM_dout_rs2;
-
-  always_comb MEM_WB_memres_sig = MEM_WB_memres_temp;
+  // Loaded data is sign-extended or zero-extended depending on the load instruction
   always_comb
     case (MEM_WB_loadcntrl)
+      // LB - Load Byte (sign extended)
       5'b00001: MEM_WB_memres = {{24{MEM_WB_memres_sig[7]}}, MEM_WB_memres_sig[7:0]};
+      // LH - Load Halfword (sign extended)
       5'b00010: MEM_WB_memres = {{16{MEM_WB_memres_sig[15]}}, MEM_WB_memres_sig[15:0]};
+      // LW - Load Word
       5'b00100: MEM_WB_memres = MEM_WB_memres_sig;
+      // LBU - Load Unsigned Byte (zero extended)
       5'b01000: MEM_WB_memres = {{24{1'b0}}, MEM_WB_memres_sig[7:0]};
+      // LHU - Load Unsigned Halfword (zero extended)
       5'b10000: MEM_WB_memres = {{16{1'b0}}, MEM_WB_memres_sig[15:0]};
       default:  MEM_WB_memres = 32'h0;
     endcase
+  assign bus.MEM_WB_memres = MEM_WB_memres;
 
-  //passing to the next pipeline stage
+  // Setting pipeline registers
   always_ff @(posedge bus.clk) begin
     if (bus.Rst) begin
       bus.MEM_WB_alures <= 32'h00000000;
@@ -133,6 +139,8 @@ module memory (
       bus.MEM_WB_pres_addr <= 32'h0;
       bus.MEM_WB_CSR <= 0;
       bus.MEM_WB_CSR_read <= 0;
+    // Set MEM/WB pipeline register with EX/MEM values
+    // Freeze pipeline if debug or prog activated
     end else if ((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
       bus.MEM_WB_alures <= bus.EX_MEM_alures;
       bus.MEM_WB_mulres <= bus.EX_MEM_mulres;

@@ -8,6 +8,7 @@ module csr (
   logic [31:0] din, dout;
   logic [11:0] r_addr, w_addr;
 
+  // Connects CSR registers to main bus
   always_comb begin : bus_stuff
     clk = bus.clk;
     rst = bus.Rst;
@@ -18,15 +19,37 @@ module csr (
     bus.IF_ID_CSR = dout;
   end
 
-  logic [31:0] mstatus, misa, mie, mtvec, mscratch, mepc, mcause, mtval, mip;
+  // CSR registers
+  // Keeps track of and controls the hart’s current operating state
+  logic [31:0] mstatus;   // Machine Status Register
+  // WARL read-write register reporting the ISA supported by the hart
+  logic [31:0] misa;      // Machine ISA Register
+  // Contains information on pending interrupts
+  logic [31:0] mie;       // Machine Interrupt Register
+  // Holds trap vector configuration, consisting of a vector base address (BASE) and a vector mode (MODE).
+  logic [31:0] mtvec;     // Machine Trap-Vector Base-Address Register
+  // Used to hold a pointer to a M-mode hart-local context space and swapped with a user register upon entry to an M-mode trap handler.
+  logic [31:0] mscratch;  // Machine Scratch Register
+  // When a trap is taken, mepc is written with the virtual address of the instruction that encountered the exception
+  logic [31:0] mepc;      // Machine Exception Program Counter
+  // When a trap is taken into M-mode, mcause is written with a code indicating the event that caused the trap
+  logic [31:0] mcause;    // Machine Cause Register
+  // When a trap is taken into M-mode, mtval is either set to zero or written with exception-specific information to assist software in handling the trap
+  logic [31:0] mtval;     // Machine Trap Value
+  // Contains interrupt enable bits
+  logic [31:0] mip;       // Machine Interrupt Register
 
+  // Writes a code to mcause register indicating the event that caused the trap
   function static logic [31:0] build_mcause();
     begin
-      if (bus.ecall) return {1'b1, 31'h3};
-      else if (bus.uart_IRQ) return 31;
+      // Trap caused by interrupt
+      if (bus.ecall) return {1'b1, 31'h3}; // Interrupt bit set, Exception Code 3: Machine software interrupt
+      // Trap caused by UART
+      else if (bus.uart_IRQ) return 31;    // Exception Code 31: Custom use
     end
   endfunction
 
+  // Reports statuses of CSR registers
   always_comb begin
     bus.mtvec = mtvec;
     bus.mepc  = mepc;
@@ -45,15 +68,18 @@ module csr (
     endcase
   end
 
+  // Write to CSR registers every clock cycle or trap
   always_ff @(posedge clk or posedge bus.trigger_trap or posedge rst) begin
     if (rst) begin
       mie <= 0;
       mtvec <= 0;
       mepc <= 0;
       mcause <= 0;
+    // Write current PC to mepc and interrupt cause to mcause when trap triggered
     end else if (bus.trigger_trap) begin
       mepc   <= bus.ID_EX_pres_addr;
       mcause <= build_mcause();
+    // Write to CSR registers when no trap has been triggered
     end else begin
       if (wea) begin
         case (w_addr[11:0])

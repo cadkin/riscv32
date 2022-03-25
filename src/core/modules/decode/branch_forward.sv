@@ -36,7 +36,6 @@ module branch_forward (
     input  logic        zero4,
     input  logic        zeroa,
     input  logic        zerob,
-    input  logic        alusrc,
     input  logic [31:0] imm,
     input  logic [31:0] alures,
     input  logic [31:0] wbres,
@@ -51,34 +50,42 @@ module branch_forward (
     output logic [31:0] rs2_mod
 );
 
-  logic [2:0] sel1, sel2;
+  logic [31:0] exres;
+  logic [1:0] sel1, sel2, sel_ex;
 
-  assign sel1 = (zero3 && EX_MEM_regwrite && (!EX_MEM_memread) && (!div_ready) && (!mul_ready)) ? 3'b000 :
-                (zero3 && EX_MEM_regwrite && (!EX_MEM_memread) && div_ready && (!mul_ready))    ? 3'b010 :
-                (zero3 && EX_MEM_regwrite && (!EX_MEM_memread) && (!div_ready) && mul_ready)    ? 3'b011 :
-                (zeroa && MEM_WB_regwrite)                                                      ? 3'b001 : 3'b100;
-  assign sel2 = (zero4 && EX_MEM_regwrite && (!EX_MEM_memread) && (!div_ready) && (!mul_ready)) ? 3'b000 :
-                (zero4 && EX_MEM_regwrite && (!EX_MEM_memread) && div_ready && (!mul_ready))    ? 3'b010 :
-                (zero4 && EX_MEM_regwrite && (!EX_MEM_memread) && (!div_ready) && mul_ready)    ? 3'b011 :
-                (zerob && MEM_WB_regwrite)                                                      ? 3'b001 : 3'b100;
+  // Detects branch hazards and forwards data
+  assign sel1 = (zero3 && EX_MEM_regwrite && (!EX_MEM_memread)) ? 2'b00 :         // Forward EX to ID (Branch)
+                (zeroa && MEM_WB_regwrite)                      ? 2'b01 : 2'b11;  // Forward MEM to ID (Branch)
+  assign sel2 = (zero4 && EX_MEM_regwrite && (!EX_MEM_memread)) ? 2'b00 :         // Forward EX to ID (Branch)
+                (zerob && MEM_WB_regwrite)                      ? 2'b01 : 2'b11;  // Forward MEM to ID (Branch)
+  assign sel_ex = (!div_ready) && (!mul_ready) ? 2'b00 :         // ALU result
+                  div_ready && (!mul_ready)    ? 2'b10 :         // DIV result
+                  (!div_ready) && mul_ready    ? 2'b01 : 2'b00;  // MUL result
 
+  // Selects which stage's result to forward to current branch instruction's rs1 in case of hazard
   always_comb
     case (sel1)
-      3'b000:  rs1_mod = alures;
-      3'b001:  rs1_mod = wbres;
-      3'b010:  rs1_mod = divres;
-      3'b011:  rs1_mod = mulres;
-      3'b100:  rs1_mod = rs1;
+      2'b00:   rs1_mod = exres;
+      2'b01:   rs1_mod = wbres;
+      2'b11:   rs1_mod = rs1;
       default: rs1_mod = rs1;
     endcase
 
+  // Selects which stage's result to forward to current branch instruction's rs2 in case of hazard
   always_comb
     case (sel2)
-      3'b000:  rs2_mod = alures;
-      3'b001:  rs2_mod = wbres;
-      3'b010:  rs2_mod = divres;
-      3'b011:  rs2_mod = mulres;
-      3'b100:  rs2_mod = rs2;
+      2'b00:   rs2_mod = exres;
+      2'b01:   rs2_mod = wbres;
+      2'b11:   rs2_mod = rs2;
       default: rs2_mod = rs2;
+    endcase
+
+  // Selects which EX unit's result to forward
+  always_comb
+    case (sel_ex)
+      2'b00:   exres = alures;
+      2'b10:   exres = divres;
+      2'b01:   exres = mulres;
+      default: exres = alures;
     endcase
 endmodule : branch_forward

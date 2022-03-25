@@ -70,7 +70,7 @@ module execute (
   logic [31:0] divres;
   logic [ 2:0] sel;
   logic [31:0] ALUop1, ALUop2, rs2_mod;
-  logic [31:0] rs2_mod_final;  //new
+  logic [31:0] rs2_mod_final;
 
   logic [31:0] CSR_res;
   logic [31:0] CSR_mod;
@@ -80,7 +80,8 @@ module execute (
   logic mul_ready;
   logic div_ready;
 
-  forwarding dut (
+  // Forwarding Unit
+  forwarding u1_fwd (
       .EX_MEM_regwrite(EX_MEM_regwrite_sig),
       .EX_MEM_memread(EX_MEM_memread_sig),
       .MEM_WB_regwrite(bus.MEM_WB_regwrite),
@@ -108,25 +109,27 @@ module execute (
       .rs2_mod(rs2_mod)
   );
 
-  alu uut (
+  // Arithmetic Logic Unit
+  alu u2_alu (
       .a(ALUop1),
       .b(ALUop2),
-      .alusel(bus.ID_EX_alusel),
-      .ID_EX_compare(bus.ID_EX_compare),
       .ID_EX_pres_adr(bus.ID_EX_pres_addr),
+      .alusel(bus.ID_EX_alusel),
       .ID_EX_lui(bus.ID_EX_lui),
       .ID_EX_jal(bus.ID_EX_jal),
       .ID_EX_jalr(bus.ID_EX_jalr),
       .ID_EX_auipc(bus.ID_EX_auipc),
+      .ID_EX_compare(bus.ID_EX_compare),
+      .csrsel(bus.csrsel),
+      .CSR_in(bus.ID_EX_CSR),
+      .ID_EX_comp_sig(bus.ID_EX_comp_sig),
       .res(alures),
       .comp_res(comp_res),
-      .CSR_res(CSR_res),
-      .CSR_in(bus.ID_EX_CSR),
-      .csrsel(bus.csrsel),
-      .ID_EX_comp_sig(bus.ID_EX_comp_sig)
+      .CSR_res(CSR_res)
   );
 
-  multiplier mul (
+  // Multiplier Unit
+  multiplier u3_mul (
       .clk(bus.clk),
       .rst(bus.Rst),
       .mulsel(bus.ID_EX_mulsel),
@@ -136,7 +139,8 @@ module execute (
       .res(mulres)
   );
 
-  divider div (
+  // Divider Unit
+  divider u4_div (
       .clk(bus.clk),
       .rst(bus.Rst),
       .divsel(bus.ID_EX_divsel),
@@ -146,7 +150,8 @@ module execute (
       .res(divres)
   );
 
-  FPU fut (
+  // Floating Point Unit
+  FPU u5_fpu (
       .a(bus.ID_EX_dout_rs1),
       .b(bus.ID_EX_dout_rs2),
       .c(bus.ID_EX_dout_rs3),
@@ -160,6 +165,18 @@ module execute (
       .stall(f_stall)
   );
 
+  // Pipeline Signals
+  assign bus.mul_ready = mul_ready_sig;
+  assign bus.div_ready = div_ready_sig;
+  assign bus.EX_MEM_rd = EX_MEM_rd_sig;
+  assign bus.EX_MEM_alures = EX_MEM_fpusrc ? EX_MEM_fpures_sig : EX_MEM_alures_sig;
+  assign bus.EX_MEM_mulres = EX_MEM_mulres_sig;
+  assign bus.EX_MEM_divres = EX_MEM_divres_sig;
+  assign bus.EX_MEM_fpusrc = EX_MEM_fpusrc;
+  assign bus.EX_MEM_memread = EX_MEM_memread_sig;
+  assign bus.EX_MEM_regwrite = EX_MEM_regwrite_sig;
+
+  // Setting pipeline registers
   always_ff @(posedge bus.clk) begin
     if (bus.Rst) begin
       EX_MEM_rd_sig <= 5'b00000;
@@ -189,6 +206,8 @@ module execute (
       div_ready <= 0;
       mul_ready <= 0;
       bus.f_stall <= 1'b0;
+    // Set EX/MEM pipeline register with ID/EX values
+    // Freeze pipeline if debug or prog activated
     end else if ((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
       EX_MEM_rd_sig <= bus.ID_EX_rd;
       EX_MEM_memread_sig <= bus.ID_EX_memread;
@@ -203,7 +222,7 @@ module execute (
       EX_MEM_fpures_sig <= fpures;
       EX_MEM_fpusrc <= bus.ID_EX_fpusrc;
       bus.EX_MEM_frm <= bus.ID_EX_frm;
-      bus.EX_MEM_dout_rs2 <= rs2_mod;  //new
+      bus.EX_MEM_dout_rs2 <= rs2_mod;
       bus.EX_MEM_rs2 <= bus.ID_EX_rs2;
       bus.EX_MEM_rs1 <= bus.ID_EX_rs1;
       bus.EX_MEM_comp_res <= comp_res;
@@ -220,14 +239,4 @@ module execute (
       bus.f_stall <= f_stall;
     end
   end
-
-  assign bus.mul_ready = mul_ready_sig;
-  assign bus.div_ready = div_ready_sig;
-  assign bus.EX_MEM_rd = EX_MEM_rd_sig;
-  assign bus.EX_MEM_alures = EX_MEM_fpusrc ? EX_MEM_fpures_sig : EX_MEM_alures_sig;
-  assign bus.EX_MEM_mulres = EX_MEM_mulres_sig;
-  assign bus.EX_MEM_divres = EX_MEM_divres_sig;
-  assign bus.EX_MEM_fpusrc = EX_MEM_fpusrc;
-  assign bus.EX_MEM_memread = EX_MEM_memread_sig;
-  assign bus.EX_MEM_regwrite = EX_MEM_regwrite_sig;
 endmodule : execute

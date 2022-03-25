@@ -390,18 +390,27 @@ module mem_interface #(
     end
   endgenerate
 
+  // Unused?
   assign wraparound_a = imem_addr + 4;
+  // Enable read to all 4 instruction memory cells
   assign ena_rv = imem_en ? 4'b1111 : 4'b0000;
+  // Enable read to all 4 data memory cells
   assign enb_rv = mem_en ? 4'b1111 : 4'b0000;
 
+  // Finds which byte of the fetched instruction or data is currently being read
+  //  (the address given in the previous cycle points to the current instruction/data being read)
   always_ff @(posedge clk) begin
     if (imem_en) last_imem_addr <= imem_addr[1:0];
     if (mem_en) last_mem_addr <= mem_addr[1:0];
   end
 
+  logic [1:0] debug_addr;
+  assign debug_addr = imem_addr[1:0];
+
   always_comb begin
+    // Controls the write enable bits for the 4 instruction memory cells
     case (storecntrl_a)
-      3'b001: begin  // store byte
+      3'b001: begin  // SB - Store Byte
         case (imem_addr[1:0])
           2'b00:   wea_rv = 4'b0001;
           2'b01:   wea_rv = 4'b0010;
@@ -410,7 +419,7 @@ module mem_interface #(
           default: wea_rv = 4'b0000;
         endcase
       end
-      3'b010: begin  // store halfword
+      3'b010: begin  // SH - Store Halfword
         case (imem_addr[1:0])
           2'b00:   wea_rv = 4'b0011;
           2'b01:   wea_rv = 4'b0110;
@@ -419,10 +428,15 @@ module mem_interface #(
           default: wea_rv = 4'b0000;
         endcase
       end
-      3'b100:  wea_rv = 4'b1111;
+      3'b100:  wea_rv = 4'b1111;  // SW - Store Word
       default: wea_rv = 4'b0000;
     endcase
 
+    // Each clock cycle fetches an instruction at the start of the cycle (rising edge)
+    //  using the address generated in the previous cycle.
+    // If fetching compressed instructions and address is not a multiple of 4,
+    //  the output from the 4 cells are rearranged so current instruction starts at LSB.
+    // The next compressed instruction will also be fetched but is zeroed out in Fetch stage.
     case (last_imem_addr)
       2'b00:   imem_dout_buf = {douta3, douta2, douta1, douta0};
       2'b01:   imem_dout_buf = {douta0, douta3, douta2, douta1};
@@ -432,7 +446,11 @@ module mem_interface #(
     endcase
     imem_dout = imem_dout_buf;
 
-    //Addressing stuff
+    // Prepares address to fetch the next instruction at the start of the next cycle.
+    // If fetching compressed instructions and address is not a multiple of 4,
+    //  some of the 4 addresses will point to the next instruction after the one to be fetched
+    //  to support both 32-bit and 16-bit instructions while maintaining the same 32-bit read width.
+    // Instruction data to be written is also sent to the 4 instruction memory cells.
     case (imem_addr[1:0])
       2'b00: begin
         addra0_rv = imem_addr[31:2];
@@ -486,8 +504,9 @@ module mem_interface #(
       end
     endcase
 
+    // Controls the write enable bits for the 4 instruction memory cells
     case (storecntrl_b)
-      3'b001: begin  // store byte
+      3'b001: begin  // SB - Store Byte
         case (mem_addr[1:0])
           2'b00:   web_rv = 4'b0001;
           2'b01:   web_rv = 4'b0010;
@@ -496,7 +515,7 @@ module mem_interface #(
           default: web_rv = 4'b0000;
         endcase
       end
-      3'b010: begin  // store halfword
+      3'b010: begin  // SH - Store Halfword
         case (mem_addr[1:0])
           2'b00:   web_rv = 4'b0011;
           2'b01:   web_rv = 4'b0110;
@@ -505,10 +524,14 @@ module mem_interface #(
           default: web_rv = 4'b0000;
         endcase
       end
-      3'b100:  web_rv = 4'b1111;
+      3'b100:  web_rv = 4'b1111;  // SW - Store Word
       default: web_rv = 4'b0000;
     endcase
 
+    // Each clock cycle reads data at the start of the cycle (rising edge)
+    //  using the address generated in the previous cycle.
+    // If data address is not a multiple of 4,
+    //  the output from the 4 cells are rearranged so data is aligned correctly.
     case (last_mem_addr)
       2'b00:   mem_dout_buf = {doutb3, doutb2, doutb1, doutb0};
       2'b01:   mem_dout_buf = {doutb0, doutb3, doutb2, doutb1};
@@ -518,6 +541,10 @@ module mem_interface #(
     endcase
     mem_dout = mem_dout_buf;
 
+    // Prepares address for the next data to be read at the start of the next cycle.
+    // If data address is not a multiple of 4,
+    //  some of the 4 addresses will need to be incremented to point to the correct data.
+    // Data to be written is also sent to the 4 data memory cells.
     case (mem_addr[1:0])
       2'b00: begin
         addrb0_rv = mem_addr[31:2];

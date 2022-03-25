@@ -28,17 +28,21 @@ module writeback (
 
   logic [31:0] WB_res_sig;
 
+  // Data sent to the regfile to be written to the register for register write instructions
   assign WB_res_sig = (bus.MEM_WB_memread)  ? bus.MEM_WB_memres :
                       (bus.MEM_WB_CSR_read) ? bus.MEM_WB_CSR :
                       (bus.MEM_WB_mul_ready) ? bus.MEM_WB_mulres :
                       (bus.MEM_WB_div_ready) ? bus.MEM_WB_divres : bus.MEM_WB_alures;
   assign bus.WB_res = WB_res_sig;
 
+  // Setting pipeline registers
   always_ff @(posedge bus.clk) begin
     if (bus.Rst) begin
       bus.WB_ID_rd <= 5'b00000;
       bus.WB_ID_res <= 32'h00000000;
       bus.WB_ID_regwrite <= 1'b0;
+    // Set WB/ID pipeline register with MEM/WB values
+    // Freeze pipeline if debug or prog activated
     end else if ((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
       bus.WB_ID_fpusrc <= bus.MEM_WB_fpusrc;
       bus.WB_ID_rd <= bus.MEM_WB_rd;

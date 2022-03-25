@@ -25,6 +25,7 @@ module addr_fifo (
 
   logic [31:0] data[31:0];
 
+  // Stores writes to debug display in a FIFO that can be examined on the 7 segment display
   integer i;
   always_ff @(posedge clk) begin : proc_FIFO
     if (rst) begin

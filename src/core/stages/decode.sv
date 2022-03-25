@@ -62,35 +62,32 @@ module decode (
   logic IF_ID_lui, lui;
   logic ID_EX_memread_sig, ID_EX_regwrite_sig;
 
-  //fluhed instruction detector
+  // Flushed Instruction Detector
   logic flush;
 
-  //logic debug;
   logic ins_zero;
   logic flush_sig;
-  logic [31:0] rs1_mod, rs2_mod, rs3_mod;
+  logic [31:0] rs1_mod, rs2_mod;
 
-  //logic jal,jalr;
   logic [ 1:0] funct2;
   logic [ 2:0] funct3;
   logic [ 3:0] funct4;
   logic [ 5:0] funct6;
   logic [ 6:0] funct7;
   logic [11:0] funct12;
-  logic [31:0] comp_imm;
 
   logic IF_ID_jal, IF_ID_compare;
   logic jal, compare, jalr_sig;
   logic IF_ID_jalr_sig;
 
-  //hazard detection and compare unit
+  // Hazard Detection and Compare Unit
   logic zero1, zero2, zero3, zero4, zeroa, zerob;
 
-  //register file
+  // Register File
   logic [4:0] IF_ID_rd;
   logic [31:0] dout_rs1, dout_rs2, dout_rs3;
 
-  //control
+  // Control
   logic [2:0] IF_ID_alusel, alusel, IF_ID_frm, rm;
   logic [4:0] IF_ID_fpusel, fpusel_s;
   logic [2:0] IF_ID_mulsel;
@@ -111,7 +108,7 @@ module decode (
   logic csrread;
   logic [11:0] IF_ID_CSR_addr;
 
-  //imm gen
+  // Immediate Generation
   logic [31:0] imm, IF_ID_imm;
   logic hz_sig;
   logic branch_taken_sig;
@@ -120,13 +117,12 @@ module decode (
   logic mul_ready_sig;
   logic mul_ready;
 
-  //Compressed signals
+  // Compressed Signals
   logic [4:0] c_rd, c_rs1, c_rs2;
   logic [1:0] c_funct2;
   logic [2:0] c_funct3;
   logic [3:0] c_funct4;
   logic [5:0] c_funct6;
-  logic [6:0] c_funct7;
   logic [2:0] c_alusel;
   logic [2:0] c_storecntrl;
   logic [4:0] c_loadcntrl;
@@ -139,22 +135,203 @@ module decode (
   logic mul_inst;
   logic div_inst;
 
-  function static logic [4:0] RVC_Reg(input logic [2:0] rs);
-    case (rs)
-      3'b000: return 8;
-      3'b001: return 9;
-      3'b010: return 10;
-      3'b011: return 11;
-      3'b100: return 12;
-      3'b101: return 13;
-      3'b110: return 14;
-      3'b111: return 15;
-      default: return 0;
-    endcase
-  endfunction
+  logic illegal_ins;
 
+  // Control Signal Generation Unit
+  control u0_ctrl (
+      .opcode(bus.ins[6:0]),
+      .funct3(funct3),
+      .funct7(funct7),
+      .funct12(funct12),
+      .ins_zero(ins_zero),
+      .flush(flush),
+      .hazard(hz_sig),
+      .rs1(bus.ins[19:15]),
+      .rd(bus.ins[11:7]),
+      .alusel(alusel),
+      .mulsel(IF_ID_mulsel),
+      .divsel(IF_ID_divsel),
+      .storecntrl(storecntrl),
+      .loadcntrl(loadcntrl),
+      .cmpcntrl(IF_ID_cmpcntrl),
+      .branch(branch),
+      .memread(memread),
+      .memwrite(memwrite),
+      .regwrite(regwrite),
+      .alusrc(alusrc),
+      .compare(compare),
+      .auipc(IF_ID_auipc),
+      .lui(lui),
+      .jal(jal),
+      .jalr(jalr_sig),
+      .csrsel(csrsel),
+      .csrwrite(csrwrite),
+      .csrread(csrread),
+      .trap_ret(trap_ret),
+      .mul_inst(mul_inst),
+      .div_inst(div_inst),
+      .illegal_ins(illegal_ins)  // Unused
+  );
+
+  // Compressed Instruction Control Unit
+  control_cmpr u1_ctrl_cmpr (
+      .ins(bus.ins),
+      .ins_zero(ins_zero),
+      .flush(flush),
+      .hazard(hz_sig),
+      .rd(c_rd),
+      .rs1(c_rs1),
+      .rs2(c_rs2),
+      .funct2(c_funct2),
+      .funct3(c_funct3),
+      .funct4(c_funct4),
+      .funct6(c_funct6),
+      .alusel(c_alusel),
+      .storecntrl(c_storecntrl),
+      .loadcntrl(c_loadcntrl),
+      .branch(c_branch),
+      .beq(c_beq),  // Unused
+      .bne(c_bne),  // Unused
+      .memread(c_memread),
+      .memwrite(c_memwrite),
+      .regwrite(c_regwrite),
+      .alusrc(c_alusrc),
+      .compare(c_compare),
+      .lui(c_lui),
+      .jal(c_jal),
+      .jalr(c_jalr),
+      .imm(c_imm)
+  );
+
+  // Floating Point Control Unit
+  Control_fp u2_ctrl_fp (
+      .opcode(bus.ins[6:0]),
+      .funct3(funct3),
+      .funct7(funct7),
+      .ins_zero(ins_zero),
+      .flush(flush),
+      .hazard(hz_sig),
+      .rs2(bus.ins[24:20]),
+      .rd(bus.ins[11:7]),
+      .fpusel_s(IF_ID_fpusel),
+      .memwrite(fmemwrite),
+      .memread(fmemread),
+      .regwrite(fregwrite),
+      .fpusrc(IF_ID_fpusrc),
+      .storecntrl(fstorecntrl),
+      .loadcntrl(floadcntrl),
+      .rm(IF_ID_frm)
+  );
+
+  // Immediate Generation Unit
+  imm_gen u3_imm_gen (
+      .ins(bus.ins),
+      .imm(imm)
+  );
+
+  // Compare Unit
+  // For branch decision and hazard detection
+  compare u4_cmp (
+      .IF_ID_rs1(IF_ID_rs1),
+      .IF_ID_rs2(IF_ID_rs2),
+      .ID_EX_rd(bus.ID_EX_rd),
+      .EX_MEM_rd(bus.EX_MEM_rd),
+      .MEM_WB_rd(bus.MEM_WB_rd),
+      .zero1(zero1),
+      .zero2(zero2),
+      .zero3(zero3),
+      .zero4(zero4),
+      .zeroa(zeroa),
+      .zerob(zerob)
+  );
+
+  // Hazard Detection Unit
+  hazard u5_hz (
+      .zero1(zero1),
+      .zero2(zero2),
+      .zero3(zero3),
+      .zero4(zero4),
+      .ID_EX_memread(bus.ID_EX_memread),
+      .ID_EX_regwrite(bus.ID_EX_regwrite),
+      .EX_MEM_memread(bus.EX_MEM_memread),
+      .IF_ID_branch(IF_ID_branch),
+      .IF_ID_alusrc(IF_ID_alusrc),
+      .IF_ID_jalr(IF_ID_jalr_sig),
+      .hz(hz_sig)
+  );
+
+  // Branch Forward Unit
+  branch_forward u6_br_fwd (
+      .rs1(bus.IF_ID_dout_rs1),
+      .rs2(bus.IF_ID_dout_rs2),
+      .zero3(zero3),
+      .zero4(zero4),
+      .zeroa(zeroa),
+      .zerob(zerob),
+      .imm(IF_ID_imm),
+      .alures(bus.EX_MEM_alures),
+      .wbres(bus.WB_res),
+      .divres(bus.EX_MEM_divres),
+      .mulres(bus.EX_MEM_mulres),
+      .EX_MEM_regwrite(bus.EX_MEM_regwrite),
+      .MEM_WB_regwrite(bus.MEM_WB_regwrite),
+      .EX_MEM_memread(bus.EX_MEM_memread),
+      .div_ready(div_ready_sig),
+      .mul_ready(mul_ready_sig),
+      .rs1_mod(rs1_mod),
+      .rs2_mod(rs2_mod)
+  );
+
+  // Branch Decision Unit
+  branch_decision u7_br_dec (
+      .rs1_mod(rs1_mod),
+      .rs2_mod(rs2_mod),
+      .branch(IF_ID_branch),
+      .funct3(funct3),
+      .hazard(hz_sig),
+      .jal(IF_ID_jal),
+      .jalr(IF_ID_jalr_sig),
+      .branch_taken(branch_taken_sig)
+  );
+
+  // Branch Offset Generation Unit
+  branch_off_gen u8_br_off_gen (
+      .ins(bus.ins),
+      .rs1_mod(rs1_mod),
+      .comp_sig(bus.comp_sig),
+      .comp_imm(c_imm),
+      .jal(IF_ID_jal),
+      .jalr(IF_ID_jalr_sig),
+      .branoff(bus.branoff)
+  );
+
+  // Stalls pipeline if instruction is 0x00000000
+  assign ins_zero = !(|bus.ins);
+  // Clears branch/jump signal after a branch/jump or triggered trap
+  assign flush = flush_sig | bus.trigger_trap | bus.trap_ret;
+  // Indicates whether branch is taken
+  assign bus.branch = branch_taken_sig;
+  // Stalls program counter if hazard is present or MUL/DIV execution in progress
+  assign bus.hz = hz_sig || (mul_inst && !bus.mul_ready) || (div_inst && !bus.div_ready);
+
+  // CSR Signals
   assign IF_ID_CSR_addr = bus.ins[31:20];
   assign bus.IF_ID_CSR_addr = IF_ID_CSR_addr;
+  // Indicates ECALL instruction, used to make a request to the supporting execution environment
+  assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b00000000000000000000000001110011);
+
+  // MUL/DIV Signals
+  assign div_ready = div_ready_sig;
+  assign mul_ready = mul_ready_sig;
+
+  // Pipeline Signals
+  assign bus.IF_ID_rs1 = IF_ID_rs1;
+  assign bus.IF_ID_rs2 = IF_ID_rs2;
+  assign bus.IF_ID_rs3 = IF_ID_rs3;
+  assign bus.IF_ID_jalr = IF_ID_jalr_sig;
+  assign bus.IF_ID_jal = IF_ID_jal;
+  assign bus.ID_EX_memread = ID_EX_memread_sig;
+  assign bus.ID_EX_regwrite = ID_EX_regwrite_sig;
 
   always_comb begin
     if (bus.comp_sig) begin
@@ -162,7 +339,6 @@ module decode (
       funct3 = c_funct3;
       funct4 = c_funct4;
       funct6 = c_funct6;
-      funct7 = c_funct7;
       IF_ID_rs1 = c_rs1;
       IF_ID_rs2 = c_rs2;
       IF_ID_rs3 = 5'h0;
@@ -214,180 +390,7 @@ module decode (
     end
   end
 
-  assign bus.branch = branch_taken_sig;
-  assign ins_zero = !(|bus.ins);
-  assign bus.hz = hz_sig || (mul_inst && !bus.mul_ready) || (div_inst && !bus.div_ready);
-  assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b00000000000000000000000001110011);
-
-  //control signal generation
-  control u1 (
-      .clk(bus.clk),
-      .opcode(bus.ins[6:0]),
-      .funct3(funct3),
-      .funct7(funct7),
-      .funct12(funct12),
-      .ins_zero(ins_zero),
-      .flush(flush),
-      .hazard(hz_sig),
-      .rs1(bus.ins[19:15]),
-      .rd(bus.ins[11:7]),
-      .alusel(alusel),
-      .mulsel(IF_ID_mulsel),
-      .divsel(IF_ID_divsel),
-      .branch(branch),
-      .memwrite(memwrite),
-      .memread(memread),
-      .regwrite(regwrite),
-      .alusrc(alusrc),
-      .compare(compare),
-      .lui(lui),
-      .auipc(IF_ID_auipc),
-      .jal(jal),
-      .jalr(jalr_sig),
-      .storecntrl(storecntrl),
-      .loadcntrl(loadcntrl),
-      .cmpcntrl(IF_ID_cmpcntrl),
-      .csrsel(csrsel),
-      .csrwrite(csrwrite),
-      .csrread(csrread),
-      .trap_ret(trap_ret),
-      .mul_inst(mul_inst),
-      .div_inst(div_inst)
-  );
-
-  //Compressed Instruction Control Unit
-  control_cmpr u7 (
-      .ins(bus.ins),
-      .ins_zero(ins_zero),
-      .flush(flush),
-      .hazard(hz_sig),
-      .rd(c_rd),
-      .rs1(c_rs1),
-      .rs2(c_rs2),
-      .funct2(c_funct2),
-      .funct3(c_funct3),
-      .funct4(c_funct4),
-      .funct6(c_funct6),
-      .funct7(c_funct7),
-      .alusel(c_alusel),
-      .storecntrl(c_storecntrl),
-      .loadcntrl(c_loadcntrl),
-      .branch(c_branch),
-      .beq(c_beq),
-      .bne(c_bne),
-      .memread(c_memread),
-      .memwrite(c_memwrite),
-      .regwrite(c_regwrite),
-      .alusrc(c_alusrc),
-      .compare(c_compare),
-      .lui(c_lui),
-      .jal(c_jal),
-      .jalr(c_jalr),
-      .imm(c_imm)
-  );
-
-  //floating point control
-  Control_fp u8 (
-      .opcode(bus.ins[6:0]),
-      .funct3(funct3),
-      .funct7(funct7),
-      .ins_zero(ins_zero),
-      .flush(flush),
-      .hazard(hz_sig),
-      .rs2(bus.ins[24:20]),
-      .rd(bus.ins[11:7]),
-      .fpusel_s(IF_ID_fpusel),
-      .memwrite(fmemwrite),
-      .memread(fmemread),
-      .regwrite(fregwrite),
-      .fpusrc(IF_ID_fpusrc),
-      .storecntrl(fstorecntrl),
-      .loadcntrl(floadcntrl),
-      .rm(IF_ID_frm)
-  );
-
-  //branch_forward
-  branch_forward u0 (
-      .rs1(bus.IF_ID_dout_rs1),
-      .rs2(bus.IF_ID_dout_rs2),
-      .zero3(zero3),
-      .zero4(zero4),
-      .zeroa(zeroa),
-      .zerob(zerob),
-      .alusrc(IF_ID_alusrc),
-      .imm(IF_ID_imm),
-      .alures(bus.EX_MEM_alures),
-      .wbres(bus.WB_res),
-      .divres(bus.EX_MEM_divres),
-      .mulres(bus.EX_MEM_mulres),
-      .EX_MEM_regwrite(bus.EX_MEM_regwrite),
-      .EX_MEM_memread(bus.EX_MEM_memread),
-      .MEM_WB_regwrite(bus.MEM_WB_regwrite),
-      .div_ready(div_ready_sig),
-      .mul_ready(mul_ready_sig),
-      .rs1_mod(rs1_mod),
-      .rs2_mod(rs2_mod)
-  );
-
-  //Branch decision module
-  branch_decision u2 (
-      .rs1_mod(rs1_mod),
-      .rs2_mod(rs2_mod),
-      .hazard(hz_sig),
-      .branch(IF_ID_branch),
-      .funct3(funct3),
-      .jal(IF_ID_jal),
-      .jalr(IF_ID_jalr_sig),
-      .branch_taken(branch_taken_sig)
-  );
-
-  //Hazard detection unit
-  hazard u3 (
-      .zero1(zero1),
-      .zero2(zero2),
-      .zero3(zero3),
-      .zero4(zero4),
-      .IF_ID_alusrc(IF_ID_alusrc),
-      .IF_ID_jalr(IF_ID_jalr_sig),
-      .IF_ID_branch(IF_ID_branch),
-      .ID_EX_memread(bus.ID_EX_memread),
-      .ID_EX_regwrite(bus.ID_EX_regwrite),
-      .EX_MEM_memread(bus.EX_MEM_memread),
-      .hz(hz_sig)
-  );
-
-  //branch_off_gen
-  branch_off_gen u4 (
-      .ins(bus.ins),
-      .rs1_mod(rs1_mod),
-      .comp_sig(bus.comp_sig),
-      .comp_imm(c_imm),
-      .jal(IF_ID_jal),
-      .jalr(IF_ID_jalr_sig),
-      .branoff(bus.branoff)
-  );
-
-  //Immediate generation
-  imm_gen u5 (
-      .ins(bus.ins),
-      .imm(imm)
-  );
-
-  //Compare unit for branch decision and hazard detection
-  compare u6 (
-      .IF_ID_rs1(IF_ID_rs1),
-      .IF_ID_rs2(IF_ID_rs2),
-      .ID_EX_rd(bus.ID_EX_rd),
-      .EX_MEM_rd(bus.EX_MEM_rd),
-      .MEM_WB_rd(bus.MEM_WB_rd),
-      .zero1(zero1),
-      .zero2(zero2),
-      .zero3(zero3),
-      .zero4(zero4),
-      .zeroa(zeroa),
-      .zerob(zerob)
-  );
-
+  // Setting pipeline registers
   always_ff @(posedge bus.clk) begin
     if (bus.Rst) begin
       bus.ID_EX_alusel <= 3'h0;
@@ -424,6 +427,8 @@ module decode (
       bus.trap_ret <= 0;
       div_ready_sig <= 0;
       mul_ready_sig <= 0;
+    // Set ID/EX pipeline register with IF/ID values
+    // Freeze pipeline if debug or prog activated
     end else if ((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
       if ((!hz_sig) & bus.RAS_rdy) begin
         bus.ID_EX_alusel <= IF_ID_alusel;
@@ -498,14 +503,4 @@ module decode (
       end
     end
   end
-  assign bus.IF_ID_rs1 = IF_ID_rs1;
-  assign bus.IF_ID_rs2 = IF_ID_rs2;
-  assign bus.IF_ID_rs3 = IF_ID_rs3;
-  assign bus.ID_EX_memread = ID_EX_memread_sig;
-  assign bus.ID_EX_regwrite = ID_EX_regwrite_sig;
-  assign flush = flush_sig | bus.trigger_trap | bus.trap_ret;
-  assign bus.IF_ID_jalr = IF_ID_jalr_sig;
-  assign bus.IF_ID_jal = IF_ID_jal;
-  assign div_ready = div_ready_sig;
-  assign mul_ready = mul_ready_sig;
 endmodule

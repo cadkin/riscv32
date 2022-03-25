@@ -60,78 +60,80 @@ module forwarding (
     output logic [31:0] rs2_mod
 );
 
-  //logic [31:0] rs2_mod;
-  logic [2:0] sel_fw1, sel_fw2;
-  logic cond1_1, cond1_2, cond1_3, cond1_4, cond1_5, cond2_1, cond2_2, cond2_3, cond2_4, cond2_5;
+  logic [31:0] exres;
+  logic [1:0] sel_fw1, sel_fw2, sel_ex;
+  logic cond1_1, cond1_2, cond1_3, cond2_1, cond2_2, cond2_3;
 
-  //selecting between immediate and rs2
-  assign fw_rs2 = (alusrc) ? imm : rs2_mod;
+  // Determines 2nd input to ALU based on instruction
+  // Immediate: I-type Arithmetic, Load, Store, LUI, AUIPC
+  //            CSRRWI, CSRRSI, CSRRCI
+  // Data in rs2: R-type Arithmetic, Compare, Branch
+  //              CSRRW, CSRRS, CSRRC
+  assign fw_rs2 = alusrc ? imm : rs2_mod;
 
-  //takes operands of ALU from rs1 or forwarded from subsequent stages
+  // Detects data hazards and forwards data when destination register matches a source register
+  // Forwarding disabled when destination register is x0
+
+  // Forward EX to EX
+  // Example: add rd -> sub rs1/rs2
   assign cond1_1 = ((EX_MEM_regwrite && (!EX_MEM_memread)) &&
-                    (EX_MEM_rd == ID_EX_rs1) &&
-                    (EX_MEM_rd != 0) &&
-                    (!div_ready) &&
-                    (!mul_ready));
-  assign cond1_2 = ((EX_MEM_regwrite && (!EX_MEM_memread)) &&
-                    (EX_MEM_rd == ID_EX_rs1) &&
-                    (EX_MEM_rd != 0) &&
-                    div_ready &&
-                    (!mul_ready));
-  assign cond1_3 = ((EX_MEM_regwrite && (!EX_MEM_memread)) &&
-                    (EX_MEM_rd == ID_EX_rs1) &&
-                    (EX_MEM_rd != 0) &&
-                    (!div_ready) &&
-                    mul_ready);
-  assign cond1_4 = ((MEM_WB_regwrite) && (MEM_WB_rd == ID_EX_rs1) && (MEM_WB_rd != 0));
-  assign cond1_5 = ((WB_ID_regwrite) && (WB_ID_rd == ID_EX_rs1) && (WB_ID_rd != 0));
+                   (EX_MEM_rd == ID_EX_rs1) &&
+                   (EX_MEM_rd != 0));
   assign cond2_1 = ((EX_MEM_regwrite && (!EX_MEM_memread)) &&
-                    (EX_MEM_rd == ID_EX_rs2) &&
-                    (!div_ready) &&
-                    (!mul_ready));
-  assign cond2_2 = ((EX_MEM_regwrite && (!EX_MEM_memread)) &&
-                    (EX_MEM_rd == ID_EX_rs2) &&
-                    div_ready &&
-                    (!mul_ready));
-  assign cond2_3 = ((EX_MEM_regwrite && (!EX_MEM_memread)) &&
-                    (EX_MEM_rd == ID_EX_rs2) &&
-                    (!div_ready) &&
-                    mul_ready);
-  assign cond2_4 = ((MEM_WB_regwrite) && (MEM_WB_rd == ID_EX_rs2));
-  assign cond2_5 = ((WB_ID_regwrite) && (WB_ID_rd == ID_EX_rs2));
+                   (EX_MEM_rd == ID_EX_rs2));
+  // Forward MEM to EX
+  // Example: add/ld rd -> [1 instr.] -> sub rs1/rs2
+  assign cond1_2 = ((MEM_WB_regwrite) &&
+                   (MEM_WB_rd == ID_EX_rs1) &&
+                   (MEM_WB_rd != 0));
+  assign cond2_2 = ((MEM_WB_regwrite) &&
+                   (MEM_WB_rd == ID_EX_rs2));
+  // Forward WB to EX
+  // Example: add/ld rd -> [2 instr.] -> sub rs1/rs2
+  assign cond1_3 = ((WB_ID_regwrite) &&
+                   (WB_ID_rd == ID_EX_rs1) &&
+                   (WB_ID_rd != 0));
+  assign cond2_3 = ((WB_ID_regwrite) &&
+                   (WB_ID_rd == ID_EX_rs2));
 
-  assign sel_fw1 = (ID_EX_rs1 == 0) ? 3'b000 :
-                   cond1_1          ? 3'b010 :
-                   cond1_2          ? 3'b011 :
-                   cond1_3          ? 3'b100 :
-                   cond1_4          ? 3'b101 :
-                   cond1_5          ? 3'b001 : 3'b000;
-  assign sel_fw2 = (ID_EX_rs2 == 0) ? 3'b000 :
-                   cond2_1          ? 3'b010 :
-                   cond2_2          ? 3'b011 :
-                   cond2_3          ? 3'b100 :
-                   cond2_4          ? 3'b101 :
-                   cond2_5          ? 3'b001 : 3'b000;
+  assign sel_fw1 = (ID_EX_rs1 == 0) ? 2'b00 :         // Don't forward if rs1 is x0
+                   cond1_1          ? 2'b10 :         // Forward EX to EX
+                   cond1_2          ? 2'b11 :         // Forward MEM to EX
+                   cond1_3          ? 2'b01 : 2'b00;  // Forward WB to EX
+  assign sel_fw2 = (ID_EX_rs2 == 0) ? 2'b00 :         // Don't forward if rs2 is x0
+                   cond2_1          ? 2'b10 :         // Forward EX to EX
+                   cond2_2          ? 2'b11 :         // Forward MEM to EX
+                   cond2_3          ? 2'b01 : 2'b00;  // Forward WB to EX
+  assign sel_ex = (!div_ready) && (!mul_ready) ? 2'b00 :         // ALU result
+                  div_ready && (!mul_ready)    ? 2'b10 :         // DIV result
+                  (!div_ready) && mul_ready    ? 2'b01 : 2'b00;  // MUL result
 
+  // Selects which stage's result to forward to current instruction's rs1 in case of hazard
   always_comb
     case (sel_fw1)
-      3'b000:  fw_rs1 = rs1;
-      3'b010:  fw_rs1 = EX_MEM_CSR_read ? EX_MEM_CSR : alures;
-      3'b011:  fw_rs1 = divres;
-      3'b100:  fw_rs1 = mulres;
-      3'b101:  fw_rs1 = memres;
-      3'b001:  fw_rs1 = wbres;
+      2'b00:   fw_rs1 = rs1;
+      2'b10:   fw_rs1 = EX_MEM_CSR_read ? EX_MEM_CSR : exres;
+      2'b11:   fw_rs1 = memres;
+      2'b01:   fw_rs1 = wbres;
       default: fw_rs1 = rs1;
     endcase
 
+  // Selects which stage's result to forward to current instruction's rs2 in case of hazard
   always_comb
     case (sel_fw2)
-      3'b000:  rs2_mod = rs2;
-      3'b010:  rs2_mod = alures;
-      3'b011:  rs2_mod = divres;
-      3'b100:  rs2_mod = mulres;
-      3'b101:  rs2_mod = memres;
-      3'b001:  rs2_mod = wbres;
+      2'b00:   rs2_mod = rs2;
+      2'b10:   rs2_mod = exres;
+      2'b11:   rs2_mod = memres;
+      2'b01:   rs2_mod = wbres;
       default: rs2_mod = rs2;
+    endcase
+
+  // Selects which EX unit's result to forward
+  always_comb
+    case (sel_ex)
+      2'b00:   exres = alures;
+      2'b10:   exres = divres;
+      2'b01:   exres = mulres;
+      default: exres = alures;
     endcase
 endmodule : forwarding
