@@ -307,7 +307,8 @@ module decode (
 
   // Stalls pipeline if instruction is 0x00000000
   assign ins_zero = !(|bus.ins);
-  // Clears branch/jump signal after a branch/jump or triggered trap
+  // Instruction after a branch/jump in instruction memory is usually fetched regardless of if branch is taken
+  // Clears fetched instruction and stalls if branch/jump is confirmed to be taken or triggered trap
   assign flush = flush_sig | bus.trigger_trap | bus.trap_ret;
   // Indicates whether branch is taken
   assign bus.branch = branch_taken_sig;
@@ -317,7 +318,8 @@ module decode (
   // CSR Signals
   assign IF_ID_CSR_addr = bus.ins[31:20];
   assign bus.IF_ID_CSR_addr = IF_ID_CSR_addr;
-  // Indicates ECALL instruction, used to make a request to the supporting execution environment
+  // Indicates if fetched instruction is ECALL (unless instruction is flushed)
+  // Used to make a request to the supporting execution environment
   assign bus.ecall = flush ? 1'b0 : (bus.ins == 32'b00000000000000000000000001110011);
 
   // MUL/DIV Signals
