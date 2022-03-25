@@ -52,7 +52,8 @@ module tb_riscv_top_uart ();
 
   // Testbench UART Receiver
   logic byte_sent;
-  logic [31:0] debug_byte;
+  logic [31:0] uart_byte;
+  logic [31:0] output_code;
 
   // RISC-V Top Module
   riscv_top dut (.*);
@@ -88,6 +89,126 @@ module tb_riscv_top_uart ();
     send_byte(rx_word[15:8]);
     delay();
     send_byte(rx_word[7:0]);
+  endtask
+
+  // Tests hazard detection, stalling, and forwarding
+  task static hz_unit_test();
+    $display("Testing data hazard 3...");
+    @(negedge dut.d0.mmio_wea);
+    if (dut.d0.dout != 1) begin
+      $display("FAILED at data hazard 3.");
+      $display("---END SIMULATION---");
+      $stop;
+    end
+    $display("SUCCESS.");
+
+    $display("Testing data hazard 2...");
+    @(negedge dut.d0.mmio_wea);
+    if (dut.d0.dout != 2) begin
+      $display("FAILED at data hazard 2.");
+      $display("---END SIMULATION---");
+      $stop;
+    end
+    $display("SUCCESS.");
+
+    $display("Testing data hazard 1...");
+    @(negedge dut.d0.mmio_wea);
+    if (dut.d0.dout != 3) begin
+      $display("FAILED at data hazard 1.");
+      $display("---END SIMULATION---");
+      $stop;
+    end
+    $display("SUCCESS.");
+
+    $display("Testing branch hazard 3...");
+    @(negedge dut.d0.mmio_wea);
+    if (dut.d0.dout != 4) begin
+      $display("FAILED at branch hazard 3.");
+      $display("---END SIMULATION---");
+      $stop;
+    end
+    $display("SUCCESS.");
+
+    $display("Testing branch hazard 2...");
+    @(negedge dut.d0.mmio_wea);
+    if (dut.d0.dout != 5) begin
+      $display("FAILED at branch hazard 2.");
+      $display("---END SIMULATION---");
+      $stop;
+    end
+    $display("SUCCESS.");
+
+    $display("Testing branch hazard 1...");
+    @(negedge dut.d0.mmio_wea);
+    if (dut.d0.dout != 6) begin
+      $display("FAILED at branch hazard 1.");
+      $display("---END SIMULATION---");
+      $stop;
+    end
+    $display("SUCCESS.");
+
+    $display("Testing load/branch hazard...");
+    @(negedge dut.d0.mmio_wea);
+    if (dut.d0.dout != 7) begin
+      $display("FAILED at load/branch hazard.");
+      $display("---END SIMULATION---");
+      $stop;
+    end
+    $display("SUCCESS.");
+
+    $display("Testing load hazard...");
+    @(negedge dut.d0.mmio_wea);
+    if (dut.d0.dout != 8) begin
+      $display("FAILED at load hazard.");
+      $display("---END SIMULATION---");
+      $stop;
+    end
+    $display("SUCCESS.");
+
+    $display("Testing store hazard...");
+    @(negedge dut.d0.mmio_wea);
+    if (dut.d0.dout != 9) begin
+      $display("FAILED at store hazard.");
+      $display("---END SIMULATION---");
+      $stop;
+    end
+    $display("SUCCESS.");
+  endtask
+
+  // Tests quicksort
+  task static qsort_unit_test();
+    $display("Testing quicksort...");
+    @(negedge dut.d0.mmio_wea);
+    if (dut.d0.dout != 10) begin
+      $display("FAILED at quicksort.");
+      $display("---END SIMULATION---");
+      $stop;
+    end
+    $display("SUCCESS.");
+  endtask
+
+  // Tests sending data through UART to core
+  task static uart_rx_unit_test();
+    $display("Testing UART...");
+    send_word(uart_str);
+  endtask
+
+  // Tests receiving data from UART to core
+  task static uart_tx_unit_test();
+    @(posedge tx_avail);
+    uart_byte[31:24] = tx_byte;
+    @(posedge tx_avail);
+    uart_byte[23:16] = tx_byte;
+    @(posedge tx_avail);
+    uart_byte[15:8] = tx_byte;
+    @(posedge tx_avail);
+    uart_byte[7:0] = tx_byte;
+    if (uart_byte != uart_str) begin
+      $display("FAILED at UART.");
+      $display("---END SIMULATION---");
+      $stop;
+    end
+    $display("SUCCESS.");
   endtask
 
   // Testbench UART Transmitter
@@ -131,11 +252,10 @@ module tb_riscv_top_uart ();
   end
 
   // String to test in UART
-  logic [31:0] test_str = "abcd";
+  logic [31:0] uart_str = "abcd";
 
-  // Transmit a word to the core through UART
   initial begin
-    $display("Begin simulaton");
+    $display("---BEGIN SIMULATION---");
     clk = 0;
     Rst = 1;
     debug = 0;
@@ -146,22 +266,14 @@ module tb_riscv_top_uart ();
     #10;
     Rst = 0;
 
-    $write("UART TEST: ");
-    #50000
-    send_word(test_str);
+    hz_unit_test();
+    qsort_unit_test();
+    uart_rx_unit_test();
   end
 
-  // Receive a word from the core through UART
   initial begin
-    @(posedge tx_avail);
-    debug_byte[31:24] = tx_byte;
-    @(posedge tx_avail);
-    debug_byte[23:16] = tx_byte;
-    @(posedge tx_avail);
-    debug_byte[15:8] = tx_byte;
-    @(posedge tx_avail);
-    debug_byte[7:0] = tx_byte;
-    $write("%s\n", debug_byte);
-    $display("End UART TEST");
+    uart_tx_unit_test();
+    $display("---END SIMULATION---");
+    $stop;
   end
 endmodule
