@@ -21,7 +21,7 @@
 
 
 
-module tb_riscv_top_uart ();
+module tb_unit_test ();
   // Clock and Reset
   logic clk;
   logic Rst, rst_n;
