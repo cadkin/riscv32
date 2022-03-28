@@ -2,10 +2,12 @@
 #include "uart.h"
 #include "malloc.h"
 #include "qsort.h"
+#include "utils.h"
 #include "tc_hazard.h"
 
 #define DATA_SIZE 10
 
+int m_ext_test(int a);
 int qsort_test(int a);
 void uart_test();
 
@@ -41,8 +43,12 @@ int main(void)
     test = s_hz(9);   // Fails itself
     print(test);
 
+    // M-EXT Test
+    test = m_ext_test(10);
+    print(test);
+
     // Qsort Test
-    test = qsort_test(10);
+    test = qsort_test(11);
     print(test);
 
     // UART Test
@@ -92,6 +98,90 @@ int qsort_test(int a)
 
     return result;
 }
+
+int m_ext_test(int a)
+{
+    int result = 0;
+    int i = 0;
+    int num = 0;
+
+    int mul_check[5] = {
+        277284,
+        4112,
+        2052,
+        64,
+        12
+    };
+
+    int div_check[5] = {
+        17330,
+        257,
+        128,
+        4,
+        0
+    };
+
+    int mul_data[5] = {
+        0,
+        0,
+        0,
+        0,
+        0
+    };
+
+    int div_data[5] = {
+        0,
+        0,
+        0,
+        0,
+        0
+    };
+
+    int *input_data = malloc(5 * sizeof(int));
+    input_data[0] = 69321;
+    input_data[1] = 1028;
+    input_data[2] = 513;
+    input_data[3] = 16;
+    input_data[4] = 3;
+
+    num = 4;
+
+    for (i = 0; i < 5; i++)
+    {
+        __asm__
+        (
+            "mul %[c], %[a], %[b]"
+            : [c] "=r" (mul_data[i])
+            : [a] "r" (input_data[i]), [b] "r" (num)
+        );
+        __asm__
+        (
+            "div %[c], %[a], %[b]"
+            : [c] "=r" (div_data[i])
+            : [a] "r" (input_data[i]), [b] "r" (num)
+        );
+    }
+
+    result = a;
+    for (i = 0; i < 5; i++)
+    {
+        if(mul_data[i] != mul_check[i])
+        {
+            result = 0;
+        }
+    }
+
+    for (i = 0; i < 5; i++)
+    {
+        if(div_data[i] != div_check[i])
+        {
+            result = 0;
+        }
+    }
+
+    return result;
+}
+
 
 void uart_test()
 {

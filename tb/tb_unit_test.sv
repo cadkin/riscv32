@@ -176,10 +176,22 @@ module tb_unit_test ();
   endtask
 
   // Tests quicksort
+  task static m_ext_unit_test();
+    $display("Testing M-extension...");
+    @(negedge dut.d0.mmio_wea);
+    if (dut.d0.dout != 10) begin
+      $display("FAILED at M-extension.");
+      $display("---END SIMULATION---");
+      $stop;
+    end
+    $display("SUCCESS.");
+  endtask
+
+  // Tests quicksort
   task static qsort_unit_test();
     $display("Testing quicksort...");
     @(negedge dut.d0.mmio_wea);
-    if (dut.d0.dout != 10) begin
+    if (dut.d0.dout != 11) begin
       $display("FAILED at quicksort.");
       $display("---END SIMULATION---");
       $stop;
@@ -267,6 +279,7 @@ module tb_unit_test ();
     Rst = 0;
 
     hz_unit_test();
+    m_ext_unit_test();
     qsort_unit_test();
     uart_rx_unit_test();
   end
