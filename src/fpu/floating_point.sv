@@ -28,33 +28,39 @@ module FPU
  (input  logic [31:0] a,
   input  logic [31:0] b,
   input  logic [31:0] c,
-  input  logic [2:0] rm,
+  input  logic [2:0] frm,sys_rm,
   input  logic [4:0]  fpusel_s,fpusel_d,
-  input  logic g_clk,fp_clk,g_rst, //global clock, floating point logic unit clock, global reset
+  input  logic fp_enable,g_clk,fp_clk,g_rst, //global clock, floating point logic unit clock, global reset
   output logic [31:0] res,
   output logic stall     //flag for stall the pipeline
   );
-
+  
   logic [31:0] input_a,input_b,input_c; //temp input for fpu
   logic [31:0] output_add,output_mul,output_div,output_mul_add,output_f2i,output_i2f,output_f2ui,output_ui2f,output_fsgnj,output_fmv;//temp result for fpu
-  logic [31:0] output_class,output_feq,output_fle,output_flt,output_fmax,output_fmin;
-  logic enable_add,enable_mul,enable_div,enable_mul_add,enable_f2i,enable_i2f,enable_f2ui,enable_ui2f;
-  logic clk_add,clk_mul,clk_div,clk_mul_add,clk_f2i,clk_i2f,clk_f2ui,clk_ui2f;
-  logic out_stb_add,out_stb_mul,out_stb_div,out_stb_mul_add,out_stb_f2i,out_stb_f2ui,out_stb_i2f,out_stb_ui2f;
+  logic [31:0] output_class,output_feq,output_fle,output_flt,output_fmax,output_fmin,output_sqrt;
+  logic enable_add,enable_mul,enable_div,enable_mul_add,enable_f2i,enable_i2f,enable_f2ui,enable_ui2f,enable_sqrt;
+  logic clk_add,clk_mul,clk_div,clk_mul_add,clk_f2i,clk_i2f,clk_f2ui,clk_ui2f,clk_sqrt;
+  logic out_stb_add,out_stb_mul,out_stb_div,out_stb_mul_add,out_stb_f2i,out_stb_f2ui,out_stb_i2f,out_stb_ui2f,out_stb_sqrt;
   logic [3:0]enable_sel;
   logic [1:0] fsign_sel,fma_sel;
   logic stall_flag;
-
+  logic [2:0] rm;
+  
+  assign rm = (sys_rm[0] & sys_rm[1] & sys_rm[2]) ? frm : sys_rm;
+  
   //impermented using finate state machine.
-  adder a1(input_a,input_b,clk_add,enable_add,output_add,out_stb_add);
-  fdivider a2(input_a,input_b,clk_div,enable_div,output_div,out_stb_div);
-  fmultiplier a3(input_a,input_b,clk_mul,enable_mul,output_mul,out_stb_mul);
+  adder a1(input_a,input_b,rm,clk_add,enable_add,output_add,out_stb_add);
+  fdivider a2(input_a,input_b,rm,clk_div,enable_div,output_div,out_stb_div);
+  fmultiplier a3(input_a,input_b,rm,clk_mul,enable_mul,output_mul,out_stb_mul);
 
-  float_to_int a4(input_a,clk_f2i,enable_f2i,output_f2i,out_stb_f2i);
-  float_to_unsig_int a5(input_a,clk_f2ui,g_rst,enable_f2ui,output_f2ui,out_stb_f2ui);
-  int_to_float a6(input_a,clk_i2f,enable_i2f,output_i2f,out_stb_i2f);
-  unsig_int_to_float a7(input_a,clk_ui2f,enable_ui2f,output_ui2f,out_stb_i2uf);
-  mul_adder a8 (input_a,input_b,input_c,fma_sel,clk_mul_add,enable_mul_add,output_mul_add,out_stb_mul_add);
+  float_to_int a4(input_a,rm,clk_f2i,enable_f2i,output_f2i,out_stb_f2i);
+  float_to_unsig_int a5(input_a,rm,clk_f2ui,enable_f2ui,output_f2ui,out_stb_f2ui);
+  int_to_float a6(input_a,rm,clk_i2f,enable_i2f,output_i2f,out_stb_i2f);
+  unsig_int_to_float a7(input_a,rm,clk_ui2f,enable_ui2f,output_ui2f,out_stb_i2uf);
+  
+  mul_adder a8 (input_a,input_b,input_c,fma_sel,rm,clk_mul_add,enable_mul_add,output_mul_add,out_stb_mul_add);
+  fsqrt a9(input_a,rm,clk_sqrt,enable_sqrt,output_sqrt,out_stb_sqrt);
+  
   //impermented using combanatinal logic
   fsign_inject c1(input_a,input_b,fsign_sel,output_fsgnj);
   fmove c2(input_a,fma_sel,output_fmv);
@@ -80,17 +86,27 @@ begin
 		input_c = c;
 	end;
 
-
-
-    if(g_rst == 1)begin
-	enable_add = 1;
-	enable_mul = 1;
-	enable_div = 1;
-	enable_f2i = 1;
-	enable_i2f = 1;
-	enable_f2ui = 1;
-	enable_ui2f = 1;
-	enable_mul_add = 1;
+    if((g_rst == 0) & (fp_enable == 1))begin
+	  enable_add = 1;
+	  enable_mul = 1;
+	  enable_div = 1;
+	  enable_f2i = 1;
+	  enable_i2f = 1;
+	  enable_f2ui = 1;
+	  enable_ui2f = 1;
+	  enable_mul_add = 1;
+	  enable_sqrt = 1;
+      case(enable_sel)
+	   4'd1 :  enable_add = 0;
+	   4'd2 :  enable_mul = 0;
+	   4'd3 :  enable_div = 0;
+	   4'd4 :  enable_f2i = 0;
+	   4'd5 :  enable_i2f = 0;
+	   4'd6 :  enable_f2ui = 0;
+	   4'd7 :  enable_ui2f = 0;
+	   4'd8 :  enable_mul_add = 0;
+	   4'd9 :  enable_sqrt = 0;
+      endcase
     end else begin
 	enable_add = 1;
 	enable_mul = 1;
@@ -100,26 +116,7 @@ begin
 	enable_f2ui = 1;
 	enable_ui2f = 1;
 	enable_mul_add = 1;
-	case(enable_sel)
-	   4'd1 :  enable_add = 0;
-	   4'd2 :  enable_mul = 0;
-	   4'd3 :  enable_div = 0;
-	   4'd4 :  enable_f2i = 0;
-	   4'd5 :  enable_i2f = 0;
-	   4'd6 :  enable_f2ui = 0;
-	   4'd7 :  enable_ui2f = 0;
-	   4'd8 :  enable_mul_add = 0;
-	   default: begin
-	   enable_add = 1;
-	   enable_mul = 1;
-	   enable_div = 1;
-	   enable_f2i = 1;
-	   enable_i2f = 1;
-	   enable_f2ui = 1;
-	   enable_ui2f = 1;
-	   enable_mul_add = 1;
-       end
-        endcase
+	enable_sqrt = 1;
      end
 end
 
@@ -139,6 +136,7 @@ assign   clk_f2i =  fp_clk;
 assign   clk_i2f =  fp_clk;
 assign   clk_f2ui =  fp_clk;
 assign   clk_ui2f =  fp_clk;
+assign   clk_sqrt =  fp_clk;
 assign 	 stall = stall_flag;
 
 //getting the inputs from the id stage and select the logic to perform
@@ -157,7 +155,8 @@ begin //fpu instuction selction
 		enable_sel <= 2;
       5'b00011 : //fp fdiv
 		enable_sel <= 3;
-      //5'b00100 : //fp fsqurt
+      5'b00100 : //fp fsqurt
+        enable_sel <= 9;
       5'b00101 : //fp fsgnj.s
 		fsign_sel <= 1;
       5'b00110 : //fp fsgnjn
@@ -227,7 +226,11 @@ begin
 		else begin stall_flag <= 0;
 			res <= output_div;
 		end
-      //5'b00100 : //fp fsqurt   ;
+      5'b00100 : //fp fsqurt   
+      	if(out_stb_sqrt ==0) stall_flag <= 1;
+		else begin stall_flag <= 0;
+			res <= output_sqrt;
+		end
       5'b00101 : //fp fsgnj.s
 		res <= output_fsgnj;
       5'b00110 : //fp fsgnjn

@@ -5,7 +5,8 @@
 //2021-11-11
 
 module int_to_float(
-        input logic [31:0] input_a,
+    input logic [31:0] input_a,
+    input logic [2:0] rm,
 	input logic clk,rst,
 	output logic [31:0] output_z,
 	output logic output_z_stb);
@@ -16,6 +17,9 @@ module int_to_float(
 	logic z_s,s_output_z_stb;
 	logic sign,guard, round_bit, sticky;
 	logic [2:0] state;
+    logic     [23:0] round_zm;
+    logic     [9:0] round_ze;
+    rounding r1(z_m,z_e,z_s,guard,round_bit,sticky,rm, round_zm, round_ze);
 
 	parameter 
         convert_0     = 3'h1,
@@ -67,25 +71,14 @@ module int_to_float(
           guard <= z_r[7];
           round_bit <= z_r[6];
           sticky <= z_r[5:0] != 0;
-          state <= round;
+          state <= pack;
         end
-      end
-
-      round:
-      begin
-        if (guard && (round_bit || sticky || z_m[0])) begin
-          z_m <= z_m + 1;
-          if (z_m == 24'hffffff) begin
-            z_e <=z_e + 1;
-          end
-        end
-        state <= pack;
       end
 
       pack:
       begin
-        z[22 : 0] <= z_m[22:0];
-        z[30 : 23] <= z_e + 127;
+        z[22 : 0] <= round_zm[22:0];
+        z[30 : 23] <= round_ze + 127;
         z[31] <= z_s;
         state <= put_z;
       end

@@ -6,9 +6,10 @@
 
 module float_to_unsig_int(
 	input logic [31:0] input_a,
-	input logic clk,rst,output_z_ack,
-        output logic [31:0] output_z,
-        output logic output_z_stb);
+	input logic [2:0] rm,
+	input logic clk,rst,
+    output logic [31:0] output_z,
+    output logic output_z_stb);
 
   logic   s_output_z_stb;
   logic   [31:0] s_output_z;
