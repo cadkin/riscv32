@@ -45,7 +45,7 @@ module uint_to_float_sim(
 
             #30;
             
-            input_a = 32'hfffffff9;
+            input_a = 32'hfff00000;
             #30;
             
       end;
