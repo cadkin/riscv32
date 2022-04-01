@@ -8,17 +8,20 @@
 
 module unsig_int_to_float(
     input logic [31:0] input_a,
+    input logic [2:0] rm,
 	input logic clk,rst,
 	output logic [31:0] output_z,
 	output logic output_z_stb);
 		
 	logic [31:0] z,s_output_z; 
-	logic [32:0] value;
+	logic [31:0] value;
 	logic [7:0]  z_r,z_e;
 	logic [23:0] z_m;
 	logic sign,guard, round_bit, sticky,s_output_z_stb;
 	logic [2:0] state;
-	
+	logic     [23:0] round_zm;
+    logic     [9:0] round_ze;
+    rounding r1(z_m,z_e,z_s,guard,round_bit,sticky,rm, round_zm, round_ze);
 	
 	parameter 
         convert_1     = 3'h2,
@@ -37,47 +40,36 @@ module unsig_int_to_float(
         if ( input_a == 0 ) begin
           z_m <= 0;
           z_e <= -127;
-	if(rst == 0) begin
-	   state <= pack;
-	end
+	      if(rst == 0) begin
+	       state <= pack;
+	      end
         end else begin
           z_e <= 31;
-          value <= {1'b1,input_a[31:0]};
-	if(rst == 0) begin
-	    state <= convert_2;
-	end
+          value <= input_a[31:0];
+	      if(rst == 0) begin
+	       state <= convert_2;
+	      end
         end
       end
 
       convert_2:
       begin
-        if (!value[32]) begin
+        if (!value[31]) begin
           z_e <= z_e - 1;
           value <= value << 1;
         end else begin
-	  z_m <= value[31:8];
+	      z_m <= value[31:8];
           guard <= value[7];
           round_bit <= value[6];
           sticky <= value[5:0] != 0;
-          state <= round;
+          state <= pack;
         end
-      end
-
-      round:
-      begin
-        if (guard && (round_bit || sticky || z_m[0])) begin
-          z_m <= z_m + 1;
-          if (z_m == 24'hffffff) begin
-            z_e <=z_e + 1;
-          end
-        end
-        state <= pack;
       end
 
       pack:
       begin
-        z[22 : 0] <= z_m[22:0];
-        z[30 : 23] <= z_e + 127;
+        z[22 : 0] <= round_zm[22:0];
+        z[30 : 23] <= round_ze + 127;
         z[31] <= 0;
         state <= put_z;
       end
