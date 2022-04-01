@@ -67,6 +67,9 @@ module tb_unit_test ();
     #8640;
   endtask
 
+  // String to test in UART
+  logic [31:0] uart_str = "abcd";
+
   // Transmits a byte through UART to core
   task static send_byte(input logic [7:0] rx_char);
     byte_sent = 0;
@@ -175,7 +178,7 @@ module tb_unit_test ();
     $display("SUCCESS.");
   endtask
 
-  // Tests quicksort
+  // Tests M-extension
   task static m_ext_unit_test();
     $display("Testing M-extension...");
     @(negedge dut.d0.mmio_wea);
@@ -187,11 +190,23 @@ module tb_unit_test ();
     $display("SUCCESS.");
   endtask
 
+  // Tests ITOA and ATOI
+  task static itoa_atoi_unit_test();
+    $display("Testing ITOA and ATOI...");
+    @(negedge dut.d0.mmio_wea);
+    if (dut.d0.dout != 11) begin
+      $display("FAILED at ITOA and ATOI.");
+      $display("---END SIMULATION---");
+      $stop;
+    end
+    $display("SUCCESS.");
+  endtask
+
   // Tests quicksort
   task static qsort_unit_test();
     $display("Testing quicksort...");
     @(negedge dut.d0.mmio_wea);
-    if (dut.d0.dout != 11) begin
+    if (dut.d0.dout != 12) begin
       $display("FAILED at quicksort.");
       $display("---END SIMULATION---");
       $stop;
@@ -263,9 +278,6 @@ module tb_unit_test ();
     end
   end
 
-  // String to test in UART
-  logic [31:0] uart_str = "abcd";
-
   initial begin
     $display("---BEGIN SIMULATION---");
     clk = 0;
@@ -280,6 +292,7 @@ module tb_unit_test ();
 
     hz_unit_test();
     m_ext_unit_test();
+    itoa_atoi_unit_test();
     qsort_unit_test();
     uart_rx_unit_test();
   end

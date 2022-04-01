@@ -8,6 +8,7 @@
 #define DATA_SIZE 10
 
 int m_ext_test(int a);
+int itoa_atoi_test(int a);
 int qsort_test(int a);
 void uart_test();
 
@@ -47,8 +48,12 @@ int main(void)
     test = m_ext_test(10);
     print(test);
 
+    // ITOA/ATOI Test
+    test = itoa_atoi_test(11);
+    print(test);
+
     // Qsort Test
-    test = qsort_test(11);
+    test = qsort_test(12);
     print(test);
 
     // UART Test
@@ -174,6 +179,47 @@ int m_ext_test(int a)
     for (i = 0; i < 5; i++)
     {
         if(div_data[i] != div_check[i])
+        {
+            result = 0;
+        }
+    }
+
+    return result;
+}
+
+int itoa_atoi_test(int a)
+{
+    int result = 0;
+    int i = 0;
+    int num = 0;
+    char numchar[9];
+
+    char *data_check[5];
+    
+    data_check[0] = "277291";
+    data_check[1] = "4112";
+    data_check[2] = "205";
+    data_check[3] = "16";
+    data_check[4] = "3";
+
+    int *input_data = malloc(5 * sizeof(int));
+    input_data[0] = 277291;
+    input_data[1] = 4112;
+    input_data[2] = 205;
+    input_data[3] = 16;
+    input_data[4] = 3;
+
+    result = a;
+    for (i = 0; i < 5; i++)
+    {
+        itoa(input_data[i], numchar);
+        if(strcmp(numchar, data_check[i]) != 0)
+        {
+            result = 0;
+        }
+
+        num = atoi(numchar);
+        if(num != input_data[i])
         {
             result = 0;
         }
