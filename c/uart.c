@@ -137,7 +137,7 @@ int atoi(char *c)
     int sum = 0;
     int mult = 1;
 
-    for (i == (len - 1); i >= 0; i--)
+    for (i = (len - 1); i >= 0; i--)
     {
         int tmp = c[i] - INT_OFFSET;
 
@@ -148,6 +148,7 @@ int atoi(char *c)
         else if ((tmp >= 0) && (tmp <= 9))
         {
             sum += tmp * mult;
+            mult *= 10;
         }
         else
             return -1;
