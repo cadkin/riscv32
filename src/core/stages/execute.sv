@@ -155,7 +155,7 @@ module execute (
       .a(bus.ID_EX_dout_rs1),
       .b(bus.ID_EX_dout_rs2),
       .c(bus.ID_EX_dout_rs3),
-      .rm(bus.EX_MEM_frm),
+      .frm(bus.EX_MEM_frm),
       .fpusel_s(bus.ID_EX_fpusel),
       .fpusel_d(bus.ID_EX_fpusel),
       .g_clk(bus.clk),
