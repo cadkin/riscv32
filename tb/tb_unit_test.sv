@@ -299,6 +299,7 @@ module tb_unit_test ();
 
   initial begin
     uart_tx_unit_test();
+    $display("All simulations successfully completed.");
     $display("---END SIMULATION---");
     $stop;
   end
