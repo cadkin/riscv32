@@ -3,7 +3,6 @@ module regfile (
 );
 
   logic [31:0] regdata[31:0];  // Array of 32 32-bit registers
-  logic [31:0] fcsr;           // Floating point control registers
   logic        wen;            // Register write enable
 
   // Enables write to regfile if instruction writes to a register and destination register isn't x0

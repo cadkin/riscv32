@@ -7,25 +7,20 @@ module mem_controller (
 
   logic clk, rst;
   logic mem_wea, mem_rea;
-  logic [3:0] mem_en, mem_en_last;
+  logic [3:0] mem_en;
   logic [11:0] mem_addr_lower;
   logic [19:0] mem_addr_upper;
   logic [31:0] mem_din, mem_dout;
 
-  logic disp_wea;
-  logic [31:0] disp_dat;
-
   logic [31:0] imem_addr, imem_dout, imem_din;
-  logic imem_en, imem_state;
+  logic imem_en;
 
   logic mmio_region, kernel_region, prog_region, uart_region;
   logic spi_region;
   logic spi_last_cond;
   logic [7:0] spi_last;
   logic [31:0] blkmem_dout, doutb, blkmem_din, blkmem_addr;
-  logic [7:0] uart_dout;
   logic uart_last_cond;
-  logic [11:0] uart_last_addr;
   logic [31:0] uart_last_out;
 
   logic CRAS_region;
@@ -39,22 +34,8 @@ module mem_controller (
   logic cnt_region, cnt_last;
   logic [31:0] cnt_last_out;
 
-  logic [ 2:0] cache_storecntrl = 3'b000;
-  logic [ 4:0] cache_loadcntrl = 5'b00100;
-
-  logic [7:0] cell_0_dout, cell_1_dout, cell_2_dout, cell_3_dout;
-  logic [7:0] cell_0_din, cell_1_din, cell_2_din, cell_3_din;
-  logic [8:0] cell_0_addr, cell_1_addr, cell_2_addr, cell_3_addr;
-  logic cell_0_sense_en, cell_1_sense_en, cell_2_sense_en, cell_3_sense_en;
-  logic cell_0_wen, cell_1_wen, cell_2_wen, cell_3_wen;
-
-  logic [31:0] cache_mem_dout, cache_mem_din;
-  logic cache_mem_ren, cache_mem_wen;
-  logic [31:0] cache_mem_addr;
-
   logic mem_hold;
 
-  logic cache_rdy;
   assign mem_hold = 0;
 
   // Connection to SRAM/BRAM interface
@@ -191,7 +172,6 @@ module mem_controller (
       // Write or read data from UART
       if (uart_region && (mem_wea | mem_rea)) begin
         uart_last_cond <= 1;
-        uart_last_addr <= mem_addr_lower;
         uart_last_out  <= mbus.uart_dout;
       end else begin
         uart_last_cond <= 0;
@@ -210,8 +190,6 @@ module mem_controller (
         if (mem_addr_lower == 12'h700) cnt_last_out <= mbus.cnt_dout;
         else cnt_last_out <= {31'h0, mbus.cnt_ovflw};
       end else cnt_last <= 0;
-
-      mem_en_last <= mem_en;
     end
   end
 endmodule : mem_controller
