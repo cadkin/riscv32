@@ -132,8 +132,6 @@ interface main_bus_if (
   logic [31:0] EX_MEM_mulres, MEM_WB_mulres;
   logic [31:0] EX_MEM_divres, MEM_WB_divres;
 
-  logic EX_MEM_comp_res;
-
   logic EX_MEM_mul_ready, MEM_WB_mul_ready;
   logic EX_MEM_div_ready, MEM_WB_div_ready;
 
@@ -240,7 +238,7 @@ interface main_bus_if (
       output EX_MEM_dout_rs2, EX_MEM_rs2, EX_MEM_rs1,
       output EX_MEM_alures,
       output EX_MEM_memread, EX_MEM_rd,
-      output EX_MEM_memwrite, EX_MEM_regwrite, EX_MEM_comp_res, EX_MEM_fpusrc, EX_MEM_frm,
+      output EX_MEM_memwrite, EX_MEM_regwrite, EX_MEM_fpusrc, EX_MEM_frm,
       output EX_MEM_pres_addr,
       output EX_CSR_res, EX_CSR_addr, EX_CSR_write, EX_MEM_CSR, EX_MEM_CSR_read,
       output EX_MEM_mul_ready, EX_MEM_div_ready,

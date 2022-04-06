@@ -26,7 +26,6 @@
 //   ID_EX_compare --
 // Output:
 //   res -- ALU operation result
-//   comp_res -- ALU result of comparison
 //
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +43,6 @@ module alu (
     input  logic [31:0] CSR_in,
     input  logic        ID_EX_comp_sig,
     output logic [31:0] res,
-    output logic        comp_res,
     output logic [31:0] CSR_res
 );
 

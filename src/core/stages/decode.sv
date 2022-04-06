@@ -256,7 +256,6 @@ module decode (
       .zero4(zero4),
       .zeroa(zeroa),
       .zerob(zerob),
-      .imm(IF_ID_imm),
       .alures(bus.EX_MEM_alures),
       .wbres(bus.WB_res),
       .divres(bus.EX_MEM_divres),

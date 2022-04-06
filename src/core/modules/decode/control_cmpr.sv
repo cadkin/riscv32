@@ -6,16 +6,11 @@ module control_cmpr (
     output logic [4:0] rd,
     output logic [4:0] rs1,
     output logic [4:0] rs2,
-    output logic [1:0] funct2,
     output logic [2:0] funct3,
-    output logic [3:0] funct4,
-    output logic [5:0] funct6,
     output logic [2:0] alusel,
     output logic [2:0] storecntrl,
     output logic [4:0] loadcntrl,
     output logic branch,
-    output logic beq,  // Unused
-    output logic bne,  // Unused
     output logic memread,
     output logic memwrite,
     output logic regwrite,
@@ -49,10 +44,7 @@ module control_cmpr (
   endfunction
 
   always_comb begin
-    funct2 = ins[6:5];
     funct3 = ins[15:13];
-    funct4 = ins[15:12];
-    funct6 = ins[15:10];
     rd = 0;
     rs1 = 0;
     rs2 = 0;
@@ -61,8 +53,6 @@ module control_cmpr (
     storecntrl = 0;
     loadcntrl = 0;
     branch = 0;
-    beq = 0;
-    bne = 0;
     memread = 0;
     memwrite = 0;
     regwrite = 0;
@@ -203,14 +193,12 @@ module control_cmpr (
             funct3 = 3'b000;
             imm = {ins[12] ? 23'h7fffff : 23'h0, ins[12], ins[6:5], ins[2], ins[11:10], ins[4:3], 1'h0};
             branch = (!flush) && 1;
-            beq = 1;
           end
           3'b111: begin  // C.BNEZ - Branch if Not Equal to Zero
             rs1 = RVC_Reg(ins[9:7]);
             funct3 = 3'b001;
             imm = {ins[12] ? 23'h7fffff : 23'h0, ins[12], ins[6:5], ins[2], ins[11:10], ins[4:3], 1'h0};
             branch = (!flush) && 1;
-            bne = 1;
           end
           default: begin
           end
