@@ -12,8 +12,12 @@ module debug_display (
 
   // Addressable FIFO stores inputs and outputs to debug display
   addr_fifo u0 (
+      .clk(clk),
+      .rst(rst),
       .wea(mmio_wea),
-      .*
+      .din(din),
+      .addr(addr),
+      .dout(dout)
   );
 
   // Connects to MMIO debug display

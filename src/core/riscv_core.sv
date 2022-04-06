@@ -303,9 +303,15 @@ module riscv_core (
   logic trap;
 
   main_bus_if bus (
+      .clk(clk),
+      .Rst(Rst),
+      .debug(debug),
+      .dbg(dbg),
+      .prog(prog),
       .mem_hold(rbus.mem_hold),
       .uart_IRQ(rbus.uart_IRQ),
-      .*
+      .RAS_rdy(RAS_rdy),
+      .debug_input(debug_input)
   );
 
   // Fetch stage
