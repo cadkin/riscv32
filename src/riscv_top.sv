@@ -21,7 +21,7 @@ interface riscv_bus_if (
   logic [31:0] debug_output;
 
   // Instruction Memory Signals
-  logic imem_en, imem_prog_ena;
+  logic imem_en;
   logic [31:0] imem_addr;
   logic [31:0] imem_dout, imem_din;
 
@@ -32,8 +32,8 @@ interface riscv_bus_if (
   // RAS Signals
   logic RAS_branch, ret, stack_full, stack_empty, stack_mismatch;
   logic [31:0] RAS_addr_in;
-
   logic RAS_rdy;
+
   logic [31:0] IF_ID_pres_addr, ins, IF_ID_dout_rs1, branoff, next_addr;
   logic branch, IF_ID_jal;
   logic [4:0] IF_ID_rd;
@@ -43,7 +43,7 @@ interface riscv_bus_if (
       input mem_hold, uart_IRQ,
       input stack_mismatch, RAS_rdy, RAS_branch, ret,
       output debug_output, mem_wea, mem_rea, mem_en, mem_addr, mem_din, imem_en,
-      output imem_addr, imem_din, imem_prog_ena, storecntrl,
+      output imem_addr, imem_din, storecntrl,
       output trapping,
       output ins, branch, branoff, next_addr,
       output IF_ID_pres_addr, IF_ID_dout_rs1, IF_ID_jal, IF_ID_rd
@@ -51,7 +51,7 @@ interface riscv_bus_if (
 
   modport memcon(
       input clk, Rst, mem_wea, mem_en, mem_addr, mem_din, imem_en,
-      input imem_addr, imem_din, imem_prog_ena, mem_rea, storecntrl,
+      input imem_addr, imem_din, mem_rea, storecntrl,
       input scan_clk, scan_en, scan_in,
       output mem_dout, imem_dout, mem_hold,
       output scan_out
@@ -85,15 +85,13 @@ interface mmio_bus_if (
     output logic spi_sck
 );
 
-  logic [31:0] led;
   logic disp_wea;
   logic [31:0] disp_dat;
   logic [31:0] disp_out;
 
   // UART Ports
   logic [7:0] uart_din, uart_dout;
-  logic rx_ren, tx_wen, rx_data_present;
-  logic tx_full;
+  logic rx_ren, tx_wen;
   logic [2:0] uart_addr;
 
   // SPI Interface
@@ -116,9 +114,9 @@ interface mmio_bus_if (
 
   modport memcon(
       input clk, Rst,
-      output disp_dat, disp_wea, led,
+      output disp_dat, disp_wea,
 
-      input uart_dout, rx_data_present, tx_full,
+      input uart_dout,
       output uart_din, rx_ren, tx_wen, uart_addr,
 
       input spi_data_avail, spi_buffer_empty, spi_buffer_full, spi_dout,
@@ -139,7 +137,7 @@ interface mmio_bus_if (
 
   modport uart(
       input clk, Rst, rx, rx_ren, tx_wen, uart_din, uart_addr, BR_clk,
-      output rx_data_present, tx, uart_dout, tx_full
+      output tx, uart_dout
   );
 
   modport spi(
@@ -184,11 +182,8 @@ module riscv_top (
 
   logic prog;
   logic [31:0] debug_output;
-  logic clk_50M, clk_12M, clk_115k;
   logic clk_7seg;
-  logic addr_dn, addr_up;
   logic Rst;
-  logic rst_in, rst_last;
 
   // Include for FPGA testing
   logic scan_en;
@@ -201,17 +196,24 @@ module riscv_top (
   // Interfaces
   riscv_bus_if rbus (
       .clk(clk_rv),
-      .*
+      .Rst(Rst),
+      .debug(debug),
+      .prog(prog),
+      .scan_en(scan_en),
+      .scan_in(scan_in),
+      .scan_clk(scan_clk),
+      .debug_input(debug_input),
+      .scan_out(scan_out)
   );
 
   mmio_bus_if mbus (
       .clk(clk_rv),
       .Rst(Rst),
       .rx(rx),
-      .debug_input(debug_input),
-      .tx(tx),
       .BR_clk(clk),
       .spi_miso(spi_miso),
+      .debug_input(debug_input),
+      .tx(tx),
       .spi_mosi(spi_mosi),
       .spi_cs(spi_cs),
       .spi_sck(spi_sck)
@@ -224,13 +226,13 @@ module riscv_top (
       .clk_out(clk_7seg)
   );
 
-  clk_div #(2) cdiv_spi (
+  clk_div #(2) cdiv_spi (  // Unused
       .clk_in(clk),
       .rst(Rst),
       .clk_out(clk_spi)
   );  // 25 MHz -> 12.5 MHz
 
-  clk_div #(217) cdiv_uart (
+  clk_div #(217) cdiv_uart (  // Unused
       .clk_in(clk),
       .rst(Rst),
       .clk_out(clk_uart)
@@ -307,10 +309,8 @@ module riscv_top (
     end else if (~(debug || prog)) begin
       if (cnt == maxcnt) begin
         cnt <= 0;
-        addr_dn <= 1;
       end else begin
         cnt <= cnt + 1;
-        addr_dn <= 0;
       end
     end
   end

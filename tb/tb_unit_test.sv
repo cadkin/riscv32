@@ -272,7 +272,7 @@ module tb_unit_test ();
   end
 
   // Stop simulation if core execution reaches endloop instruction
-  always_ff @(posedge dut.clk_50M) begin
+  always_ff @(posedge dut.clk) begin
     if ((dut.rbus.IF_ID_pres_addr == 32'h14) & (dut.rbus.branch)) begin
       $stop;
     end

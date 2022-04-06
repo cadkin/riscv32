@@ -69,11 +69,6 @@ interface main_bus_if (
   logic [31:0] mem_addr;
   logic [31:0] mem_din, mem_dout;
 
-  // MMIO
-  logic        mmio_wea;
-  logic [31:0] mmio_dat;
-  logic        mmio_read;
-
   // CSR
   logic [ 2:0] csrsel;
   logic trap, ecall;
@@ -91,17 +86,13 @@ interface main_bus_if (
 
   logic [4:0] IF_ID_rs1, ID_EX_rs1, EX_MEM_rs1;
   logic [4:0] IF_ID_rs2, ID_EX_rs2, EX_MEM_rs2;
-  logic [4:0] IF_ID_rs3, ID_EX_rs3;
   logic [4:0] IF_ID_rd, ID_EX_rd, EX_MEM_rd, MEM_WB_rd, WB_ID_rd;
 
   logic [31:0] IF_ID_dout_rs1, ID_EX_dout_rs1;
   logic [31:0] IF_ID_dout_rs2, ID_EX_dout_rs2, EX_MEM_dout_rs2;
-  logic [31:0] IF_ID_dout_rs3, ID_EX_dout_rs3;
 
   logic IF_ID_jalr, ID_EX_jalr;
   logic IF_ID_jal, ID_EX_jal;
-
-  logic IF_ID_fpusrc, ID_EX_fpusrc, EX_MEM_fpusrc, MEM_WB_fpusrc, WB_ID_fpusrc;
 
   logic [11:0] IF_ID_CSR_addr, ID_EX_CSR_addr;
   logic [31:0] IF_ID_CSR, ID_EX_CSR;
@@ -120,6 +111,8 @@ interface main_bus_if (
   logic [2:0] ID_EX_mulsel;
   logic [2:0] ID_EX_divsel;
   logic [4:0] ID_EX_fpusel;
+  logic ID_EX_fpusrc, EX_MEM_fpusrc, MEM_WB_fpusrc, WB_ID_fpusrc;
+  logic [31:0] ID_EX_dout_rs3;
   logic        ID_EX_lui;
   logic        ID_EX_auipc;
 
@@ -128,15 +121,6 @@ interface main_bus_if (
 
   // Immediate Generation
   logic [31:0] ID_EX_imm;
-
-  logic ID_EX_lb, EX_MEM_lb;
-  logic ID_EX_lh, EX_MEM_lh;
-  logic ID_EX_lw, EX_MEM_lw;
-  logic ID_EX_lbu, EX_MEM_lbu;
-  logic ID_EX_lhu, EX_MEM_lhu;
-  logic ID_EX_sb, EX_MEM_sb;
-  logic ID_EX_sh, EX_MEM_sh;
-  logic ID_EX_sw, EX_MEM_sw;
 
   logic ID_EX_comp_sig;
 
@@ -147,8 +131,6 @@ interface main_bus_if (
   logic [31:0] EX_MEM_alures, MEM_WB_alures;
   logic [31:0] EX_MEM_mulres, MEM_WB_mulres;
   logic [31:0] EX_MEM_divres, MEM_WB_divres;
-  logic EX_MEM_mulvalid;
-  logic EX_MEM_divvalid;
 
   logic EX_MEM_comp_res;
 
@@ -208,10 +190,10 @@ interface main_bus_if (
   modport regfile(
       input clk, adr_rs1, adr_photon_rs1, addr_corereg_photon, Rst, f_stall,
       input mem_hold, photon_data_out, photon_regwrite,
-      input IF_ID_rs1, IF_ID_rs2, IF_ID_rs3, IF_ID_fpusrc,
+      input IF_ID_rs1, IF_ID_rs2,
       input MEM_WB_rd, MEM_WB_regwrite, MEM_WB_fpusrc,
       input WB_res,
-      output IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_dout_rs3
+      output IF_ID_dout_rs1, IF_ID_dout_rs2
   );
 
   // Decode stage modport
@@ -219,16 +201,16 @@ interface main_bus_if (
       input clk, Rst, dbg, ins, mem_hold, comp_sig, f_stall,
       input mul_ready, div_ready,
       input trap, trigger_trap, RAS_rdy,
-      input IF_ID_pres_addr, IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_dout_rs3, IF_ID_CSR,
+      input IF_ID_pres_addr, IF_ID_dout_rs1, IF_ID_dout_rs2, IF_ID_CSR,
       input EX_MEM_memread, EX_MEM_regwrite, EX_MEM_alures, EX_MEM_divres, EX_MEM_mulres, EX_MEM_rd,
       input MEM_WB_rd, MEM_WB_regwrite,
       input WB_res,
       output branch, branoff, hz,
       output csrsel, ecall, trap_ret,
-      output IF_ID_fpusrc, IF_ID_jalr, IF_ID_jal, IF_ID_rs1, IF_ID_rs2, IF_ID_rs3, IF_ID_rd,
+      output IF_ID_jalr, IF_ID_jal, IF_ID_rs1, IF_ID_rs2, IF_ID_rd,
       output IF_ID_CSR_addr,
       output ID_EX_memread, ID_EX_regwrite, ID_EX_pres_addr, ID_EX_jalr,
-      output ID_EX_dout_rs1, ID_EX_dout_rs2, ID_EX_rs1, ID_EX_rs2, ID_EX_rs3, ID_EX_rd,
+      output ID_EX_dout_rs1, ID_EX_dout_rs2, ID_EX_rs1, ID_EX_rs2, ID_EX_rd,
       output ID_EX_alusel, ID_EX_fpusel, ID_EX_frm,
       output ID_EX_storecntrl, ID_EX_loadcntrl, ID_EX_cmpcntrl,
       output ID_EX_auipc, ID_EX_lui, ID_EX_alusrc, ID_EX_fpusrc,
@@ -246,7 +228,7 @@ interface main_bus_if (
       input ID_EX_fpusel, ID_EX_fpusrc, ID_EX_frm,
       input ID_EX_mulsel, ID_EX_divsel,
       input ID_EX_memread, ID_EX_memwrite, ID_EX_regwrite, ID_EX_jal,
-      input ID_EX_jalr, ID_EX_rs1, ID_EX_rs2, ID_EX_rs3, ID_EX_rd,
+      input ID_EX_jalr, ID_EX_rs1, ID_EX_rs2, ID_EX_rd,
       input ID_EX_dout_rs1, ID_EX_dout_rs2, ID_EX_dout_rs3,
       input ID_EX_imm,
       input ID_EX_CSR_addr, ID_EX_CSR, ID_EX_CSR_write, ID_EX_CSR_read,
@@ -267,12 +249,11 @@ interface main_bus_if (
 
   // Memory stage modport
   modport memory(
-      input clk, Rst, dbg, mmio_read, mem_hold, f_stall,
+      input clk, Rst, dbg, mem_hold, f_stall,
       input EX_MEM_storecntrl, EX_MEM_pres_addr, EX_MEM_fpusrc,
       input EX_MEM_loadcntrl, EX_MEM_alures, EX_MEM_dout_rs2, EX_MEM_rs2, EX_MEM_rs1,
       input EX_MEM_rd, EX_MEM_regwrite, EX_MEM_memread, EX_MEM_memwrite,
       input WB_res,
-      output mmio_wea, mmio_dat,
       output MEM_WB_regwrite, MEM_WB_memread, MEM_WB_rd,
       output MEM_WB_alures, MEM_WB_memres, MEM_WB_fpusrc,
 
@@ -388,7 +369,6 @@ module riscv_core (
     rbus.imem_en = bus.imem_en;
     rbus.imem_addr = bus.imem_addr;
     rbus.imem_din = bus.uart_dout;
-    rbus.imem_prog_ena = bus.memcon_prog_ena;
     rbus.branch = bus.branch;
     rbus.IF_ID_jal = bus.IF_ID_jal;
     rbus.IF_ID_rd = bus.IF_ID_rd;

@@ -329,7 +329,6 @@ module decode (
   // Pipeline Signals
   assign bus.IF_ID_rs1 = IF_ID_rs1;
   assign bus.IF_ID_rs2 = IF_ID_rs2;
-  assign bus.IF_ID_rs3 = IF_ID_rs3;
   assign bus.IF_ID_jalr = IF_ID_jalr_sig;
   assign bus.IF_ID_jal = IF_ID_jal;
   assign bus.ID_EX_memread = ID_EX_memread_sig;

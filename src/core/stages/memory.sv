@@ -48,9 +48,7 @@ module memory (
   logic [31:0] memforward;
   logic MEM_WB_memwrite;
   logic [31:0] MEM_WB_dout_rs2;
-  logic mmio_wea;
   logic set_mmio_wea;
-  logic [31:0] mmio_dat;
   logic set_mmio_dat;
 
   logic ctrl_fwd;
@@ -134,8 +132,6 @@ module memory (
       MEM_WB_dout_sel <= 2'b00;
       MEM_WB_memwrite <= 1'b0;
       MEM_WB_dout_rs2 <= 32'h00000000;
-      mmio_wea <= 0;
-      mmio_dat <= 0;
       bus.MEM_WB_pres_addr <= 32'h0;
       bus.MEM_WB_CSR <= 0;
       bus.MEM_WB_CSR_read <= 0;

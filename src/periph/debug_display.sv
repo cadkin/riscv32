@@ -5,7 +5,6 @@ module debug_display (
 );
 
   logic clk, rst, mmio_wea;
-  logic addr_up, addr_dn;
   logic [31:0] din, dout;
   logic [4:0] addr;
 
