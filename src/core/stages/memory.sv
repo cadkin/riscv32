@@ -39,21 +39,11 @@ module memory (
 
   logic [31:0] MEM_WB_memres_sig;
   logic [31:0] MEM_WB_memres;
-  logic [ 1:0] MEM_WB_dout_sel;
-  logic        En;
-  logic [ 4:0] load_control;
-  logic MEM_WB_lb, MEM_WB_lh, MEM_WB_lw, MEM_WB_lbu, MEM_WB_lhu;
   logic [4:0] MEM_WB_loadcntrl;
   logic [3:0] byte_write;
   logic [31:0] memforward;
-  logic MEM_WB_memwrite;
-  logic [31:0] MEM_WB_dout_rs2;
-  logic set_mmio_wea;
-  logic set_mmio_dat;
 
   logic ctrl_fwd;
-
-  assign En = 1'b1;
 
   // Connections to the data memory unit
   assign bus.mem_wea = bus.EX_MEM_memwrite;
@@ -129,9 +119,6 @@ module memory (
       bus.MEM_WB_regwrite <= 1'b0;
       bus.MEM_WB_rd <= 5'b00000;
       MEM_WB_loadcntrl <= 5'b00000;
-      MEM_WB_dout_sel <= 2'b00;
-      MEM_WB_memwrite <= 1'b0;
-      MEM_WB_dout_rs2 <= 32'h00000000;
       bus.MEM_WB_pres_addr <= 32'h0;
       bus.MEM_WB_CSR <= 0;
       bus.MEM_WB_CSR_read <= 0;
@@ -148,9 +135,6 @@ module memory (
       bus.MEM_WB_regwrite <= bus.EX_MEM_regwrite;
       bus.MEM_WB_rd <= bus.EX_MEM_rd;
       MEM_WB_loadcntrl <= bus.EX_MEM_loadcntrl;
-      MEM_WB_dout_sel <= bus.EX_MEM_alures[1:0];
-      MEM_WB_memwrite <= bus.EX_MEM_memwrite;
-      MEM_WB_dout_rs2 <= bus.EX_MEM_dout_rs2;
       bus.MEM_WB_pres_addr <= bus.EX_MEM_pres_addr;
       bus.MEM_WB_CSR <= bus.EX_MEM_CSR;
       bus.MEM_WB_CSR_read <= bus.EX_MEM_CSR_read;

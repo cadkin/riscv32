@@ -69,10 +69,7 @@ module decode (
   logic flush_sig;
   logic [31:0] rs1_mod, rs2_mod;
 
-  logic [ 1:0] funct2;
   logic [ 2:0] funct3;
-  logic [ 3:0] funct4;
-  logic [ 5:0] funct6;
   logic [ 6:0] funct7;
   logic [11:0] funct12;
 
@@ -85,11 +82,10 @@ module decode (
 
   // Register File
   logic [4:0] IF_ID_rd;
-  logic [31:0] dout_rs1, dout_rs2, dout_rs3;
 
   // Control
-  logic [2:0] IF_ID_alusel, alusel, IF_ID_frm, rm;
-  logic [4:0] IF_ID_fpusel, fpusel_s;
+  logic [2:0] IF_ID_alusel, alusel, IF_ID_frm;
+  logic [4:0] IF_ID_fpusel;
   logic [2:0] IF_ID_mulsel;
   logic [2:0] IF_ID_divsel;
   logic IF_ID_branch, branch;
@@ -102,7 +98,7 @@ module decode (
   logic [2:0] floadcntrl;
   logic [3:0] IF_ID_cmpcntrl;
   logic       IF_ID_auipc;
-  logic [4:0] IF_ID_rs3, IF_ID_rs2, IF_ID_rs1;
+  logic [4:0] IF_ID_rs2, IF_ID_rs1;
   logic [2:0] csrsel;
   logic csrwrite;
   logic csrread;
@@ -119,14 +115,11 @@ module decode (
 
   // Compressed Signals
   logic [4:0] c_rd, c_rs1, c_rs2;
-  logic [1:0] c_funct2;
   logic [2:0] c_funct3;
-  logic [3:0] c_funct4;
-  logic [5:0] c_funct6;
   logic [2:0] c_alusel;
   logic [2:0] c_storecntrl;
   logic [4:0] c_loadcntrl;
-  logic c_branch, c_beq, c_bne, c_memread, c_memwrite, c_regwrite, c_alusrc, c_compare;
+  logic c_branch, c_memread, c_memwrite, c_regwrite, c_alusrc, c_compare;
   logic c_lui, c_jal, c_jalr;
   logic [31:0] c_imm;
 
@@ -182,16 +175,11 @@ module decode (
       .rd(c_rd),
       .rs1(c_rs1),
       .rs2(c_rs2),
-      .funct2(c_funct2),
       .funct3(c_funct3),
-      .funct4(c_funct4),
-      .funct6(c_funct6),
       .alusel(c_alusel),
       .storecntrl(c_storecntrl),
       .loadcntrl(c_loadcntrl),
       .branch(c_branch),
-      .beq(c_beq),  // Unused
-      .bne(c_bne),  // Unused
       .memread(c_memread),
       .memwrite(c_memwrite),
       .regwrite(c_regwrite),
@@ -336,13 +324,9 @@ module decode (
 
   always_comb begin
     if (bus.comp_sig) begin
-      funct2 = c_funct2;
       funct3 = c_funct3;
-      funct4 = c_funct4;
-      funct6 = c_funct6;
       IF_ID_rs1 = c_rs1;
       IF_ID_rs2 = c_rs2;
-      IF_ID_rs3 = 5'h0;
       IF_ID_rd = c_rd;
       bus.IF_ID_rd = IF_ID_rd;
       IF_ID_alusel = c_alusel;
@@ -379,7 +363,6 @@ module decode (
       funct12 = bus.ins[31:20];
       IF_ID_rs1 = bus.ins[19:15];
       IF_ID_rs2 = bus.ins[24:20];
-      IF_ID_rs3 = bus.ins[31:27];
       IF_ID_rd = bus.ins[11:7];
       bus.IF_ID_rd = IF_ID_rd;
       IF_ID_alusrc = alusrc;

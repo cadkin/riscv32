@@ -68,12 +68,9 @@ module execute (
   logic [31:0] alures, fpures;
   logic [31:0] mulres;
   logic [31:0] divres;
-  logic [ 2:0] sel;
   logic [31:0] ALUop1, ALUop2, rs2_mod;
-  logic [31:0] rs2_mod_final;
 
   logic [31:0] CSR_res;
-  logic [31:0] CSR_mod;
 
   logic mul_ready_sig;
   logic div_ready_sig;
