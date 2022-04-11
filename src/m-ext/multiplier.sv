@@ -8,71 +8,68 @@ module multiplier (
     output [31:0] res
 );
 
-  reg [32:0] factor_a;
-  reg [32:0] factor_b;
-  reg [32:0] op_a;
-  reg [32:0] op_b;
-  reg        high_bits;
-  reg        count;
-  reg        rdy;
-  reg        busy;
-  reg [64:0] full_res;
+  logic [31:0] op_a;
+  logic [31:0] op_b;
+  logic high_bits;
+  logic rdy;
+  logic [64:0] full_res;
 
-  wire mul = (mulsel == 3'b001);  // mul
-  wire mulh = (mulsel == 3'b010);  // mulh
-  wire mulhsu = (mulsel == 3'b011);  // mulhsu
-  wire mulhu = (mulsel == 3'b100);  // mulhu
+  logic is_mul;
+  logic a_sign;
+  logic b_sign;
 
-  wire mul_op = mul || mulh || mulhsu || mulhu;
+  typedef enum logic [2:0] {
+    no_mul = 3'b000,
+    mul    = 3'b001,
+    mulh   = 3'b010,
+    mulhsu = 3'b011,
+    mulhu  = 3'b100
+  } mul_e;
+  mul_e mul_op;
 
-  always_comb // Set operands' sign bits based on instruction type.
-  begin
-    case (mulsel)
-      3'b011: begin
-        op_a = {a[31], a[31:0]};
-        op_b = {1'b0, b[31:0]};
-      end
-      3'b010: begin
-        op_a = {a[31], a[31:0]};
-        op_b = {b[31], b[31:0]};
-      end
-      default: begin
-        op_a = {1'b0, a[31:0]};
-        op_b = {1'b0, b[31:0]};
-      end
-    endcase
+  assign mul_op = mul_e'(mulsel);
+  assign is_mul = (mul_op != no_mul);
+
+  typedef enum {
+    idle,
+    busy
+  } state_e;
+  state_e state_curr, state_next;
+
+  always_ff @(posedge clk) begin
+    if (rst) state_curr <= idle;
+    else state_curr <= state_next;
   end
 
-  always @(posedge clk or posedge rst) begin
-    if (rdy) // Stage 3: Wait 2 clock cycles.
-    begin
-      if (count) count <= 0;
-      else rdy <= 0;
-    end
-    else if (rst || !mul_op) // Reset
-    begin
-      factor_a  <= 32'b0;
-      factor_b  <= 32'b0;
-      high_bits <= 1'b0;
-      count     <= 1'b0;
-      rdy       <= 1'b0;
-      busy      <= 1'b0;
-      full_res  <= 32'h0;
-    end
-    else if (busy) // Stage 2: Calculate multiplication.
-    begin
-      full_res = {{32{factor_a[32]}}, factor_a} * {{32{factor_b[32]}}, factor_b};
-      count    = 1'b1;
-      rdy      = 1'b1;
-      busy     = 1'b0;
-    end
-    else // Stage 1: Set operands and result formatting conditions.
-    begin
-      factor_a  <= op_a;
-      factor_b  <= op_b;
-      high_bits <= ~mul;
-      busy      <= 1'b1;
-    end
+  always_comb begin
+    state_next = state_curr;
+
+    unique case (state_curr)
+      idle: begin
+        op_a  = 32'b0;
+        op_b  = 32'b0;
+        a_sign = 1'b0;
+        b_sign = 1'b0;
+        high_bits = 1'b0;
+        full_res  = 32'h0;
+        rdy       = 1'b0;
+        if (is_mul) begin
+          op_a  = a;
+          op_b  = b;
+          a_sign = (mul_op == (mul || mulh || mulhsu)) ? op_a[31] : 1'b0;
+          b_sign = (mul_op == (mul || mulh)) ? op_b[31] : 1'b0;
+          high_bits = (mul_op == (mulh || mulhu || mulhsu));
+          state_next = busy;
+        end
+      end
+      busy: begin
+        full_res = {{32{a_sign}}, op_a} * {{32{b_sign}}, op_b};
+        rdy      = 1'b1;
+        if (rdy) state_next = idle;
+      end
+      default: begin
+      end
+    endcase
   end
 
   assign ready = rdy;

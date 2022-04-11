@@ -300,7 +300,7 @@ module decode (
   // Indicates whether branch is taken
   assign bus.branch = branch_taken_sig;
   // Stalls program counter if hazard is present or MUL/DIV execution in progress
-  assign bus.hz = hz_sig || (mul_inst && !bus.mul_ready) || (div_inst && !bus.div_ready);
+  assign bus.hz = hz_sig;
 
   // CSR Signals
   assign IF_ID_CSR_addr = bus.ins[31:20];
