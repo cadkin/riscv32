@@ -23,7 +23,7 @@ module addr_fifo (
     output logic [31:0] dout
 );
 
-  logic [31:0] data[31:0];
+  logic [31:0] data[32];
 
   // Stores writes to debug display in a FIFO that can be examined on the 7 segment display
   integer i;

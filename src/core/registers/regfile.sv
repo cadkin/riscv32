@@ -2,7 +2,7 @@ module regfile (
     main_bus_if.regfile bus
 );
 
-  logic [31:0] regdata[31:0];  // Array of 32 32-bit registers
+  logic [31:0] regdata[32];  // Array of 32 32-bit registers
   logic        wen;            // Register write enable
 
   // Enables write to regfile if instruction writes to a register and destination register isn't x0
