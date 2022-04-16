@@ -177,7 +177,8 @@ module riscv_top (
     // SPI
     input  logic miso,
     output logic mosi,
-    output logic cs
+    output logic cs,
+    output logic sck
 );
 
   logic prog;
@@ -299,6 +300,7 @@ module riscv_top (
   assign spi_miso = miso;
   assign mosi = spi_mosi;
   assign cs = spi_cs;
+  assign sck = spi_sck;
 
   // Counter
   integer cnt = 0;

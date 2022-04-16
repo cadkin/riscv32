@@ -140,7 +140,7 @@ module mem_controller (
     mbus.spi_rd = spi_region ? mem_rea : 1'b0;
     mbus.spi_wr = spi_region ? mem_wea : 1'b0;
     mbus.spi_din = spi_region ? mem_din[7:0] : 8'h00;
-    mbus.spi_ignore_response = spi_region ? mem_din[8] : 1'b0;
+    mbus.spi_ignore_response = spi_region ? mem_din[8] : 1'b0;  // Unused
 
     // Enable CRAS write or read when data address is in CRAS region
     mbus.RAS_config_din = CRAS_region ? mem_din : 32'h0;
