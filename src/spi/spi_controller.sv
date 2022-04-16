@@ -82,9 +82,9 @@ module spi_controller (
       .o_SPI_CS_n(cs)
   );
 
-  gh_fifo_sync_sr #(
-      .add_width (4),
-      .data_width(8)
+  sync_fifo #(
+    .ADD_WIDTH(4),
+    .DATA_WIDTH(8)
   ) mosi_fifo (
       clk,
       rst,
@@ -97,9 +97,9 @@ module spi_controller (
       mosi_full
   );
 
-  gh_fifo_sync_sr #(
-      .add_width (4),
-      .data_width(8)
+  sync_fifo #(
+    .ADD_WIDTH(4),
+    .DATA_WIDTH(8)
   ) miso_fifo (
       clk,
       rst,
