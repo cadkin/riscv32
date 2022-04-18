@@ -52,7 +52,7 @@ module spi_controller (
   logic mosi_avail;
   logic [7:0] mosi_din, mosi_dout;
 
-  logic miso_RD;
+  logic miso_RD, miso_WR;
   logic miso_empty, miso_full;
   logic miso_avail;
   logic [7:0] miso_din, miso_dout;
@@ -74,7 +74,7 @@ module spi_controller (
       .i_TX_DV(spi_en),
       .o_TX_Ready(spi_data_ready),
       .o_RX_Count(),
-      .o_RX_DV(),
+      .o_RX_DV(miso_WR),
       .o_RX_Byte(miso_data_o),
       .o_SPI_Clk(sck),
       .i_SPI_MISO(miso),
@@ -86,30 +86,30 @@ module spi_controller (
     .ADD_WIDTH(4),
     .DATA_WIDTH(8)
   ) mosi_fifo (
-      clk,
-      rst,
-      rst,
-      mosi_WR,
-      mosi_RD,
-      mosi_din,
-      mosi_dout,
-      mosi_empty,
-      mosi_full
+      .clk(clk),
+      .rst(rst),
+      .srst(rst),
+      .wr(mosi_WR),
+      .rd(mosi_RD),
+      .d(mosi_din),
+      .q(mosi_dout),
+      .empty(mosi_empty),
+      .full(mosi_full)
   );
 
   sync_fifo #(
     .ADD_WIDTH(4),
     .DATA_WIDTH(8)
   ) miso_fifo (
-      clk,
-      rst,
-      rst,
-      spi_data_ready,
-      miso_RD,
-      miso_din,
-      miso_dout,
-      miso_empty,
-      miso_full
+    .clk(clk),
+    .rst(rst),
+    .srst(rst),
+    .wr(miso_WR),
+    .rd(miso_RD),
+    .d(miso_din),
+    .q(miso_dout),
+    .empty(miso_empty),
+    .full(miso_full)
   );
 
   assign mosi_avail = ~mosi_empty;

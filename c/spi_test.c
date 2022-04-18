@@ -10,4 +10,24 @@ int main(void) {
 	spi_write(s);
 	s = 12;
 	spi_write(s);
+
+	while(!(spi_poll() & 1));
+
+	s = spi_read(); 
+	print(s);
+
+	while(!(spi_poll() & 1));
+
+	s = spi_read(); 
+	print(s);
+
+	while(!(spi_poll() & 1));
+
+	s = spi_read(); 
+	print(s);
+
+	while(!(spi_poll() & 1));
+
+	s = spi_read(); 
+	print(s);
 }
