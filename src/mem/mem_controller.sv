@@ -137,7 +137,7 @@ module mem_controller (
     mbus.disp_dat = (mmio_region & (mem_addr_lower == 12'h008)) ? mem_din : 32'h0;
 
     // Enable SPI write or read when data address is in SPI region
-    mbus.spi_rd = spi_region ? mem_rea : 1'b0;
+    mbus.spi_rd = (spi_region & (mem_addr_lower == 12'h500)) ? mem_rea : 1'b0;
     mbus.spi_wr = spi_region ? mem_wea : 1'b0;
     mbus.spi_din = spi_region ? mem_din[7:0] : 8'h00;
     mbus.spi_ignore_response = spi_region ? mem_din[8] : 1'b0;  // Unused
@@ -180,8 +180,8 @@ module mem_controller (
       // Write or read data from SPI
       if (spi_region && (mem_wea | mem_rea)) begin
         spi_last_cond <= 1;
-        if (mem_addr_lower == 12'h500) spi_last = mbus.spi_dout;
-        else spi_last = {5'b0, mbus.spi_buffer_full, mbus.spi_buffer_empty, mbus.spi_data_avail};
+        if (mem_addr_lower == 12'h500) spi_last <= mbus.spi_dout;
+        else spi_last <= {5'b0, mbus.spi_buffer_full, mbus.spi_buffer_empty, mbus.spi_data_avail};
       end else spi_last_cond <= 0;
 
       // Read data from CNT
