@@ -46,7 +46,7 @@ COMPONENT gh_register_ce
 		D   : IN		STD_LOGIC_VECTOR(size-1 DOWNTO 0);
 		Q   : OUT		STD_LOGIC_VECTOR(size-1 DOWNTO 0)
 		);
-END COMPONENT;
+end COMPONENT;
 
 COMPONENT gh_counter_down_ce_ld
 	GENERIC (size: INTEGER :=8);
@@ -58,33 +58,33 @@ COMPONENT gh_counter_down_ce_ld
 		D     : IN  STD_LOGIC_VECTOR(size-1 DOWNTO 0);
 		Q     : OUT STD_LOGIC_VECTOR(size-1 DOWNTO 0)
 	);
-END COMPONENT;
+end COMPONENT;
 
-	wire UB_LD  ;
-	wire LB_LD  ;
-	wire rate    : std_logic_vector(15 downto 0);
-	wire C_LD   ;
-	wire C_CE   ;
-	wire irLD   ;	// added 02/04/06
-	wire rLD    ; // added 02/04/06
-	wire count   : std_logic_vector(15 downto 0);
+	logic UB_LD  ;
+	logic LB_LD  ;
+	logic rate    : std_logic_vector(15 downto 0);
+	logic C_LD   ;
+	logic C_CE   ;
+	logic irLD   ;	// added 02/04/06
+	logic rLD    ; // added 02/04/06
+	logic count   : std_logic_vector(15 downto 0);
 	
 begin
  
-	rCE <= '1' when (count = x"01") else
-	       '0';
+	rCE <= 1'b1 when (count == x"01") else
+	       1'b0;
 		
 always(BR_clk,rst)
 begin
-	if (rst = '1') begin
-		rCLK <= '0';
-		rLD <= '0';
+	if (rst == 1'b1) begin
+		rCLK <= 1'b0;
+		rLD <= 1'b0;
 	end else if (posedge(BR_CLK)) begin 
 		rLD <= irLD;
-		if (count > ('0' & (rate(15 downto 1)))) begin // fixed 04/10/06
-			rCLK <= '1';
+		if (count > (1'b0 & (rate(15 downto 1)))) begin // fixed 04/10/06
+			rCLK <= 1'b1;
 		else
-			rCLK <= '0';
+			rCLK <= 1'b0;
 		end
 	end
 end
@@ -94,9 +94,9 @@ end
 //////////////////////////////////////////////
 //////////////////////////////////////////////	
 
-	UB_LD <= '0' when (WR = '0') else
-	         '0' when (BE(1) = '0') else	
-	         '1';
+	UB_LD <= 1'b0 when (WR == 1'b0) else
+	         1'b0 when (BE(1) == 1'b0) else	
+	         1'b1;
 				 
 u1 : gh_register_ce 
 	generic map (8)
@@ -108,9 +108,9 @@ u1 : gh_register_ce
 		Q => rate(15 downto 8)
 		);
 
-	LB_LD <= '0' when (WR = '0') else
-	         '0' when (BE(0) = '0') else	
-	         '1';
+	LB_LD <= 1'b0 when (WR == 1'b0) else
+	         1'b0 when (BE(0) == 1'b0) else	
+	         1'b1;
 				 
 u2 : gh_register_ce 
 	generic map (8)
@@ -128,23 +128,23 @@ u2 : gh_register_ce
 
 always(clk,rst)
 begin
-	if (rst = '1') begin
-		irLD <= '0';
+	if (rst == 1'b1) begin
+		irLD <= 1'b0;
 	end else if (posedge(CLK)) begin 
-		if ((UB_LD or LB_LD) = '1') begin
-			irLD <= '1';
-		end else if (rLD = '1') begin
-			irLD <= '0';
+		if ((UB_LD or LB_LD) == 1'b1) begin
+			irLD <= 1'b1;
+		end else if (rLD == 1'b1) begin
+			irLD <= 1'b0;
 		end
 	end
 end
 
-	C_LD <= '1' when (count = x"01") else
-	        '1' when (rLD = '1') else
-	        '0';
+	C_LD <= 1'b1 when (count == x"01") else
+	        1'b1 when (rLD == 1'b1) else
+	        1'b0;
 	
-	C_CE <= '1' when (rate > x"01") else
-	        '0';
+	C_CE <= 1'b1 when (rate > x"01") else
+	        1'b0;
 
 U3 : gh_counter_down_ce_ld
 	Generic Map (size => 16)

@@ -20,7 +20,7 @@
 
 
 module gh_shift_reg_PL_sl#(
-	parameter size= 16)
+	parameter size= 16;)
 (
 		input logic clk;//      : IN STD_logic;
 		input logic rst;//      : IN STD_logic;
@@ -34,20 +34,20 @@ module gh_shift_reg_PL_sl#(
 
 	logic [size-1,0] iQ;// :  STD_LOGIC_VECTOR(size-1 DOWNTO 0);
 	
-begin
+
  
-	Q <= iQ;
+assign	Q = iQ;
 	
 
 always(clk,rst)
 begin
-	if (rst = '1') begin 
-		iQ <= (others => '0');
+	if (rst == 1'b1) begin 
+		iQ <= {size{1'b0}};
 	end else if (posedge(clk)) begin
-		if (LOAD = '1') begin 
+		if (LOAD == 1'b1) begin 
 			iQ <= D;
-		end else if (SE = '1') begin // shift left
-			iQ(size-1 downto 0) <=  '0' & iQ(size-1 downto 1);
+		end else if (SE == 1'b1) begin // shift left
+			iQ[size-1,0] <=  {1'b0,iQ[size-1,1]};
 		end else begin
 			iQ <= iQ;
 		end

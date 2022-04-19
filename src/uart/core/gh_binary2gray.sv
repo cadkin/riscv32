@@ -20,20 +20,20 @@
 module gh_binary2gray
 	GENERIC (size: INTEGER := 8);
 (	
-		B   : IN STD_LOGIC_VECTOR(size-1 DOWNTO 0);	// binary value in
-		G   : out STD_LOGIC_VECTOR(size-1 DOWNTO 0) // gray code out
+		input logic [size-1,0] B;//   : IN STD_LOGIC_VECTOR(size-1 DOWNTO 0);	// binary value in
+		output logic [size-1,0] G;//   : out STD_LOGIC_VECTOR(size-1 DOWNTO 0) // gray code out
 		);
 endmodule
 
-ARCHITECTURE a OF gh_binary2gray
-
-BEGIN
-
-process	(B)
+always	(B)
 begin
-	for j in 0 to size-2 loop
-		G(j) <= B(j) xor B(j+1);
-	end loop;
+	//The for-loop creates 16 assign statements
+	genvar i;
+	generate
+		for (i=0; i < size-2; i++) begin
+			G(i) <= B(i) xor B(i+1);
+		end
+	endgenerate
 	G(size-1) <= B(size-1);
 end
 		

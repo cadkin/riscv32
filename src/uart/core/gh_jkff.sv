@@ -23,32 +23,31 @@
 
 module gh_jkff
 (
-		clk  : IN STD_logic;
-		rst : IN STD_logic;
-		J,K  : IN STD_logic;
-		Q    : OUT STD_LOGIC
-		);
-END gh_jkff;
+		input logic clk;//  : IN STD_logic;
+		input logic rst;// : IN STD_logic;
+		input logic J,K;//  : IN STD_logic;
+		output logic Q//    : OUT STD_LOGIC
+	);
 
-ARCHITECTURE a OF gh_jkff
 
-	wire iQ :  STD_LOGIC;
+
+	logic iQ;// :  STD_LOGIC;
 	
-BEGIN
+
  
-	Q <= iQ;
+assign	Q = iQ;
 
 always(clk,rst)
 begin
-	if (rst = '1') begin 
-		iQ <= '0';
+	if (rst == 1'b1) begin 
+		iQ <= 1'b0;
 	end else if (posedge(clk)) begin 
-		if ((J = '1') and (K = '1')) begin
-			iQ <= not iQ;
-		end else if (J = '1') begin
-			iQ <= '1';
-		end else if (K = '1') begin
-			iQ <= '0';
+		if ((J = 1'b1) and (K == 1'b1)) begin
+			iQ <= (~ iQ);
+		end else if (J == 1'b1) begin
+			iQ <= 1'b1;
+		end else if (K == 1'b1) begin
+			iQ <= 1'b0;
 		end
 	end
 end

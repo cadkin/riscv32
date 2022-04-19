@@ -19,32 +19,31 @@
 
 
 module gh_shift_reg_se_sl #(
-	parameter size= 16)
+	parameter size= 16;)
 (
-		clk      : IN STD_logic;
-		rst      : IN STD_logic;
-		srst     : IN STD_logic:='0';
-		SE       : IN STD_logic; // shift enable
-		D        : IN STD_LOGIC;
-		Q        : OUT STD_LOGIC_VECTOR(size-1 DOWNTO 0)
+		input logic clk;//      : IN STD_logic;
+		input logic rst;//      : IN STD_logic;
+		input logic srst=1'b0;//     : IN STD_logic:=1'b0;
+		input logic SE;//      : IN STD_logic; // shift enable
+		input logic  D ;//       : IN STD_LOGIC;
+		output logic [size-1,0] Q;//        : OUT STD_LOGIC_VECTOR(size-1 DOWNTO 0)
 		);
 
-	wire [size-1,0] iQ; //:  STD_LOGIC_VECTOR(size-1 DOWNTO 0);
+	logic [size-1,0] iQ; //:  STD_LOGIC_VECTOR(size-1 DOWNTO 0);
 	
-begin
 
-	Q <= iQ;
+
+assign	Q = iQ;
 
 always(clk,rst)
 begin
-	if (rst = '1') begin 
-		iQ <= (others => '0');
+	if (rst == 1'b1) begin 
+		iQ <= {size{1'b0}};
 	end else if (posedge(clk)) begin 
-		if (srst = '1') begin
-			iQ <= (others => '0');
-		end else if (SE = '1') begin
-			iQ(size-1) <= D;
-			iQ(size-2 downto 0) <= iQ(size-1 downto 1);
+		if (srst == 1'b1) begin
+			iQ <= {size{1'b0}};
+		end else if (SE == 1'b1) begin
+			iQ[size-1,0] <=  {D,iQ[size-1,1]};
 		end
 	end
 end

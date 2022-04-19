@@ -19,29 +19,27 @@
 
 module gh_parity_gen_Serial
 (	
-		clk      : IN STD_LOGIC;
-		rst      : IN STD_LOGIC; 
-		srst     : in STD_LOGIC;
-		SD       : in STD_LOGIC; // sample data pulse
-		D        : in STD_LOGIC; // data
-		Q        : out STD_LOGIC // parity 
+		input logic clk      : IN STD_LOGIC;
+		input logic rst      : IN STD_LOGIC; 
+		input logic srst     : in STD_LOGIC;
+		input logic SD       : in STD_LOGIC; // sample data pulse
+		input logic D        : in STD_LOGIC; // data
+		output logic Q        : out STD_LOGIC // parity 
 		);
 
 
-	wire parity;
-
-BEGIN
-
-	Q <= parity;
+	logic parity;
+	
+	assign Q = parity;
 	
 always(clk,rst)
 begin
-	if (rst = '1') begin 
-		parity <= '0';
+	if (rst == 1'b1) begin 
+		parity <= 1'b0;
 	end else if (posedge(clk)) begin
-		if (srst = '1') begin // need to clear before start of data word
-			parity <= '0';
-		end else if (SD = '1') begin // sample data bit for parity generation
+		if (srst == 1'b1) begin // need to clear before start of data word
+			parity <= 1'b0;
+		end else if (SD == 1'b1) begin // sample data bit for parity generation
 			parity <= (parity xor D);
 		end
 	end

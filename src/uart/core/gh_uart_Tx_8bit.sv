@@ -52,7 +52,7 @@ COMPONENT gh_shift_reg_PL_sl
 		D        : IN STD_LOGIC_VECTOR(size-1 DOWNTO 0);
 		Q        : OUT STD_LOGIC_VECTOR(size-1 DOWNTO 0)
 		);
-END COMPONENT;
+end COMPONENT;
 
 COMPONENT gh_parity_gen_Serial
 (	
@@ -63,7 +63,7 @@ COMPONENT gh_parity_gen_Serial
 		D        : in STD_LOGIC; // data
 		Q        : out STD_LOGIC
 		);
-END COMPONENT;
+end COMPONENT;
 
 COMPONENT gh_counter_integer_down	
 	generic(max_count : integer := 8);
@@ -75,25 +75,25 @@ COMPONENT gh_counter_integer_down
 		D        : in integer RANGE 0 TO max_count;
 		Q        : out integer RANGE 0 TO max_count
 		);
-END COMPONENT;
+end COMPONENT;
 
 	type T_StateType(idle,s_start_bit,shift_data,s_parity,
 	                     s_stop_bit,s_stop_bit2);
-	wire T_state, T_nstate : T_StateType; 
+	logic T_state, T_nstate : T_StateType; 
 
-	wire parity     ;
-	wire parity_Grst;
-	wire TWC_LD     ;
-	wire TWC_CE     ;
-	wire T_WCOUNT : integer range 0 to 15;
-	wire D_LD_v : integer range 1 to 15;
-	wire D_LD;
-	wire Trans_sr_SE;
-	wire Trans_shift_reg : std_logic_vector(7 downto 0);
-	wire iTX;
-	wire BRC;
-	wire dCLK_LD;
-	wire x_dCOUNT : integer range 0 to 15;
+	logic parity     ;
+	logic parity_Grst;
+	logic TWC_LD     ;
+	logic TWC_CE     ;
+	logic T_WCOUNT : integer range 0 to 15;
+	logic D_LD_v : integer range 1 to 15;
+	logic D_LD;
+	logic Trans_sr_SE;
+	logic Trans_shift_reg : std_logic_vector(7 downto 0);
+	logic iTX;
+	logic BRC;
+	logic dCLK_LD;
+	logic x_dCOUNT : integer range 0 to 15;
 	
 begin
 
@@ -101,25 +101,25 @@ begin
 //// outputs//////////////////////////////////
 //////////////////////////////////////////////
 
-	BUSYn <= '1' when (T_state = idle) else
-	         '0';
+	BUSYn <= 1'b1 when (T_state == idle) else
+	         1'b0;
 
 	read <= D_LD; // read a data word
 
 //////////////////////////////////////////////
 
-	dCLK_LD <= '1' when ((num_bits = 5) and (stopB = '1') 
-	               and (T_state = s_stop_bit2) and (x_dCOUNT = 7)) else
-	           '0' when (D_RYn = '0') else
-	           '0' when (T_state /= idle) else
-	           '1';
+	dCLK_LD <= 1'b1 when ((num_bits == 5) and (stopB == 1'b1) 
+	               and (T_state == s_stop_bit2) and (x_dCOUNT == 7)) else
+	           1'b0 when (D_RYn == 1'b0) else
+	           1'b0 when (T_state /= idle) else
+	           1'b1;
 
-	D_LD_v <= 15 when (T_state = s_stop_bit2) else
+	D_LD_v <= 15 when (T_state == s_stop_bit2) else
 	           1;
 			   
-	BRC <= '0' when (xBRC = '0') else
-	       '1' when (x_dCOUNT = 0) else
-	       '0';
+	BRC <= 1'b0 when (xBRC == 1'b0) else
+	       1'b1 when (x_dCOUNT == 0) else
+	       1'b0;
 
    
 u1 : gh_counter_integer_down // baud rate divider
@@ -147,104 +147,104 @@ U2 : gh_shift_reg_PL_sl
 	
 always(clk,rst)
 begin
-	if (rst = '1') begin
-		sTX <= '1';
+	if (rst == 1'b1) begin
+		sTX <= 1'b1;
 	end else if (posedge(clk)) begin
 		sTX <= iTX and (not Break_CB);
 	end
 end process ;
 
-	iTX <= '0' when (T_state = s_start_bit) else // send start bit
-	        Trans_shift_reg(0) when (T_state = shift_data) else // send data
-	        parity when ((Parity_EV = '1') and (T_state = s_parity)) else
-	        (not parity) when (T_state = s_parity) else
-	        '1'; // idle, stop bit
+	iTX <= 1'b0 when (T_state == s_start_bit) else // send start bit
+	        Trans_shift_reg(0) when (T_state == shift_data) else // send data
+	        parity when ((Parity_EV == 1'b1) and (T_state == s_parity)) else
+	        (not parity) when (T_state == s_parity) else
+	        1'b1; // idle, stop bit
 
 always(T_state,D_RYn,BRC,T_WCOUNT,Parity_EN,num_bits,x_dCOUNT,stopB)
 begin
 	case T_state
 		when idle => // idle  
-			TWC_CE <= '0';
-			if ((D_RYn = '0') and (BRC = '1')) begin
-				D_LD <= '1'; Trans_sr_SE <= '0'; 
-				TWC_LD <= '0'; 
+			TWC_CE <= 1'b0;
+			if ((D_RYn == 1'b0) and (BRC == 1'b1)) begin
+				D_LD <= 1'b1; Trans_sr_SE <= 1'b0; 
+				TWC_LD <= 1'b0; 
 				T_nstate <= s_start_bit;
 			else 
-				D_LD <= '0'; Trans_sr_SE <= '0'; TWC_LD <= '0';
+				D_LD <= 1'b0; Trans_sr_SE <= 1'b0; TWC_LD <= 1'b0;
 				T_nstate <= idle;
 			end
 		when s_start_bit => // fiforead, send start bit
-			TWC_CE <= '0';
-			if (BRC = '1') begin
-				D_LD <= '0'; Trans_sr_SE <= '0'; TWC_LD <= '1';
+			TWC_CE <= 1'b0;
+			if (BRC == 1'b1) begin
+				D_LD <= 1'b0; Trans_sr_SE <= 1'b0; TWC_LD <= 1'b1;
 				T_nstate <= shift_data;
 			else
-				D_LD <= '0'; Trans_sr_SE <= '0'; TWC_LD <= '0';
+				D_LD <= 1'b0; Trans_sr_SE <= 1'b0; TWC_LD <= 1'b0;
 				T_nstate <= s_start_bit;
 			end
 		when shift_data => // send data bit
-			if (BRC = '0') begin
-				D_LD <= '0'; Trans_sr_SE <= '0'; 
-				TWC_LD <= '0'; TWC_CE <= '0';
+			if (BRC == 1'b0) begin
+				D_LD <= 1'b0; Trans_sr_SE <= 1'b0; 
+				TWC_LD <= 1'b0; TWC_CE <= 1'b0;
 				T_nstate <= shift_data;
-			end else if ((T_WCOUNT = 1) and (Parity_EN = '1')) begin
-				D_LD <= '0'; Trans_sr_SE <= '0'; 
-				TWC_LD <= '0'; TWC_CE <= '1';
+			end else if ((T_WCOUNT == 1) and (Parity_EN == 1'b1)) begin
+				D_LD <= 1'b0; Trans_sr_SE <= 1'b0; 
+				TWC_LD <= 1'b0; TWC_CE <= 1'b1;
 				T_nstate <= s_parity;
-			end else if (T_WCOUNT = 1) begin
-				D_LD <= '0'; Trans_sr_SE <= '0'; 
-				TWC_LD <= '0'; TWC_CE <= '1';
+			end else if (T_WCOUNT == 1) begin
+				D_LD <= 1'b0; Trans_sr_SE <= 1'b0; 
+				TWC_LD <= 1'b0; TWC_CE <= 1'b1;
 				T_nstate <= s_stop_bit;
 			else
-				D_LD <= '0'; Trans_sr_SE <= '1'; 
-				TWC_LD <= '0'; TWC_CE <= '1';
+				D_LD <= 1'b0; Trans_sr_SE <= 1'b1; 
+				TWC_LD <= 1'b0; TWC_CE <= 1'b1;
 				T_nstate <= shift_data;
 			end
 		when s_parity => // send parity bit
-			TWC_CE <= '0';
-			if (BRC = '1') begin
-				D_LD <= '0'; Trans_sr_SE <= '0'; TWC_LD <= '0';
+			TWC_CE <= 1'b0;
+			if (BRC == 1'b1) begin
+				D_LD <= 1'b0; Trans_sr_SE <= 1'b0; TWC_LD <= 1'b0;
 				T_nstate <= s_stop_bit;
 			else 
-				D_LD <= '0'; Trans_sr_SE <= '0'; TWC_LD <= '0';
+				D_LD <= 1'b0; Trans_sr_SE <= 1'b0; TWC_LD <= 1'b0;
 				T_nstate <= s_parity;
 			end	 
 		when s_stop_bit => // send stop bit
-			TWC_CE <= '0';
-			if (BRC = '0') begin
-				D_LD <= '0'; Trans_sr_SE <= '0'; TWC_LD <= '0';
+			TWC_CE <= 1'b0;
+			if (BRC == 1'b0) begin
+				D_LD <= 1'b0; Trans_sr_SE <= 1'b0; TWC_LD <= 1'b0;
 				T_nstate <= s_stop_bit;
-			end else if (stopB = '1') begin
-				D_LD <= '0'; Trans_sr_SE <= '0'; TWC_LD <= '0';
+			end else if (stopB == 1'b1) begin
+				D_LD <= 1'b0; Trans_sr_SE <= 1'b0; TWC_LD <= 1'b0;
 				T_nstate <= s_stop_bit2;
-			end else if (D_RYn = '0') begin
-				D_LD <= '1'; Trans_sr_SE <= '0'; TWC_LD <= '0';
+			end else if (D_RYn == 1'b0) begin
+				D_LD <= 1'b1; Trans_sr_SE <= 1'b0; TWC_LD <= 1'b0;
 				T_nstate <= s_start_bit;
 			else 
-				D_LD <= '0'; Trans_sr_SE <= '0'; TWC_LD <= '0';
+				D_LD <= 1'b0; Trans_sr_SE <= 1'b0; TWC_LD <= 1'b0;
 				T_nstate <= idle;
 			end
 		when s_stop_bit2 => // send stop bit 
-			TWC_CE <= '0';
-			if ((D_RYn = '0') and (BRC = '1')) begin
-				D_LD <= '1'; Trans_sr_SE <= '0'; TWC_LD <= '0';
+			TWC_CE <= 1'b0;
+			if ((D_RYn == 1'b0) and (BRC == 1'b1)) begin
+				D_LD <= 1'b1; Trans_sr_SE <= 1'b0; TWC_LD <= 1'b0;
 				T_nstate <= s_start_bit; 
-			end else if (BRC = '1') begin
-				D_LD <= '0'; Trans_sr_SE <= '0'; TWC_LD <= '0';
+			end else if (BRC == 1'b1) begin
+				D_LD <= 1'b0; Trans_sr_SE <= 1'b0; TWC_LD <= 1'b0;
 				T_nstate <= idle;
-			end else if ((num_bits = 5) and (x_dCOUNT = 7) and (D_RYn = '0')) begin
-				D_LD <= '1'; Trans_sr_SE <= '0'; TWC_LD <= '0';
+			end else if ((num_bits == 5) and (x_dCOUNT == 7) and (D_RYn == 1'b0)) begin
+				D_LD <= 1'b1; Trans_sr_SE <= 1'b0; TWC_LD <= 1'b0;
 				T_nstate <= s_start_bit;
-			end else if ((num_bits = 5) and (x_dCOUNT = 7)) begin
-				D_LD <= '1'; Trans_sr_SE <= '0'; TWC_LD <= '0';
+			end else if ((num_bits == 5) and (x_dCOUNT == 7)) begin
+				D_LD <= 1'b1; Trans_sr_SE <= 1'b0; TWC_LD <= 1'b0;
 				T_nstate <= idle;
 			else 
-				D_LD <= '0'; Trans_sr_SE <= '0'; TWC_LD <= '0';
+				D_LD <= 1'b0; Trans_sr_SE <= 1'b0; TWC_LD <= 1'b0;
 				T_nstate <= s_stop_bit2;
 			end
 		when others => 
-			D_LD <= '0'; Trans_sr_SE <= '0'; 
-			TWC_LD <= '0'; TWC_CE <= '0';
+			D_LD <= 1'b0; Trans_sr_SE <= 1'b0; 
+			TWC_LD <= 1'b0; TWC_CE <= 1'b0;
 			T_nstate <= idle;
 	end case;
 end
@@ -253,7 +253,7 @@ end
 // registers for SM
 always(CLK,rst)
 begin
-	if (rst = '1') begin
+	if (rst == 1'b1) begin
 		T_state <= idle;
 	end else if (posedge(CLK)) begin
 		T_state <= T_nstate;
@@ -274,8 +274,8 @@ u3 : gh_counter_integer_down // word counter
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
 
-	parity_Grst <= '1' when (T_state = s_start_bit) else
-	               '0';
+	parity_Grst <= 1'b1 when (T_state == s_start_bit) else
+	               1'b0;
 	
 U4 : gh_parity_gen_Serial 
 	PORT MAP (

@@ -23,31 +23,31 @@
 
 module gh_edge_det
 (
-	input logic	clk : in STD_LOGIC;
-		rst : in STD_LOGIC;
-		D   : in STD_LOGIC;
-		re  : out STD_LOGIC; // rising edge (need sync source at D)
-		fe  : out STD_LOGIC; // falling edge (need sync source at D)
-		sre : out STD_LOGIC; // sync'd rising edge
-		sfe : out STD_LOGIC  // sync'd falling edge
+	input logic	clk;// : in STD_LOGIC;
+	input logic	rst;// : in STD_LOGIC;
+	input logic	D;//   : in STD_LOGIC;
+	output logic	re;//  : out STD_LOGIC; // rising edge (need sync source at D)
+	output logic	fe;//  : out STD_LOGIC; // falling edge (need sync source at D)
+	output logic	sre;// : out STD_LOGIC; // sync'd rising edge
+	output logic	sfe;// : out STD_LOGIC  // sync'd falling edge
 		);
-end gh_edge_det;
 
 
-	wire Q0, Q1 : std_logic;
 
-begin
+	logic Q0, Q1;// : std_logic;
 
-	re <= D and (not Q0);
-	fe <= (not D) and Q0;
-	sre <= Q0 and (not Q1);
-	sfe <= (not Q0) and Q1;
+
+
+	assign re = D & (~ Q0);
+	assign fe = (~ D) & Q0;
+	assign sre = Q0 & (~ Q1);
+	assign sfe = (~ Q0) & Q1;
 	
 always(clk,rst)
 begin
-	if (rst = '1') begin 
-		Q0 <= '0';
-		Q1 <= '0';
+	if (rst == 1'b1) begin 
+		Q0 <= 1'b0;
+		Q1 <= 1'b0;
 	end else if (posedge(clk)) begin
 		Q0 <= D;
 		Q1 <= Q0;

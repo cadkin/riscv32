@@ -22,75 +22,74 @@
 //USE ieee.std_logic_unsigned.all;
 //USE ieee.std_logic_arith.all;
 
-module gh_counter_down_ce_ld_tc
-	GENERIC (size: INTEGER :=8);
+module gh_counter_down_ce_ld_tc#(
+	parameter size= 8)
 (
-		CLK   : IN	STD_LOGIC;
-		rst   : IN	STD_LOGIC;
-		LOAD  : IN	STD_LOGIC;
-		CE    : IN	STD_LOGIC;
-		D     : IN  STD_LOGIC_VECTOR(size-1 DOWNTO 0);
-		Q     : OUT STD_LOGIC_VECTOR(size-1 DOWNTO 0);
-		TC    : OUT STD_LOGIC
+		input logic CLK;//      : IN STD_LOGIC;
+		input logic rst;//      : IN STD_LOGIC; 
+		input logic LOAD;//     : in STD_LOGIC; // load D
+		input logic CE;//       : IN STD_LOGIC; // count enable
+		output logic [size-1,0] D;// : IN  STD_LOGIC_VECTOR(size-1 DOWNTO 0); in integer RANGE 0 TO size-1;
+		output logic [size-1,0] Q//: OUT STD_LOGIC_VECTOR(size-1 DOWNTO 0) out integer RANGE 0 TO size-1
+		output logic TC //: OUT STD_LOGIC
 		);
-END gh_counter_down_ce_ld_tc;
 
-ARCHITECTURE a OF gh_counter_down_ce_ld_tc
 
-	wire iQ  : STD_LOGIC_VECTOR (size-1 DOWNTO 0);
-	wire iTC;
+
+	logic [size-1,0] iQ;//  : STD_LOGIC_VECTOR (size-1 DOWNTO 0);
+	logic iTC;
 	
-BEGIN
+begin
 
 //
 // outputs
 
-	TC <= (iTC and CE);
+	assign TC = (iTC and CE);
 	      
-	Q <= iQ;
+	assign Q = iQ;
 
 //////////////////////////////////
 //////////////////////////////////
 
 always(CLK,rst)
-BEGIN
-	if (rst = '1') begin 
-		iTC <= '0';
+begin
+	if (rst == 1'b1) begin 
+		iTC <= 1'b0;
 	end else if (posedge(CLK)) begin
-		if (LOAD = '1') begin
-			if (D = x"0") begin
-				iTC <= '1';
-			else
-				iTC <= '0';
+		if (LOAD == 1'b1) begin
+			if (D == 8'h0) begin
+				iTC <= 1'b1;
+			end else begin
+				iTC <= 1'b0;
 			end
-		end else if (CE = '0') begin  // LOAD = '0'
-				if (iQ = x"0") begin
-					iTC <= '1';
-				else
-					iTC <= '0';
+		end else if (CE == 1'b0) begin  // LOAD == 1'b0
+				if (iQ == 8'h0) begin
+					iTC <= 1'b1;
+				end else begin
+					iTC <= 1'b0;
 				end
-		else // (CE = '1')	
-			if (iQ = x"1") begin
-				iTC <= '1';
-			else
-				iTC <= '0';
+		else begin// (CE == 1'b1)	
+			if (iQ == 8'h1) begin
+				iTC <= 1'b1;
+			end else begin
+				iTC <= 1'b0;
 			end
 		end			
 	end
-END
+end
 
 
 always(CLK,rst)
-BEGIN
-	if (rst = '1') begin 
-		iQ <= (others => '0');
+begin
+	if (rst == 1'b1) begin 
+		iQ <= {size{1'b0}}; //(others => 1'b0);
 	end else if (posedge(CLK)) begin
-		if (LOAD = '1') begin 
+		if (LOAD == 1'b1) begin 
 			iQ <= D;
-		end else if (CE = '1') begin
-			iQ <= (iQ - "01");
+		end else if (CE == 1'b1) begin
+			iQ <= (iQ - 2'b01);
 		end			
 	end
-END
+end
 
 endmodule

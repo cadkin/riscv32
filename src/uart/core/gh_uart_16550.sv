@@ -79,7 +79,7 @@ COMPONENT gh_edge_det
 		sre : out STD_LOGIC; // sync'd rising edge
 		sfe : out STD_LOGIC  // sync'd falling edge
 		);
-END COMPONENT;
+end COMPONENT;
 
 COMPONENT gh_register_ce
 	GENERIC (size: INTEGER := 8);
@@ -90,7 +90,7 @@ COMPONENT gh_register_ce
 		D   : IN		STD_LOGIC_VECTOR(size-1 DOWNTO 0);
 		Q   : OUT		STD_LOGIC_VECTOR(size-1 DOWNTO 0)
 		);
-END COMPONENT;
+end COMPONENT;
 
 COMPONENT gh_DECODE_3to8
 (
@@ -100,7 +100,7 @@ COMPONENT gh_DECODE_3to8
 		G3n : IN  STD_LOGIC; // enable negitive
 		Y   : out STD_LOGIC_VECTOR(7 downto 0)
 		);
-END COMPONENT;
+end COMPONENT;
 
 COMPONENT gh_jkff
 (	
@@ -109,7 +109,7 @@ COMPONENT gh_jkff
 		J,K  : IN STD_logic;
 		Q    : OUT STD_LOGIC
 		);
-END COMPONENT;
+end COMPONENT;
 
 COMPONENT gh_uart_Tx_8bit	
 (
@@ -127,7 +127,7 @@ COMPONENT gh_uart_Tx_8bit
 		BUSYn     : out std_logic;
 		read      : out std_logic // data read
 		);
-END COMPONENT;
+end COMPONENT;
 
 COMPONENT gh_uart_Rx_8bit	
 (
@@ -144,7 +144,7 @@ COMPONENT gh_uart_Rx_8bit
 		D_RDY     : out std_logic;
 		D         : out std_logic_vector(7 downto 0)
 		);
-END COMPONENT;
+end COMPONENT;
 
 COMPONENT gh_fifo_async16_sr
 	GENERIC (data_width: INTEGER :=8 ); // size of data bus
@@ -159,7 +159,7 @@ COMPONENT gh_fifo_async16_sr
 		Q      : out STD_LOGIC_VECTOR (data_width-1 downto 0);
 		empty  : out STD_LOGIC; 
 		full   : out STD_LOGIC);
-END COMPONENT;
+end COMPONENT;
 
 COMPONENT gh_baud_rate_gen
 (
@@ -173,7 +173,7 @@ COMPONENT gh_baud_rate_gen
 		rCE     : out std_logic;
 		rCLK    : out std_logic
 		);
-END COMPONENT;
+end COMPONENT;
 
 COMPONENT gh_fifo_async16_rcsr_wf
 	GENERIC (data_width: INTEGER :=8 ); // size of data bus
@@ -181,7 +181,7 @@ COMPONENT gh_fifo_async16_rcsr_wf
 		clk_WR  : in STD_LOGIC; // write clock
 		clk_RD  : in STD_LOGIC; // read clock
 		rst     : in STD_LOGIC; // resets counters
-		rc_srst : in STD_LOGIC:='0'; // resets counters (sync with clk_RD!!!)
+		rc_srst : in STD_LOGIC:=1'b0; // resets counters (sync with clk_RD!!!)
 		WR      : in STD_LOGIC; // write control 
 		RD      : in STD_LOGIC; // read control
 		D       : in STD_LOGIC_VECTOR (data_width-1 downto 0);
@@ -191,7 +191,7 @@ COMPONENT gh_fifo_async16_rcsr_wf
 		h_full  : out STD_LOGIC; // sync with clk_RD!!!
 		a_full  : out STD_LOGIC; // sync with clk_RD!!!
 		full    : out STD_LOGIC);
-END COMPONENT;
+end COMPONENT;
 
 COMPONENT  gh_counter_down_ce_ld_tc
 	GENERIC (size: INTEGER :=8);
@@ -204,7 +204,7 @@ COMPONENT  gh_counter_down_ce_ld_tc
 		Q     : OUT STD_LOGIC_VECTOR(size-1 DOWNTO 0);
 		TC    : OUT STD_LOGIC
 		);
-END COMPONENT;
+end COMPONENT;
 
 COMPONENT  gh_edge_det_XCD// added 2 aug 2007
 (
@@ -215,112 +215,112 @@ COMPONENT  gh_edge_det_XCD// added 2 aug 2007
 		re   : out STD_LOGIC; // rising edge 
 		fe   : out STD_LOGIC  // falling edge 
 		);
-END COMPONENT;
+end COMPONENT;
 
-	wire IER    : std_logic_vector(3 downto 0); // Interrupt Enable Register
-	wire IIR    : std_logic_vector(7 downto 0); // Interrupt ID Register
-	wire iIIR   : std_logic_vector(3 downto 0); // 12/23/06
-	wire FCR    : std_logic_vector(7 downto 0); // FIFO Control register
-	wire LCR    : std_logic_vector(7 downto 0); // Line Control Register
-	wire MCR    : std_logic_vector(4 downto 0); // Modem Control Register
-	wire LSR    : std_logic_vector(7 downto 0); // Line Status Register
-	wire MSR    : std_logic_vector(7 downto 0); // Modem Status Register
-	wire SCR    : std_logic_vector(7 downto 0); // Line Control Register
-	wire RDD    : std_logic_vector(15 downto 0); // Divisor Latch 
-	wire iMSR   : std_logic_vector(7 downto 4); // Modem Status Register
-	wire RD_IIR;
+	logic IER    : std_logic_vector(3 downto 0); // Interrupt Enable Register
+	logic IIR    : std_logic_vector(7 downto 0); // Interrupt ID Register
+	logic iIIR   : std_logic_vector(3 downto 0); // 12/23/06
+	logic FCR    : std_logic_vector(7 downto 0); // FIFO Control register
+	logic LCR    : std_logic_vector(7 downto 0); // Line Control Register
+	logic MCR    : std_logic_vector(4 downto 0); // Modem Control Register
+	logic LSR    : std_logic_vector(7 downto 0); // Line Status Register
+	logic MSR    : std_logic_vector(7 downto 0); // Modem Status Register
+	logic SCR    : std_logic_vector(7 downto 0); // Line Control Register
+	logic RDD    : std_logic_vector(15 downto 0); // Divisor Latch 
+	logic iMSR   : std_logic_vector(7 downto 4); // Modem Status Register
+	logic RD_IIR;
 	
-	wire iRD    : std_logic_vector(7 downto 0);
-	wire CSn   ;
-	wire WR_B   : std_logic_vector(7 downto 0);
-	wire WR_F  ;
-	wire WR_IER;
-	wire WR_D  ;
-	wire WR_DML : std_logic_vector(1 downto 0);
-	wire D16    : std_logic_vector(15 downto 0);
-	wire BRC16x; // baud rate clock 
+	logic iRD    : std_logic_vector(7 downto 0);
+	logic CSn   ;
+	logic WR_B   : std_logic_vector(7 downto 0);
+	logic WR_F  ;
+	logic WR_IER;
+	logic WR_D  ;
+	logic WR_DML : std_logic_vector(1 downto 0);
+	logic D16    : std_logic_vector(15 downto 0);
+	logic BRC16x; // baud rate clock 
 	
-	wire ITR0  ;
+	logic ITR0  ;
 	signalITR1;
-	wire sITR1 ;
-	wire cITR1 ;
-	wire cITR1a;
-	wire ITR1  ;
-	wire ITR2  ;
-	wire ITR3  ;
+	logic sITR1 ;
+	logic cITR1 ;
+	logic cITR1a;
+	logic ITR1  ;
+	logic ITR2  ;
+	logic ITR3  ;
 	
-	wire DCTS    ;
-	wire iLOOP   ;
+	logic DCTS    ;
+	logic iLOOP   ;
 	
-	wire DDSR    ;
+	logic DDSR    ;
 
-	wire TERI   ;
+	logic TERI   ;
 		
-	wire DDCD    ;
+	logic DDCD    ;
 
-	wire RD_MSR  ;
-	wire MSR_CLR ;
+	logic RD_MSR  ;
+	logic MSR_CLR ;
 
-	wire RD_LSR  ;
-	wire LSR_CLR ;
+	logic RD_LSR  ;
+	logic LSR_CLR ;
 	
-	wire num_bits  : integer RANGE 0 to 8 :=0;
-	wire stopB    ;
-	wire Parity_EN;
-	wire Parity_OD;
-	wire Parity_EV;
-//	wire Parity_sticky;
-	wire Break_CB;
+	logic num_bits  : integer RANGE 0 to 8 :=0;
+	logic stopB    ;
+	logic Parity_EN;
+	logic Parity_OD;
+	logic Parity_EV;
+//	logic Parity_sticky;
+	logic Break_CB;
 	
-	wire TF_RD   ;
-	wire TF_CLR  ;
-	wire TF_CLRS ;
-	wire TF_DO    : std_logic_vector(7 downto 0);
-	wire TF_empty	: std_logic;
-	wire TF_full ;
+	logic TF_RD   ;
+	logic TF_CLR  ;
+	logic TF_CLRS ;
+	logic TF_DO    : std_logic_vector(7 downto 0);
+	logic TF_empty	: std_logic;
+	logic TF_full ;
 
-	wire RF_WR    ;
-	wire RF_RD    ;
-	wire RF_RD_brs; // added 3 aug 2007
-	wire RF_CLR   ;
-	wire RF_CLRS  ;
-	wire RF_DI     : std_logic_vector(10 downto 0); // Read FIFO data input
-	wire RF_DO     : std_logic_vector(10 downto 0); // Read FIFO data output
-	wire RF_empty ;
-	wire RF_full  ;
-	wire RD_RDY   ;
+	logic RF_WR    ;
+	logic RF_RD    ;
+	logic RF_RD_brs; // added 3 aug 2007
+	logic RF_CLR   ;
+	logic RF_CLRS  ;
+	logic RF_DI     : std_logic_vector(10 downto 0); // Read FIFO data input
+	logic RF_DO     : std_logic_vector(10 downto 0); // Read FIFO data output
+	logic RF_empty ;
+	logic RF_full  ;
+	logic RD_RDY   ;
 	
-	wire iParity_ER; // added 13 oct 2007
-	wire iFRAME_ER ; // added 13 oct 2007
-	wire iBreak_ITR; // added 13 oct 2007
-	wire Parity_ER ;
-	wire FRAME_ER  ;
-	wire Break_ITR ;
-	wire TSR_EMPTY ;
-	wire OVR_ER    ;
+	logic iParity_ER; // added 13 oct 2007
+	logic iFRAME_ER ; // added 13 oct 2007
+	logic iBreak_ITR; // added 13 oct 2007
+	logic Parity_ER ;
+	logic FRAME_ER  ;
+	logic Break_ITR ;
+	logic TSR_EMPTY ;
+	logic OVR_ER    ;
 	signalTX      ;
 	signalRX      ;
 	
-	wire q_full  ;
-	wire h_full  ;
-	wire a_full  ;
+	logic q_full  ;
+	logic h_full  ;
+	logic a_full  ;
 	
-	wire RF_ER  ;
-	wire TX_RDY ;
-	wire TX_RDYS;
-	wire TX_RDYC;
-	wire RX_RDY ;
-	wire RX_RDYS;
-	wire RX_RDYC;
+	logic RF_ER  ;
+	logic TX_RDY ;
+	logic TX_RDYS;
+	logic TX_RDYC;
+	logic RX_RDY ;
+	logic RX_RDYS;
+	logic RX_RDYC;
 
-	wire TOI     ; // time out interrupt 
-	wire TOI_enc ; // time out interrupt counter inable
-	wire iTOI_enc;
-	wire TOI_set ;
-	wire iTOI_set; // added 3 aug 2007
-	wire TOI_clr ;
-	wire TOI_c_ld;
-	wire TOI_c_d  : std_logic_vector(11 downto 0);
+	logic TOI     ; // time out interrupt 
+	logic TOI_enc ; // time out interrupt counter inable
+	logic iTOI_enc;
+	logic TOI_set ;
+	logic iTOI_set; // added 3 aug 2007
+	logic TOI_clr ;
+	logic TOI_c_ld;
+	logic TOI_c_d  : std_logic_vector(11 downto 0);
 	
 begin
 
@@ -328,15 +328,15 @@ begin
 //// resd   //////////////////////////////////
 //////////////////////////////////////////////
 
-	RD <= RF_DO(7 downto 0) when ((ADD = o"0") and (LCR(7) = '0')) else
-	      (x"0" & IER) when ((ADD = o"1") and (LCR(7) = '0')) else
-	      IIR when (ADD = o"2") else
-	      LCR when (ADD = o"3") else
-	      ("000" & MCR) when (ADD = o"4") else
-	      LSR when (ADD = o"5") else
-	      MSR when (ADD = o"6") else
-	      SCR when (ADD = o"7") else
-	      RDD(7 downto 0) when (ADD = o"0") else
+	RD <= RF_DO(7 downto 0) when ((ADD == o"0") and (LCR(7) == 1'b0)) else
+	      (x"0" & IER) when ((ADD == o"1") and (LCR(7) == 1'b0)) else
+	      IIR when (ADD == o"2") else
+	      LCR when (ADD == o"3") else
+	      ("000" & MCR) when (ADD == o"4") else
+	      LSR when (ADD == o"5") else
+	      MSR when (ADD == o"6") else
+	      SCR when (ADD == o"7") else
+	      RDD(7 downto 0) when (ADD == o"0") else
 	      RDD(15 downto 8);
 
 //////////////////////////////////////////////
@@ -351,13 +351,13 @@ U1 : gh_jkff
 	
 	TXRDYn <= (not TX_RDY);
 		
-	TX_RDYS <= '1' when ((FCR(3) = '0') and (TF_empty = '1') and (TSR_EMPTY = '1')) else
-	           '1' when ((FCR(3) = '1') and (TF_empty = '1')) else
-	           '0';
+	TX_RDYS <= 1'b1 when ((FCR(3) == 1'b0) and (TF_empty == 1'b1) and (TSR_EMPTY == 1'b1)) else
+	           1'b1 when ((FCR(3) == 1'b1) and (TF_empty == 1'b1)) else
+	           1'b0;
 	
-	TX_RDYC <= '1' when ((FCR(3) = '0') and (TF_empty = '0')) else
-	           '1' when ((FCR(3) = '1') and (TF_full = '1')) else
-	           '0';
+	TX_RDYC <= 1'b1 when ((FCR(3) == 1'b0) and (TF_empty == 1'b0)) else
+	           1'b1 when ((FCR(3) == 1'b1) and (TF_full == 1'b1)) else
+	           1'b0;
 	
 U2 : gh_jkff 
 	PORT MAP (
@@ -369,16 +369,16 @@ U2 : gh_jkff
 		
 	RXRDYn <= (not RX_RDY);
 		
-	RX_RDYS <= '1' when ((FCR(3) = '0') and (RF_empty = '0')) else	// mod 01/20/07
-	           '1' when ((FCR(3) = '1') and (FCR(7 downto 6) = "11") and (a_full = '1')) else
-	           '1' when ((FCR(3) = '1') and (FCR(7 downto 6) = "10") and (h_full = '1')) else
-	           '1' when ((FCR(3) = '1') and (FCR(7 downto 6) = "01") and (q_full = '1')) else
-	           '1' when ((FCR(3) = '1') and (FCR(7 downto 6) = "00") and (RF_empty = '0')) else
-	           '0';
+	RX_RDYS <= 1'b1 when ((FCR(3) == 1'b0) and (RF_empty == 1'b0)) else	// mod 01/20/07
+	           1'b1 when ((FCR(3) == 1'b1) and (FCR(7 downto 6) == "11") and (a_full == 1'b1)) else
+	           1'b1 when ((FCR(3) == 1'b1) and (FCR(7 downto 6) == "10") and (h_full == 1'b1)) else
+	           1'b1 when ((FCR(3) == 1'b1) and (FCR(7 downto 6) == "01") and (q_full == 1'b1)) else
+	           1'b1 when ((FCR(3) == 1'b1) and (FCR(7 downto 6) == "00") and (RF_empty == 1'b0)) else
+	           1'b0;
 		
 		
-	RX_RDYC <= '1' when (RF_empty = '1') else
-	           '0';
+	RX_RDYC <= 1'b1 when (RF_empty == 1'b1) else
+	           1'b0;
 		
 		
 //////////////////////////////////////////////
@@ -389,7 +389,7 @@ U4 : gh_jkff
 	PORT MAP (
 		clk => clk,
 		rst => rst,
-		j => '0', // TODO Optimize out '0' inputs (becomes D-ff w/ K as enable)
+		j => 1'b0, // TODO Optimize out 1'b0 inputs (becomes D-ff w/ K as enable)
 		k => MSR_CLR,
 		Q => DCTS);
 	
@@ -399,7 +399,7 @@ U6 : gh_jkff
 	PORT MAP (
 		clk => clk,
 		rst => rst,
-		j => '0',
+		j => 1'b0,
 		k => MSR_CLR,
 		Q => DDSR);
 	
@@ -409,7 +409,7 @@ U8 : gh_jkff
 	PORT MAP (
 		clk => clk,
 		rst => rst,
-		j => '0',
+		j => 1'b0,
 		k => MSR_CLR,
 		Q => TERI);
 	
@@ -419,32 +419,32 @@ U10 : gh_jkff
 	PORT MAP (
 		clk => clk,
 		rst => rst,
-		j => '0',
+		j => 1'b0,
 		k => MSR_CLR,
 		Q => DDCD);
 	
 	MSR(3) <= DDCD;
 	
-	iMSR(4) <= '0' when (iLOOP = '0') else
+	iMSR(4) <= 1'b0 when (iLOOP == 1'b0) else
 	            MCR(1);
 	
-	iMSR(5) <= '0' when (iLOOP = '0') else
+	iMSR(5) <= 1'b0 when (iLOOP == 1'b0) else
 	            MCR(0);
 	
-	iMSR(6) <= '0' when (iLOOP = '0') else
+	iMSR(6) <= 1'b0 when (iLOOP == 1'b0) else
 	            MCR(2);
 	
-	iMSR(7) <= '0' when (iLOOP = '0') else
+	iMSR(7) <= 1'b0 when (iLOOP == 1'b0) else
 	            MCR(3);
   
-	RD_MSR <= '0' when ((CS = '0') or (WR = '1')) else
-	          '0' when (ADD /= o"6") else
-	          '1';
+	RD_MSR <= 1'b0 when ((CS == 1'b0) or (WR == 1'b1)) else
+	          1'b0 when (ADD /= o"6") else
+	          1'b1;
 
 
-	ITR0 <= '0' when (IER(3) = '0') else
-	        '1' when (MSR(3 downto 0) > x"0") else
-	        '0';
+	ITR0 <= 1'b0 when (IER(3) == 1'b0) else
+	        1'b1 when (MSR(3 downto 0) > x"0") else
+	        1'b0;
 			  
 U11 : gh_edge_det 
 	PORT MAP (
@@ -458,7 +458,7 @@ u12 : gh_register_ce
 	port map(
 		clk => clk,
 		rst => rst,
-		ce => '1',
+		ce => 1'b1,
 		D => iMSR,
 		Q => MSR(7 downto 4)
 		);
@@ -477,8 +477,8 @@ U13 : gh_jkff
 		k => LSR_CLR,
 		Q => LSR(1));
 
-	OVR_ER <= '1' when ((RF_full = '1') and (RF_WR = '1')) else
-	          '0';
+	OVR_ER <= 1'b1 when ((RF_full == 1'b1) and (RF_WR == 1'b1)) else
+	          1'b0;
 		
 U14 : gh_jkff 
 	PORT MAP (
@@ -515,12 +515,12 @@ U17 : gh_jkff
 		k => LSR_CLR,
 		Q => LSR(7));
 
-	RF_ER <= '1' when (RF_DI(10 downto 8) > "000") else
-	         '0';
+	RF_ER <= 1'b1 when (RF_DI(10 downto 8) > "000") else
+	         1'b0;
 	
-	RD_LSR <= '0' when ((CS = '0') or (WR = '1')) else
-	          '0' when (ADD /= o"5") else
-	          '1';
+	RD_LSR <= 1'b0 when ((CS == 1'b0) or (WR == 1'b1)) else
+	          1'b0 when (ADD /= o"5") else
+	          1'b1;
 	
 U18 : gh_edge_det 
 	PORT MAP (
@@ -541,7 +541,7 @@ u19 : gh_DECODE_3to8
 		A => ADD,
 		G1 => WR,
 		G2n => CSn,
-		G3n => '0',
+		G3n => 1'b0,
 		Y => WR_B
 		);
 
@@ -600,9 +600,9 @@ u24 : gh_register_ce
 		Q => LCR
 		);		
 	
-	num_bits <= 5 when ((LCR(0) = '0') and (LCR(1) = '0')) else
-	            6 when ((LCR(0) = '1') and (LCR(1) = '0')) else	 // 07/12/07
-	            7 when ((LCR(0) = '0') and (LCR(1) = '1')) else	 // 07/12/07
+	num_bits <= 5 when ((LCR(0) == 1'b0) and (LCR(1) == 1'b0)) else
+	            6 when ((LCR(0) == 1'b1) and (LCR(1) == 1'b0)) else	 // 07/12/07
+	            7 when ((LCR(0) == 1'b0) and (LCR(1) == 1'b1)) else	 // 07/12/07
 	            8;				   
 
 	stopB <= LCR(2);
@@ -689,11 +689,11 @@ U28a : gh_edge_det
 	
 ////////// end mod 10/12/07 ////////////////-
 	
-	RD_IIR <= '0' when (ADD /= o"2") else
-	          '0' when (WR = '1') else
-	          '0' when (CS = '0') else
-	          '0' when (IIR(3 downto 1) /= "001") else // walter hogan 12/12/2006
-	          '1';
+	RD_IIR <= 1'b0 when (ADD /= o"2") else
+	          1'b0 when (WR == 1'b1) else
+	          1'b0 when (CS == 1'b0) else
+	          1'b0 when (IIR(3 downto 1) /= "001") else // walter hogan 12/12/2006
+	          1'b1;
 
 U28b : gh_edge_det  
 	PORT MAP (
@@ -745,9 +745,9 @@ U30 : gh_edge_det
 		d => RD_RDY,
 		re => RF_WR);
 		
-	RF_RD <= '0' when (LCR(7) = '1') else // added 04/19/06
-	         '1' when ((ADD = "000") and (CS = '1') and (WR = '0')) else
-	         '0';
+	RF_RD <= 1'b0 when (LCR(7) == 1'b1) else // added 04/19/06
+	         1'b1 when ((ADD == "000") and (CS == 1'b1) and (WR == 1'b0)) else
+	         1'b0;
 		
 U31 : gh_fifo_async16_rcsr_wf // 01/20/07
 	Generic Map(data_width => 11)
@@ -797,24 +797,24 @@ U32c : gh_edge_det
 		d => iBreak_ITR,
 		sre => Break_ITR);
 	
-	ITR3 <= '0' when (IER(2) = '0') else
-	        '1' when (LSR(1) = '1') else
-	        '1' when (LSR(4 downto 2) > "000") else
-	        '0';
+	ITR3 <= 1'b0 when (IER(2) == 1'b0) else
+	        1'b1 when (LSR(1) == 1'b1) else
+	        1'b1 when (LSR(4 downto 2) > "000") else
+	        1'b0;
 
 //////////////////////////////////////////////////////////////////////-
 
 			
-	isRX <= sRX when (iLOOP = '0') else
+	isRX <= sRX when (iLOOP == 1'b0) else
 	       TX;
 
 
-	ITR2 <= '0' when (IER(0) = '0') else  // mod 01/20/07
-	        '1' when ((FCR(7 downto 6) = "11") and (a_full = '1')) else
-	        '1' when ((FCR(7 downto 6) = "10") and (h_full = '1')) else
-	        '1' when ((FCR(7 downto 6) = "01") and (q_full = '1')) else
-	        '1' when ((FCR(7 downto 6) = "00") and(RF_empty = '0')) else
-	        '0';
+	ITR2 <= 1'b0 when (IER(0) == 1'b0) else  // mod 01/20/07
+	        1'b1 when ((FCR(7 downto 6) == "11") and (a_full == 1'b1)) else
+	        1'b1 when ((FCR(7 downto 6) == "10") and (h_full == 1'b1)) else
+	        1'b1 when ((FCR(7 downto 6) == "01") and (q_full == 1'b1)) else
+	        1'b1 when ((FCR(7 downto 6) == "00") and(RF_empty == 1'b0)) else
+	        1'b0;
  
 U33 : gh_UART_Rx_8bit 
 	PORT MAP (
@@ -868,18 +868,18 @@ U35a : gh_edge_det_XCD
 		
 always(BR_clk,rst)
 begin
-	if (rst = '1') begin
-		TOI_enc <= '0';
+	if (rst == 1'b1) begin
+		TOI_enc <= 1'b0;
 	end else if (posedge(BR_clk)) begin
 		TOI_enc <= iTOI_enc;
 	end
 end
 
-	TOI_c_ld <= '1' when (IER(0) = '0') else // added 4 aug 2007
-	            '1' when (TOI_enc = '0') else
-	            '1' when (RF_RD_brs = '1') else
-	            '1' when (RF_WR = '1') else 
-	            '0';
+	TOI_c_ld <= 1'b1 when (IER(0) == 1'b0) else // added 4 aug 2007
+	            1'b1 when (TOI_enc == 1'b0) else
+	            1'b1 when (RF_RD_brs == 1'b1) else
+	            1'b1 when (RF_WR == 1'b1) else 
+	            1'b0;
 		
 U36 : gh_counter_down_ce_ld_tc
 	generic	map(10)
@@ -903,24 +903,24 @@ U36a : gh_edge_det_XCD
 		fe => open);
 
 		
-	TOI_c_d <= x"1C0" when (num_bits = 5) else
-	           x"200" when (num_bits = 6) else
-	           x"240" when (num_bits = 7) else
-	           x"280";// when (num_bits = 8)
+	TOI_c_d <= x"1C0" when (num_bits == 5) else
+	           x"200" when (num_bits == 6) else
+	           x"240" when (num_bits == 7) else
+	           x"280";// when (num_bits == 8)
 
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-	IRQ <= '1' when ((ITR3 or ITR2 or TOI or ITR1 or ITR0) = '1') else
-	       '0';
+	IRQ <= 1'b1 when ((ITR3 or ITR2 or TOI or ITR1 or ITR0) == 1'b1) else
+	       1'b0;
 		   
-	iIIR(0) <= '0' when ((ITR3 or ITR2 or TOI or ITR1 or ITR0) = '1') else
-	           '1';
+	iIIR(0) <= 1'b0 when ((ITR3 or ITR2 or TOI or ITR1 or ITR0) == 1'b1) else
+	           1'b1;
 			  
-	iIIR(3 downto 1) <= "011" when (ITR3 = '1') else
-	                    "010" when (ITR2 = '1') else
-	                    "110" when (TOI  = '1') else	// added 04/08/06	
-	                    "001" when (ITR1 = '1') else
+	iIIR(3 downto 1) <= "011" when (ITR3 == 1'b1) else
+	                    "010" when (ITR2 == 1'b1) else
+	                    "110" when (TOI  == 1'b1) else	// added 04/08/06	
+	                    "001" when (ITR1 == 1'b1) else
 	                    "000";
 			  
 	IIR(7 downto 4) <= x"C"; // FIFO's always enabled

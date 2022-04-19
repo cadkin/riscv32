@@ -20,32 +20,27 @@
 //USE ieee.std_logic_1164.all;
 
 module gh_register_ce#(
- parameter size= 8)
+ parameter size= 8;)
 
 (	
-		clk : IN		STD_LOGIC;
-		rst : IN		STD_LOGIC; 
-		CE  : IN		STD_LOGIC; // clock enable
-		D   : IN		STD_LOGIC_VECTOR(size-1 DOWNTO 0);
-		Q   : OUT		STD_LOGIC_VECTOR(size-1 DOWNTO 0)
+		input logic clk;// : IN		STD_LOGIC;
+		input logic rst;// : IN		STD_LOGIC; 
+		input logic CE;//  : IN		STD_LOGIC; // clock enable
+		input logic [size-1,0] D;//   : IN		STD_LOGIC_VECTOR(size-1 DOWNTO 0);
+		output logic [size-1,0] Q;//  : OUT		STD_LOGIC_VECTOR(size-1 DOWNTO 0)
 		);
-END gh_register_ce;
 
-ARCHITECTURE a OF gh_register_ce
-
-
-BEGIN
 
 always(clk,rst)
-BEGIN
-	if (rst = '1') begin
-		Q <= (others =>'0');
+begin
+	if (rst == 1'b1) begin
+		Q <= {size{1'b0}};
 	end else if (posedge (clk)) begin
-		if (CE = '1') begin
+		if (CE == 1'b1) begin
 			Q <= D;
 		end
 	end
-END
+end
 
 endmodule
 

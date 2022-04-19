@@ -22,63 +22,60 @@
 
 module gh_edge_det_XCD
 (
-		iclk : in STD_LOGIC;  // clock for input data signal
-		oclk : in STD_LOGIC;  // clock for output data pulse
-		rst  : in STD_LOGIC;
-		D    : in STD_LOGIC;
-		re   : out STD_LOGIC; // rising edge 
-		fe   : out STD_LOGIC  // falling edge 
+		input logic iclk;// : in STD_LOGIC;  // clock for input data signal
+		input logic oclk;// : in STD_LOGIC;  // clock for output data pulse
+		input logic rst;//  : in STD_LOGIC;
+		input logic D;//    : in STD_LOGIC;
+		output logic re;//   : out STD_LOGIC; // rising edge 
+		output logic fe//   : out STD_LOGIC  // falling edge 
 		);
-endmodule
 
 
-architecture a of gh_edge_det_XCD
 
-	wire iQ ;
-	wire jkR, jkF;
-	wire irQ0, rQ0, rQ1;
-	wire ifQ0, fQ0, fQ1;
 
-begin
+	logic iQ ;
+	logic jkR, jkF;
+	logic irQ0, rQ0, rQ1;
+	logic ifQ0, fQ0, fQ1;
 
 always(iclk,rst)
 begin
-	if (rst = '1') begin 
-		iQ <= '0';
-		jkR <= '0';
-		jkF <= '0';
+	if (rst == 1'b1) begin 
+		iQ <= 1'b0;
+		jkR <= 1'b0;
+		jkF <= 1'b0;
 	end else if (posedge(iclk)) begin
 		iQ <= D;
-		if ((D = '1') and (iQ = '0')) begin
-			jkR <= '1';
-		end else if (rQ1 = '1') begin
-			jkR <= '0';
-		else
+		if ((D == 1'b1) && (iQ == 1'b0)) begin
+			jkR <= 1'b1;
+		end else if (rQ1 == 1'b1) begin
+			jkR <= 1'b0;
+		end else begin
 			jkR <= jkR;
 		end
-		if ((D = '0') and (iQ = '1')) begin
-			jkF <= '1';
-		end else if (fQ1 = '1') begin
-			jkF <= '0';
-		else
+		if ((D == 1'b0) && (iQ == 1'b1)) begin
+			jkF <= 1'b1;
+		end else if (fQ1 == 1'b1) begin
+			jkF <= 1'b0;
+		end else begin
 			jkF <= jkF;
 		end
 	end
 end
 
-	re <= (not rQ1) and rQ0;
-	fe <= (not fQ1) and fQ0;
+	assign re = (~ rQ1) & rQ0;
+	assign fe = (~ fQ1) & fQ0;
 
 always(oclk,rst)
 begin
-	if (rst = '1') begin 
-		irQ0 <= '0';
-		rQ0 <= '0'; 
-		rQ1 <= '0';
+	if (rst == 1'b1) begin 
+		irQ0 <= 1'b0;
+		rQ0 <= 1'b0; 
+		rQ1 <= 1'b0;
 		//////////////-
-		ifQ0 <= '0';
-		fQ0 <= '0';
-		fQ1 <= '0';
+		ifQ0 <= 1'b0;
+		fQ0 <= 1'b0;
+		fQ1 <= 1'b0;
 	end else if (posedge(oclk)) begin
 		irQ0 <= jkR;
 		rQ0 <= irQ0;
