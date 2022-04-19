@@ -19,7 +19,6 @@
 //   zero3 --
 //   zero4 --
 //   alusrc --
-//   imm -- 32-bit immediate value
 //   alures -- 32-bit ALU operation result
 //   EX_MEM_regwrite -- indicates write
 //   EX_MEM_memread -- indicates read
@@ -36,7 +35,6 @@ module branch_forward (
     input  logic        zero4,
     input  logic        zeroa,
     input  logic        zerob,
-    input  logic [31:0] imm,
     input  logic [31:0] alures,
     input  logic [31:0] wbres,
     input  logic [31:0] divres,

@@ -7,25 +7,20 @@ module mem_controller (
 
   logic clk, rst;
   logic mem_wea, mem_rea;
-  logic [3:0] mem_en, mem_en_last;
+  logic [3:0] mem_en;
   logic [11:0] mem_addr_lower;
   logic [19:0] mem_addr_upper;
   logic [31:0] mem_din, mem_dout;
 
-  logic disp_wea;
-  logic [31:0] disp_dat;
-
   logic [31:0] imem_addr, imem_dout, imem_din;
-  logic imem_en, imem_state;
+  logic imem_en;
 
   logic mmio_region, kernel_region, prog_region, uart_region;
   logic spi_region;
   logic spi_last_cond;
   logic [7:0] spi_last;
   logic [31:0] blkmem_dout, doutb, blkmem_din, blkmem_addr;
-  logic [7:0] uart_dout;
   logic uart_last_cond;
-  logic [11:0] uart_last_addr;
   logic [31:0] uart_last_out;
 
   logic CRAS_region;
@@ -39,22 +34,8 @@ module mem_controller (
   logic cnt_region, cnt_last;
   logic [31:0] cnt_last_out;
 
-  logic [ 2:0] cache_storecntrl = 3'b000;
-  logic [ 4:0] cache_loadcntrl = 5'b00100;
-
-  logic [7:0] cell_0_dout, cell_1_dout, cell_2_dout, cell_3_dout;
-  logic [7:0] cell_0_din, cell_1_din, cell_2_din, cell_3_din;
-  logic [8:0] cell_0_addr, cell_1_addr, cell_2_addr, cell_3_addr;
-  logic cell_0_sense_en, cell_1_sense_en, cell_2_sense_en, cell_3_sense_en;
-  logic cell_0_wen, cell_1_wen, cell_2_wen, cell_3_wen;
-
-  logic [31:0] cache_mem_dout, cache_mem_din;
-  logic cache_mem_ren, cache_mem_wen;
-  logic [31:0] cache_mem_addr;
-
   logic mem_hold;
 
-  logic cache_rdy;
   assign mem_hold = 0;
 
   // Connection to SRAM/BRAM interface
@@ -156,10 +137,10 @@ module mem_controller (
     mbus.disp_dat = (mmio_region & (mem_addr_lower == 12'h008)) ? mem_din : 32'h0;
 
     // Enable SPI write or read when data address is in SPI region
-    mbus.spi_rd = spi_region ? mem_rea : 1'b0;
+    mbus.spi_rd = (spi_region & (mem_addr_lower == 12'h500)) ? mem_rea : 1'b0;
     mbus.spi_wr = spi_region ? mem_wea : 1'b0;
     mbus.spi_din = spi_region ? mem_din[7:0] : 8'h00;
-    mbus.spi_ignore_response = spi_region ? mem_din[8] : 1'b0;
+    mbus.spi_ignore_response = spi_region ? mem_din[8] : 1'b0;  // Unused
 
     // Enable CRAS write or read when data address is in CRAS region
     mbus.RAS_config_din = CRAS_region ? mem_din : 32'h0;
@@ -177,12 +158,12 @@ module mem_controller (
 
   // RAS
   always_comb begin
-    blkmem_din = /*RAS_mem_rdy ? RAS_din :*/ mem_din;
-    blkmem_addr = /*RAS_mem_rdy ? RAS_addr :*/ rbus.mem_addr;
-    blkmem_en = /*RAS_mem_rdy ? (RAS_wr ? 4'b1111 : 4'b0000) :*/ mem_en;
-    blkmem_wr = /*RAS_mem_rdy ? RAS_wr :*/ mem_wea;
-    blkmem_rd = /*RAS_mem_rdy ? RAS_rd :*/ mem_rea;
-    blkmem_strctrl = /*RAS_mem_rdy ? (RAS_wr ? 3'b100 : 3'b000) :*/ rbus.storecntrl;
+    blkmem_din = RAS_mem_rdy ? RAS_din : mem_din;
+    blkmem_addr = RAS_mem_rdy ? RAS_addr : rbus.mem_addr;
+    blkmem_en = RAS_mem_rdy ? (RAS_wr ? 4'b1111 : 4'b0000) : mem_en;
+    blkmem_wr = RAS_mem_rdy ? RAS_wr : mem_wea;
+    blkmem_rd = RAS_mem_rdy ? RAS_rd : mem_rea;
+    blkmem_strctrl = RAS_mem_rdy ? (RAS_wr ? 3'b100 : 3'b000) : rbus.storecntrl;
   end
 
   always_ff @(posedge clk) begin
@@ -191,7 +172,6 @@ module mem_controller (
       // Write or read data from UART
       if (uart_region && (mem_wea | mem_rea)) begin
         uart_last_cond <= 1;
-        uart_last_addr <= mem_addr_lower;
         uart_last_out  <= mbus.uart_dout;
       end else begin
         uart_last_cond <= 0;
@@ -200,8 +180,8 @@ module mem_controller (
       // Write or read data from SPI
       if (spi_region && (mem_wea | mem_rea)) begin
         spi_last_cond <= 1;
-        if (mem_addr_lower == 12'h500) spi_last = mbus.spi_dout;
-        else spi_last = {5'b0, mbus.spi_buffer_full, mbus.spi_buffer_empty, mbus.spi_data_avail};
+        if (mem_addr_lower == 12'h500) spi_last <= mbus.spi_dout;
+        else spi_last <= {5'b0, mbus.spi_buffer_full, mbus.spi_buffer_empty, mbus.spi_data_avail};
       end else spi_last_cond <= 0;
 
       // Read data from CNT
@@ -210,8 +190,6 @@ module mem_controller (
         if (mem_addr_lower == 12'h700) cnt_last_out <= mbus.cnt_dout;
         else cnt_last_out <= {31'h0, mbus.cnt_ovflw};
       end else cnt_last <= 0;
-
-      mem_en_last <= mem_en;
     end
   end
 endmodule : mem_controller

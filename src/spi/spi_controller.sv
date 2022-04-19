@@ -36,7 +36,7 @@ module spi_controller (
     rd = mbus.spi_rd;
     wr = mbus.spi_wr;
     din = mbus.spi_din;
-    ignore_response = mbus.spi_ignore_response;
+    ignore_response = mbus.spi_ignore_response;  // Unused
     mbus.spi_data_avail = data_avail;
     mbus.spi_buffer_empty = buffer_empty;
     mbus.spi_buffer_full = buffer_full;
@@ -52,7 +52,7 @@ module spi_controller (
   logic mosi_avail;
   logic [7:0] mosi_din, mosi_dout;
 
-  logic miso_RD;
+  logic miso_RD, miso_WR;
   logic miso_empty, miso_full;
   logic miso_avail;
   logic [7:0] miso_din, miso_dout;
@@ -63,46 +63,53 @@ module spi_controller (
 
   logic ctrl_state;
 
-  spi_master spi0 (
-      clk,
-      spi_en,
-      mosi_data_i,
-      miso_data_o,
-      spi_data_ready,
-      cs,
-      sck,
-      mosi,
-      miso
+  int tx_count;
+  assign tx_count = 1;
+
+  spi_cs_ctrl spi0 (
+      .i_Rst_L(~rst),
+      .i_Clk(clk),
+      .i_TX_Count(tx_count),
+      .i_TX_Byte(mosi_data_i),
+      .i_TX_DV(spi_en),
+      .o_TX_Ready(spi_data_ready),
+      .o_RX_Count(),
+      .o_RX_DV(miso_WR),
+      .o_RX_Byte(miso_data_o),
+      .o_SPI_Clk(sck),
+      .i_SPI_MISO(miso),
+      .o_SPI_MOSI(mosi),
+      .o_SPI_CS_n(cs)
   );
 
-  gh_fifo_sync_sr #(
-      .add_width (4),
-      .data_width(8)
+  sync_fifo #(
+    .ADD_WIDTH(4),
+    .DATA_WIDTH(8)
   ) mosi_fifo (
-      clk,
-      rst,
-      rst,
-      mosi_WR,
-      mosi_RD,
-      mosi_din,
-      mosi_dout,
-      mosi_empty,
-      mosi_full
+      .clk(clk),
+      .rst(rst),
+      .srst(rst),
+      .wr(mosi_WR),
+      .rd(mosi_RD),
+      .d(mosi_din),
+      .q(mosi_dout),
+      .empty(mosi_empty),
+      .full(mosi_full)
   );
 
-  gh_fifo_sync_sr #(
-      .add_width (4),
-      .data_width(8)
+  sync_fifo #(
+    .ADD_WIDTH(4),
+    .DATA_WIDTH(8)
   ) miso_fifo (
-      clk,
-      rst,
-      rst,
-      spi_data_ready,
-      miso_RD,
-      miso_din,
-      miso_dout,
-      miso_empty,
-      miso_full
+    .clk(clk),
+    .rst(rst),
+    .srst(rst),
+    .wr(miso_WR),
+    .rd(miso_RD),
+    .d(miso_din),
+    .q(miso_dout),
+    .empty(miso_empty),
+    .full(miso_full)
   );
 
   assign mosi_avail = ~mosi_empty;
@@ -141,10 +148,12 @@ module spi_controller (
           spi_en <= 0;
         end else begin
           mosi_RD <= 1;
+          spi_en <= 1;
           mosi_data_i <= mosi_dout[7:0];
         end
       end else begin
         mosi_RD <= 0;
+        spi_en <= 0;
       end
     end
   end

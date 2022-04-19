@@ -20,7 +20,6 @@
 //
 // Inputs:
 //   clk -- system clock
-//   En -- enable signal
 //   debug -- debug I/O control
 //   prog -- debug or reprogram instruction memory
 //   Rst -- system reset
@@ -43,17 +42,13 @@ module fetch (
   logic [31:0] pc_incr;
   logic [31:0] memdout;
   logic [31:0] next_addr;
-  logic [31:0] pres_addr;
   logic [31:0] imem_addr;
-  logic [31:0] imem_next_addr, imem_incr;
-  logic [31:0] ins_last;
-  logic imem_en;
   logic [31:0] addr_in;
-  logic En_sig, En_mem, state_load_prog;
+  logic En_sig, En_mem;
   logic [31:0] debug_addr_imm;
   logic comp_sig;
   logic bg;
-  logic lower, next_comp, comp;
+  logic comp;
 
   logic branch_next;
   logic [31:0] branch_addr;
@@ -69,7 +64,6 @@ module fetch (
 
   // Determines whether PC is incremented by 2 (compressed 16-bit) or 4 (32-bit)
   assign pc_incr = bg ? 0 : comp_sig ? 12'h002 : 12'h004;
-  assign imem_incr = bus.branch ? bus.branoff : 12'h004;
 
   // Sets the address to the next instruction by incrementing the program counter
   assign bus.next_addr = next_addr;
@@ -100,7 +94,6 @@ module fetch (
     if (bus.Rst || bus.memcon_prog_ena) begin
       bg <= 1;
       bus.IF_ID_pres_addr <= 32'h000;
-      ins_last <= 0;
       branch_addr <= 0;
       branch_next <= 0;
     // Sets next address in case of branches or jumps

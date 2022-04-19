@@ -48,7 +48,6 @@
 //   EX_MEM_rd -- 5-bit destination register address for memory access
 //   EX_MEM_memwrite -- memory write signal
 //   EX_MEM_regwrite -- register write signal
-//   EX_MEM_comp_res --
 //   dbg_ALUop1 -- 32-bit ALU operation for debugging
 //   dbg_ALUop2 -- 32-bit ALU operation for debugging
 //
@@ -64,16 +63,13 @@ module execute (
   logic [31:0] EX_MEM_mulres_sig;
   logic [31:0] EX_MEM_divres_sig;
   logic [ 4:0] EX_MEM_rd_sig;
-  logic comp_res, f_stall;
+  logic f_stall;
   logic [31:0] alures, fpures;
   logic [31:0] mulres;
   logic [31:0] divres;
-  logic [ 2:0] sel;
   logic [31:0] ALUop1, ALUop2, rs2_mod;
-  logic [31:0] rs2_mod_final;
 
   logic [31:0] CSR_res;
-  logic [31:0] CSR_mod;
 
   logic mul_ready_sig;
   logic div_ready_sig;
@@ -124,7 +120,6 @@ module execute (
       .CSR_in(bus.ID_EX_CSR),
       .ID_EX_comp_sig(bus.ID_EX_comp_sig),
       .res(alures),
-      .comp_res(comp_res),
       .CSR_res(CSR_res)
   );
 
@@ -155,7 +150,7 @@ module execute (
       .a(bus.ID_EX_dout_rs1),
       .b(bus.ID_EX_dout_rs2),
       .c(bus.ID_EX_dout_rs3),
-      .rm(bus.EX_MEM_frm),
+      .frm(bus.EX_MEM_frm),
       .fpusel_s(bus.ID_EX_fpusel),
       .fpusel_d(bus.ID_EX_fpusel),
       .g_clk(bus.clk),
@@ -194,7 +189,6 @@ module execute (
       bus.EX_MEM_div_ready <= 1'b0;
       bus.EX_MEM_rs2 <= 5'h0;
       bus.EX_MEM_rs1 <= 5'h0;
-      bus.EX_MEM_comp_res <= 1'b0;
       bus.EX_MEM_loadcntrl <= 5'h0;
       bus.EX_MEM_storecntrl <= 3'h0;
       bus.EX_MEM_pres_addr <= 32'h0;
@@ -213,7 +207,7 @@ module execute (
       EX_MEM_memread_sig <= bus.ID_EX_memread;
       bus.EX_MEM_memwrite <= bus.ID_EX_memwrite;
       EX_MEM_regwrite_sig <= (bus.ID_EX_regwrite && (!bus.ID_EX_compare)) +
-                             (bus.ID_EX_regwrite && bus.ID_EX_compare && comp_res);
+                             (bus.ID_EX_regwrite && bus.ID_EX_compare);
       EX_MEM_alures_sig <= alures;
       EX_MEM_mulres_sig <= mulres;
       bus.EX_MEM_mul_ready <= mul_ready_sig;
@@ -225,7 +219,6 @@ module execute (
       bus.EX_MEM_dout_rs2 <= rs2_mod;
       bus.EX_MEM_rs2 <= bus.ID_EX_rs2;
       bus.EX_MEM_rs1 <= bus.ID_EX_rs1;
-      bus.EX_MEM_comp_res <= comp_res;
       bus.EX_MEM_loadcntrl <= bus.ID_EX_loadcntrl;
       bus.EX_MEM_storecntrl <= bus.ID_EX_storecntrl;
       bus.EX_MEM_pres_addr <= bus.ID_EX_pres_addr;

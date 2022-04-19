@@ -41,13 +41,14 @@ module writeback (
       bus.WB_ID_rd <= 5'b00000;
       bus.WB_ID_res <= 32'h00000000;
       bus.WB_ID_regwrite <= 1'b0;
+      bus.WB_ID_fpusrc <= 1'b0;
     // Set WB/ID pipeline register with MEM/WB values
     // Freeze pipeline if debug or prog activated
     end else if ((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
-      bus.WB_ID_fpusrc <= bus.MEM_WB_fpusrc;
       bus.WB_ID_rd <= bus.MEM_WB_rd;
       bus.WB_ID_res <= WB_res_sig;
       bus.WB_ID_regwrite <= bus.MEM_WB_regwrite;
+      bus.WB_ID_fpusrc <= bus.MEM_WB_fpusrc;
     end
   end
 endmodule : writeback

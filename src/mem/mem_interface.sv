@@ -47,8 +47,6 @@ module mem_interface #(
 
   logic [1:0] last_imem_addr, last_mem_addr;
 
-  logic [29:0] wraparound_a, wraparound_b;
-
   // Instantiates BRAM or SRAM depending on USE_SRAM parameter
   generate
     if (USE_SRAM == 1) begin : gen_sram
@@ -390,8 +388,6 @@ module mem_interface #(
     end
   endgenerate
 
-  // Unused?
-  assign wraparound_a = imem_addr + 4;
   // Enable read to all 4 instruction memory cells
   assign ena_rv = imem_en ? 4'b1111 : 4'b0000;
   // Enable read to all 4 data memory cells

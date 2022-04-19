@@ -5,7 +5,6 @@ module debug_display (
 );
 
   logic clk, rst, mmio_wea;
-  logic addr_up, addr_dn;
   logic [31:0] din, dout;
   logic [4:0] addr;
 
@@ -13,8 +12,12 @@ module debug_display (
 
   // Addressable FIFO stores inputs and outputs to debug display
   addr_fifo u0 (
+      .clk(clk),
+      .rst(rst),
       .wea(mmio_wea),
-      .*
+      .din(din),
+      .addr(addr),
+      .dout(dout)
   );
 
   // Connects to MMIO debug display

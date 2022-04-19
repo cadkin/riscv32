@@ -150,7 +150,7 @@ SECTIONS
 
   . = ALIGN(4);
 
-  .lalign :
+  .lalign 0x00002000:
   {
     . = ALIGN(4);
     PROVIDE( _data_lma = . );
