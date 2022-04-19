@@ -20,7 +20,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-
 module tb_unit_test ();
   `include "task_uart.sv"
   `include "task_unit_test.sv"
@@ -36,8 +35,7 @@ module tb_unit_test ();
   logic [15:0] led;
 
   // Core UART
-  logic rx;
-  logic tx;
+  logic rx, tx;
 
   // Core SPI
   logic miso, mosi, cs;
@@ -45,6 +43,7 @@ module tb_unit_test ();
   // Testbench UART Rx
   logic byte_sent;
 
+  // Testbench UART Tx
   logic tx_avail;
   logic [7:0] tx_byte;
 
@@ -53,8 +52,23 @@ module tb_unit_test ();
   assign rst_n = ~Rst;
 
   // RISC-V Top Module
-  riscv_top dut (.*);
+  riscv_top dut (
+    .clk(clk),
+    .rst_n(rst_n),
+    .debug(debug),
+    .debug_input(debug_input),
+    .sev_out(sev_out),
+    .an(an),
+    .led(led),
+    .rx(rx),
+    .tx(tx),
+    .miso(mosi),
+    .mosi(mosi),
+    .cs(cs),
+    .sck(sck)
+  );
 
+  // Testbench UART Tx
   uart_tx ut (
     .clk(dut.u0.B_CLK),
     .rst(Rst),
@@ -82,6 +96,7 @@ module tb_unit_test ();
     m_ext_unit_test(dut.d0.mmio_wea, dut.d0.dout);
     itoa_atoi_unit_test(dut.d0.mmio_wea, dut.d0.dout);
     qsort_unit_test(dut.d0.mmio_wea, dut.d0.dout);
+    spi_unit_test(dut.d0.mmio_wea, dut.d0.dout);
     uart_rx_unit_test(uart_str, byte_sent, rx);
   end
 

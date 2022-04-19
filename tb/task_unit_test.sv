@@ -134,6 +134,22 @@ task automatic qsort_unit_test (
   $display("SUCCESS.");
 endtask
 
+// Tests quicksort
+task automatic spi_unit_test (
+  ref logic mmio_wea,
+  ref logic [31:0] dout
+);
+
+  $display("Testing SPI...");
+  @(negedge mmio_wea);
+  if (dout != 13) begin
+    $display("FAILED at SPI.");
+    $display("---END SIMULATION---");
+    $stop;
+  end
+  $display("SUCCESS.");
+endtask
+
 // Tests sending data through UART to core
 task automatic uart_rx_unit_test (
   input logic [31:0] uart_str,

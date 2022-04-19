@@ -1,5 +1,6 @@
 #include "print.h"
 #include "uart.h"
+#include "spi.h"
 #include "malloc.h"
 #include "qsort.h"
 #include "utils.h"
@@ -10,6 +11,7 @@
 int m_ext_test(int a);
 int itoa_atoi_test(int a);
 int qsort_test(int a);
+int spi_test(int a);
 void uart_test();
 
 int main(void)
@@ -56,52 +58,12 @@ int main(void)
     test = qsort_test(12);
     print(test);
 
+    // Qsort Test
+    test = spi_test(13);
+    print(test);
+
     // UART Test
     uart_test();
-}
-
-int qsort_test(int a)
-{
-    int result = 0;
-    int i = 0;
-
-    int check_data[DATA_SIZE] = {
-        4,
-        8,
-        16,
-        32,
-        64,
-        128,
-        256,
-        512,
-        1024,
-        65536
-    };
-
-    int *input_data = malloc(DATA_SIZE * sizeof(int));
-    input_data[0] = 65536;
-    input_data[1] = 1024;
-    input_data[2] = 512;
-    input_data[3] = 256;
-    input_data[4] = 128;
-    input_data[5] = 64;
-    input_data[6] = 32;
-    input_data[7] = 16;
-    input_data[8] = 8;
-    input_data[9] = 4;
-
-    sort(DATA_SIZE, input_data);
-
-    result = a;
-    for(i = 0; i < DATA_SIZE; i++)
-    {
-        if(input_data[i] != check_data[i])
-        {
-            result = 0;
-        }
-    }
-
-    return result;
 }
 
 int m_ext_test(int a)
@@ -228,16 +190,92 @@ int itoa_atoi_test(int a)
     return result;
 }
 
+int qsort_test(int a)
+{
+    int result = 0;
+    int i = 0;
+
+    int check_data[DATA_SIZE] = {
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1024,
+        65536
+    };
+
+    int *input_data = malloc(DATA_SIZE * sizeof(int));
+    input_data[0] = 65536;
+    input_data[1] = 1024;
+    input_data[2] = 512;
+    input_data[3] = 256;
+    input_data[4] = 128;
+    input_data[5] = 64;
+    input_data[6] = 32;
+    input_data[7] = 16;
+    input_data[8] = 8;
+    input_data[9] = 4;
+
+    sort(DATA_SIZE, input_data);
+
+    result = a;
+    for(i = 0; i < DATA_SIZE; i++)
+    {
+        if(input_data[i] != check_data[i])
+        {
+            result = 0;
+        }
+    }
+
+    return result;
+}
+
+int spi_test(int a)
+{
+    int result = a;
+    char s = 0;
+
+    s = 'a';
+    spi_write(s);
+    s = 'b';
+    spi_write(s);
+    s = 'c';
+    spi_write(s);
+    s = 'd';
+    spi_write(s);
+
+    while(!(spi_poll() & 1));
+    s = spi_read();
+    if (s != 'a') result = 0;
+
+    while(!(spi_poll() & 1));
+    s = spi_read();
+    if (s != 'b') result = 0;
+
+    while(!(spi_poll() & 1));
+    s = spi_read();
+    if (s != 'c') result = 0;
+
+    while(!(spi_poll() & 1));
+    s = spi_read();
+    if (s != 'd') result = 0;
+
+    return result;
+}
 
 void uart_test()
 {
     // Initialize UART
-	uart_init();
+    uart_init();
 
     // Send back any characters received in UART
-	char c; 
-	while(1) {
-		c = uart_read_blocking();
-		uart_put_blocking(c);
-	}
+    char c; 
+    while(1) {
+        c = uart_read_blocking();
+        uart_put_blocking(c);
+    }
 }
