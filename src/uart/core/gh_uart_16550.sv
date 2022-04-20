@@ -288,7 +288,7 @@ module gh_uart_16550 (
   );
 
   gh_register_ce #(
-    .size(4)
+    .SIZE(4)
   ) u12 (
     .clk(clk),
     .rst(rst),
@@ -381,7 +381,7 @@ module gh_uart_16550 (
   assign wr_dml = {(wr_b[1] & lcr[7]), (wr_b[0] & lcr[7])};
 
   gh_register_ce #(
-    .size(4)
+    .SIZE(4)
   ) u20 (
     .clk(clk),
     .rst(rst),
@@ -391,7 +391,7 @@ module gh_uart_16550 (
   );
 
   gh_register_ce #(
-    .size(8)
+    .SIZE(8)
   ) u21 (
     .clk(clk),
     .rst(rst),
@@ -421,7 +421,7 @@ module gh_uart_16550 (
   assign tf_clrs = d[2] & wr_b[2];
 
   gh_register_ce #(
-    .size(8)
+    .SIZE(8)
   ) u24 (
     .clk(clk),
     .rst(rst),
@@ -443,7 +443,7 @@ module gh_uart_16550 (
   assign break_cb = lcr[6];
 
   gh_register_ce #(
-    .size(5)
+    .SIZE(5)
   ) u25 (
     .clk(clk),
     .rst(rst),
@@ -459,7 +459,7 @@ module gh_uart_16550 (
   assign iloop = mcr[4];
 
   gh_register_ce #(
-    .size(8)
+    .SIZE(8)
   ) u26 (
     .clk(clk),
     .rst(rst),
@@ -489,7 +489,7 @@ module gh_uart_16550 (
 //------------------------------------------------
 
   gh_fifo_async16_sr #(
-    .data_width(8)
+    .DATA_WIDTH(8)
   ) u28 (
     .clk_wr(clk),
     .clk_rd(br_clk),
@@ -577,7 +577,7 @@ module gh_uart_16550 (
                  ((add == 3'b000) & (cs == 1'b1) & (wr == 1'b0)) ? 1'b1 : 1'b0;
 
   gh_fifo_async16_rcsr_wf #(  // 01/20/07
-    .data_width(11)
+    .DATA_WIDTH(11)
   ) u31 (
     .clk_wr(br_clk),
     .clk_rd(clk),
@@ -701,7 +701,7 @@ module gh_uart_16550 (
                     (rf_wr == 1'b1) ? 1'b1 : 1'b0;
 
   gh_counter_down_ce_ld_tc #(
-    .size(10)
+    .SIZE(10)
   ) u36 (
     .clk(br_clk),
     .rst(rst),
@@ -741,7 +741,7 @@ module gh_uart_16550 (
   assign iir[7:4] = 4'hc;  // fifo's always enabled
 
   gh_register_ce #(  // 12/23/06
-    .size(4)
+    .SIZE(4)
   ) u37 (
     .clk(clk),
     .rst(rst),

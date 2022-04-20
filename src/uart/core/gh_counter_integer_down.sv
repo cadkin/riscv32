@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////-
 module gh_counter_integer_down #(
-  parameter int max_count = 8
+  parameter int MAX_COUNT = 8
 ) (
     input logic clk,
     input logic rst,
@@ -35,7 +35,7 @@ module gh_counter_integer_down #(
     else begin
       if (load == 1'b1) iq <= d;
       else if (ce == 1'b1) begin
-        if (iq == 0) iq <= max_count;
+        if (iq == 0) iq <= MAX_COUNT;
         else iq <= iq - 1;
       end
     end

@@ -17,7 +17,7 @@
 //
 ////////////////////////////////////////////////////////
 module gh_fifo_async16_sr #(
-  parameter int data_width = 8
+  parameter int DATA_WIDTH = 8
 ) (// size of data bus
   input logic clk_wr, // write clock
   input logic clk_rd, // read clock
@@ -25,13 +25,13 @@ module gh_fifo_async16_sr #(
   input logic srst,   // resets counters (sync with clk_wr)
   input logic wr,     // write control
   input logic rd,     // read control
-  input logic [data_width-1:0] d,
-  output logic [data_width-1:0] q,
+  input logic [DATA_WIDTH-1:0] d,
+  output logic [DATA_WIDTH-1:0] q,
   output logic empty,
   output logic full
 );
 
-  logic [data_width-1:0] ram_mem[16];
+  logic [DATA_WIDTH-1:0] ram_mem[16];
   logic iempty;
   logic ifull;
   logic add_wr_ce;

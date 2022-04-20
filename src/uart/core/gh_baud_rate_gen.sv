@@ -62,7 +62,7 @@ module gh_baud_rate_gen (
                  (be[1] == 1'b0) ? 1'b0 : 1'b1;
 
   gh_register_ce #(
-    .size(8)
+    .SIZE(8)
   ) u1 (
     .clk(clk),
     .rst(rst),
@@ -75,7 +75,7 @@ module gh_baud_rate_gen (
                  (be[0] == 1'b0) ? 1'b0 : 1'b1;
 
   gh_register_ce #(
-    .size(8)
+    .SIZE(8)
   ) u2 (
     .clk(clk),
     .rst(rst),
@@ -103,7 +103,7 @@ module gh_baud_rate_gen (
   assign c_ce = (rate > 8'h01) ? 1'b1 : 1'b0;
 
   gh_counter_down_ce_ld #(
-    .size(16)
+    .SIZE(16)
   ) u3 (
     .clk(br_clk),
     .rst(rst),

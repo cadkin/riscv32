@@ -20,18 +20,18 @@
 //
 ////////////////////////////////////////////////////////////////////////////-
 module gh_counter_down_ce_ld_tc #(
-  parameter int size = 8
+  parameter int SIZE = 8
 ) (
 input logic clk,
 input logic rst,
 input logic load,
 input logic ce,
-input logic [size-1:0] d,
-output logic [size-1:0] q,
+input logic [SIZE-1:0] d,
+output logic [SIZE-1:0] q,
 output logic tc
 );
 
-logic [size-1:0] iq;
+logic [SIZE-1:0] iq;
 logic itc;
 
 //

@@ -41,9 +41,9 @@ module gh_uart_rx_8bit (
     r_parity,
     r_stop_bit,
     break_err
-  } r_statetype;
+  } r_state_e;
 
-  r_statetype r_state, r_nstate;
+  r_state_e r_state, r_nstate;
 
   logic parity;
   logic parity_grst;
@@ -102,7 +102,7 @@ module gh_uart_rx_8bit (
                (r_brdcount == 0) ? 1'b1 : 1'b0;
 
   gh_counter_integer_down #( // baud rate divider
-    .max_count(15)
+    .MAX_COUNT(15)
   ) u1 (
     .clk(clk),
     .rst(rst),
@@ -115,7 +115,7 @@ module gh_uart_rx_8bit (
 //--------------------------------------------------------
 
   gh_shift_reg_se_sl #(
-    .size(8)
+    .SIZE(8)
   ) u2 (
     .clk(clk),
     .rst(rst),
@@ -330,7 +330,7 @@ module gh_uart_rx_8bit (
   end
 
   gh_counter_integer_down #( // word counter
-    .max_count(8)
+    .MAX_COUNT(8)
   ) u3 (
     .clk(clk),
     .rst(rst),

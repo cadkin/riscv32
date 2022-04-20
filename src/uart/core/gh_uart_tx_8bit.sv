@@ -45,9 +45,9 @@ module gh_uart_tx_8bit (
     s_parity,
     s_stop_bit,
     s_stop_bit2
-  } t_statetype;
+  } t_state_e;
 
-  t_statetype t_state, t_nstate;
+  t_state_e t_state, t_nstate;
 
   logic parity;
   logic parity_grst;
@@ -85,7 +85,7 @@ module gh_uart_tx_8bit (
 
 
   gh_counter_integer_down #( // baud rate divider
-    .max_count(15)
+    .MAX_COUNT(15)
   ) u1 (
     .clk(clk),
     .rst(rst),
@@ -96,7 +96,7 @@ module gh_uart_tx_8bit (
   );
 
   gh_shift_reg_pl_sl #(
-    .size(8)
+    .SIZE(8)
   ) u2 (
     .clk(clk),
     .rst(rst),
@@ -274,7 +274,7 @@ module gh_uart_tx_8bit (
   end
 
   gh_counter_integer_down #( // word counter
-    .max_count(8)
+    .MAX_COUNT(8)
   ) u3 (
     .clk(clk),
     .rst(rst),

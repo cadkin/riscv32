@@ -16,21 +16,21 @@
 //
 ////////////////////////////////////////////////////////////////////////////-
 module gh_gray2binary #(
-  parameter int size = 8
+  parameter int SIZE = 8
 ) (
-  input logic [size-1:0] g, // gray code in
-  output logic [size-1:0] b // binary value out
+  input logic [SIZE-1:0] g, // gray code in
+  output logic [SIZE-1:0] b // binary value out
 );
 
-  logic [size-1:0] ib;
+  logic [SIZE-1:0] ib;
 
   assign b = ib;
 
   genvar j;
   generate
-    for (j = 0; j < size-1; j = j+1) begin : gen_g2b
+    for (j = 0; j < SIZE-1; j = j+1) begin : gen_g2b
       assign ib[j] = g[j] ^ ib[j+1];
     end
   endgenerate
-  assign ib[size-1] = g[size-1];
+  assign ib[SIZE-1] = g[SIZE-1];
 endmodule : gh_gray2binary

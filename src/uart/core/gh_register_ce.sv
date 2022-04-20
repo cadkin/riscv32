@@ -18,13 +18,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////-
 module gh_register_ce #(
-  parameter int size = 8
+  parameter int SIZE = 8
 ) (
   input logic clk,
   input logic rst,
   input logic ce, // clock enable
-  input logic [size-1:0] d,
-  output logic [size-1:0] q
+  input logic [SIZE-1:0] d,
+  output logic [SIZE-1:0] q
 );
 
   always_ff @(posedge clk or posedge rst) begin
