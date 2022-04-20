@@ -17,75 +17,63 @@
 //	        	          	        	   output time remains the same
 //
 ////////////////////////////////////////////////////////////////////////////-
-//LIBRARY ieee;
-//USE ieee.std_logic_1164.all;
+module gh_edge_det_xcd (
+  input logic iclk,  // clock for input data signal
+  input logic oclk,  // clock for output data pulse
+  input logic rst,
+  input logic d,
+  output logic re,   // rising edge
+  output logic fe   // falling edge
+);
 
-module gh_edge_det_XCD
-(
-		input logic iclk;// : in STD_LOGIC;  // clock for input data signal
-		input logic oclk;// : in STD_LOGIC;  // clock for output data pulse
-		input logic rst;//  : in STD_LOGIC;
-		input logic D;//    : in STD_LOGIC;
-		output logic re;//   : out STD_LOGIC; // rising edge 
-		output logic fe//   : out STD_LOGIC  // falling edge 
-		);
+  logic iq;
+  logic jkr;
+  logic jkf;
+  logic irq0;
+  logic rq0;
+  logic rq1;
+  logic ifq0;
+  logic fq0;
+  logic fq1;
 
+  always_ff @(posedge iclk or posedge rst) begin
+    if (rst == 1'b1) begin
+      iq <= 1'b0;
+      jkr <= 1'b0;
+      jkf <= 1'b0;
+    end
+    else begin
+      iq <= d;
+      if ((d == 1'b1) && (iq == 1'b0)) jkr <= 1'b1;
+      else if (rq1 == 1'b1) jkr <= 1'b0;
+      else jkr <= jkr;
+      if ((d == 1'b0) && (iq == 1'b1)) jkf <= 1'b1;
+      else if (fq1 == 1'b1) jkf <= 1'b0;
+      else jkf <= jkf;
+    end
+  end
 
+  assign re = (~rq1) & rq0;
+  assign fe = (~fq1) & fq0;
 
-
-	logic iQ ;
-	logic jkR, jkF;
-	logic irQ0, rQ0, rQ1;
-	logic ifQ0, fQ0, fQ1;
-
-always(iclk,rst)
-begin
-	if (rst == 1'b1) begin 
-		iQ <= 1'b0;
-		jkR <= 1'b0;
-		jkF <= 1'b0;
-	end else if (posedge(iclk)) begin
-		iQ <= D;
-		if ((D == 1'b1) && (iQ == 1'b0)) begin
-			jkR <= 1'b1;
-		end else if (rQ1 == 1'b1) begin
-			jkR <= 1'b0;
-		end else begin
-			jkR <= jkR;
-		end
-		if ((D == 1'b0) && (iQ == 1'b1)) begin
-			jkF <= 1'b1;
-		end else if (fQ1 == 1'b1) begin
-			jkF <= 1'b0;
-		end else begin
-			jkF <= jkF;
-		end
-	end
-end
-
-	assign re = (~ rQ1) & rQ0;
-	assign fe = (~ fQ1) & fQ0;
-
-always(oclk,rst)
-begin
-	if (rst == 1'b1) begin 
-		irQ0 <= 1'b0;
-		rQ0 <= 1'b0; 
-		rQ1 <= 1'b0;
-		//////////////-
-		ifQ0 <= 1'b0;
-		fQ0 <= 1'b0;
-		fQ1 <= 1'b0;
-	end else if (posedge(oclk)) begin
-		irQ0 <= jkR;
-		rQ0 <= irQ0;
-		rQ1 <= rQ0;
-		//////////////-
-		ifQ0 <= jkF;
-		fQ0 <= ifQ0;
-		fQ1 <= fQ0;
-	end
-end
-
-
-endmodule
+  always_ff @(posedge oclk or posedge rst) begin
+    if (rst == 1'b1) begin
+      irq0 <= 1'b0;
+      rq0 <= 1'b0;
+      rq1 <= 1'b0;
+      //-------------
+      ifq0 <= 1'b0;
+      fq0 <= 1'b0;
+      fq1 <= 1'b0;
+    end
+    else begin
+      irq0 <= jkr;
+      rq0 <= irq0;
+      rq1 <= rq0;
+      //-------------
+      ifq0 <= jkf;
+      fq0 <= ifq0;
+      fq1 <= fq0;
+    end
+  end
+endmodule : gh_edge_det_xcd

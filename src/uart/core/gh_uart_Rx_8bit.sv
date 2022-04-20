@@ -17,336 +17,338 @@
 //	        	          	         	   if no break error  
 //	2.0     	06/18/07  	P.Azkarate  Define "range" in R_WCOUNT and R_brdCOUNT signals
 ////////////////////////////////////////////////////////////////////////////-
-//library ieee ;
-//use ieee.std_logic_1164.all ;
+module gh_uart_rx_8bit (
+  input logic clk,    // clock
+  input logic rst,
+  input logic brcx16, // 16x clock enable
+  input logic srx,
+  input int num_bits,
+  input logic parity_en,
+  input logic parity_ev,
+  output logic parity_er,
+  output logic frame_er,
+  output logic break_itr,
+  output logic d_rdy,
+  output logic [7:0] d
+);
 
-module gh_uart_Rx_8bit
-(
-		clk       : in std_logic; // clock
-		rst       : in std_logic;
-		BRCx16    : in std_logic; // 16x clock enable
-		sRX       : in std_logic; 
-		num_bits  : in integer RANGE 0 to 8;
-		Parity_EN : in std_logic;
-		Parity_EV : in std_logic;
-		Parity_ER : out std_logic;
-		Frame_ER  : out std_logic;
-		Break_ITR : out std_logic;
-		D_RDY     : out std_logic;
-		D         : out std_logic_vector(7 downto 0)
-		);
-endmodule
-	
-architecture a of gh_uart_Rx_8bit
+  typedef enum {
+    idle,
+    r_start_bit,
+    shift_data,
+    r_parity,
+    r_stop_bit,
+    break_err
+  } r_statetype;
 
-COMPONENT gh_shift_reg_se_sl
-	GENERIC (size: INTEGER := 16); 
-(
-		clk      : IN STD_logic;
-		rst      : IN STD_logic;
-		srst     : IN STD_logic:=1'b0;
-		SE       : IN STD_logic; // shift enable
-		D        : IN STD_LOGIC;
-		Q        : OUT STD_LOGIC_VECTOR(size-1 DOWNTO 0)
-		);
-end COMPONENT;
+  r_statetype r_state, r_nstate;
 
-COMPONENT gh_parity_gen_Serial
-(	
-		clk      : IN STD_LOGIC;
-		rst      : IN STD_LOGIC; 
-		srst     : in STD_LOGIC;
-		SD       : in STD_LOGIC; // sample data pulse
-		D        : in STD_LOGIC; // data
-		Q        : out STD_LOGIC
-		);
-end COMPONENT;
+  logic parity;
+  logic parity_grst;
+  logic rwc_ld;
+  int r_wcount;
+  logic s_data_ld;
+  logic chk_par;
+  logic chk_frm;
+  logic clr_brk;
+  logic clr_d;
+  logic s_chk_par;
+  logic s_chk_frm;
+  logic [7:0] r_shift_reg;
+  logic irx;
+  logic brc;
+  logic dclk_ld;
+  int r_brdcount;
+  logic iparity_er;
+  logic iframe_er;
+  logic ibreak_itr;
+  logic id_rdy;
 
-COMPONENT gh_counter_integer_down	
-	generic(max_count : integer := 8);
-(	
-		clk      : IN STD_LOGIC;
-		rst      : IN STD_LOGIC; 
-		LOAD     : in STD_LOGIC; // load D
-		CE       : IN STD_LOGIC; // count enable
-		D        : in integer RANGE 0 TO max_count;
-		Q        : out integer RANGE 0 TO max_count
-		);
-end COMPONENT;
+//--------------------------------------------
+//-- outputs----------------------------------
+//--------------------------------------------
+  always_ff @(posedge clk or posedge rst)
+  begin
+    if (rst == 1'b1) begin
+      parity_er <= 1'b0;
+      frame_er <= 1'b0;
+      break_itr <= 1'b0;
+      d_rdy <= 1'b0;
+    end
+    else begin
+      if (brcx16 == 1'b1) begin
+        d_rdy <= id_rdy;
+        if (id_rdy == 1'b1) begin
+          parity_er <= iparity_er;
+          frame_er <= iframe_er;
+          break_itr <= ibreak_itr;
+        end
+      end
+    end
+  end
 
-COMPONENT gh_jkff
-(	
-		clk  : IN STD_logic;
-		rst  : IN STD_logic;
-		J,K  : IN STD_logic;
-		Q    : OUT STD_LOGIC
-		);
-end COMPONENT;
-
-	type R_StateType(idle,R_start_bit,shift_data,R_parity,
-	                     R_stop_bit,break_err);
-	logic R_state, R_nstate : R_StateType; 
-
-	logic parity     ;
-	logic parity_Grst;
-	logic RWC_LD     ;
-	logic R_WCOUNT : integer range 0 to 15;
-	logic s_DATA_LD;
-	logic chk_par;
-	logic chk_frm;
-	logic clr_brk;
-	logic clr_D;
-	logic s_chk_par;
-	logic s_chk_frm;
-	logic R_shift_reg : std_logic_vector(7 downto 0);
-	logic iRX;
-	logic BRC;
-	logic dCLK_LD;
-	logic R_brdCOUNT : integer range 0 to 15;
-	logic iParity_ER;
-	logic iFrame_ER;
-	logic iBreak_ITR;
-	logic iD_RDY;
-	
-begin
-
-//////////////////////////////////////////////
-//// outputs//////////////////////////////////
-//////////////////////////////////////////////
-always(CLK,rst)
-begin
-	if (rst == 1'b1) begin	
-		Parity_ER <= 1'b0;
-		Frame_ER <= 1'b0;
-		Break_ITR <= 1'b0;
-		D_RDY <= 1'b0;
-	end else if (posedge(CLK)) begin
-		if (BRCx16 == 1'b1) begin
-			D_RDY <= iD_RDY;
-			if (iD_RDY == 1'b1) begin
-				Parity_ER <= iParity_ER;
-				Frame_ER <= iFrame_ER;
-				Break_ITR <= iBreak_ITR;
-			end
-		end
-	end
-end
-
-	D <= R_shift_reg when (num_bits == 8) else
-	    (1'b0 & R_shift_reg(7 downto 1)) when (num_bits == 7) else
-	    ("00" & R_shift_reg(7 downto 2)) when (num_bits == 6) else
-	    ("000" & R_shift_reg(7 downto 3)); // when (bits_word == 5) else
+  assign d = (num_bits == 8) ? r_shift_reg :
+             (num_bits == 7) ? {1'b0, r_shift_reg[7:1]} :
+             (num_bits == 6) ? {2'b00, r_shift_reg[7:2]} : {3'b000, r_shift_reg[7:3]}; // when (bits_word == 5) else
 
 
-//////////////////////////////////////////////
+//--------------------------------------------
 
-	dCLK_LD <= 1'b1 when (R_state == idle) else
-	           1'b0;
-			   
-	BRC <= 1'b0 when (BRCx16 == 1'b0) else
-	       1'b1 when (R_brdCOUNT == 0) else
-	       1'b0;
-		   
-u1 : gh_counter_integer_down // baud rate divider
-	generic map (15)
-	port map(
-		clk => clk,  
-		rst  => rst, 
-		LOAD => dCLK_LD,
-		CE => BRCx16,
-		D => 14,
-		Q => R_brdCOUNT);
-		
-//////////////////////////////////////////////////////////
+  assign dclk_ld = (r_state == idle) ? 1'b1 : 1'b0;
 
-U2 : gh_shift_reg_se_sl 
-	Generic Map(8)
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		srst => clr_D,
-		SE => s_DATA_LD,
-		D => sRX,
-		Q => R_shift_reg);
+  assign brc = (brcx16 == 1'b0) ? 1'b0 :
+               (r_brdcount == 0) ? 1'b1 : 1'b0;
 
-//////////////////////////////////////////////////////////-
+  gh_counter_integer_down #( // baud rate divider
+    .max_count(15)
+  ) u1 (
+    .clk(clk),
+    .rst(rst),
+    .load(dclk_ld),
+    .ce(brcx16),
+    .d(14),
+    .q(r_brdcount)
+  );
 
-	chk_par <= s_chk_par and (((parity xor iRX) and Parity_EV) 
-	                 or (((not parity) xor iRX) and (not Parity_EV)));
+//--------------------------------------------------------
 
-U2c : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => chk_par,
-		k => dCLK_LD,
-		Q => iParity_ER);
+  gh_shift_reg_se_sl #(
+    .size(8)
+  ) u2 (
+    .clk(clk),
+    .rst(rst),
+    .srst(clr_d),
+    .se(s_data_ld),
+    .d(srx),
+    .q(r_shift_reg)
+  );
 
-	chk_frm <= s_chk_frm and (not iRX);
-		
-U2d : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => chk_frm,
-		k => dCLK_LD,
-		Q => iFrame_ER);
+//---------------------------------------------------------
 
-U2e : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => clr_d,
-		k => clr_brk,
-		Q => iBreak_ITR);
-		
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
+  assign chk_par = s_chk_par & (((parity ^ irx) & parity_ev)
+                   | (((~parity) ^ irx) & (~parity_ev)));
+
+  gh_jkff u2c (
+    .clk(clk),
+    .rst(rst),
+    .j(chk_par),
+    .k(dclk_ld),
+    .q(iparity_er)
+  );
+
+  assign chk_frm = s_chk_frm & (~irx);
+
+  gh_jkff u2d (
+    .clk(clk),
+    .rst(rst),
+    .j(chk_frm),
+    .k(dclk_ld),
+    .q(iframe_er)
+  );
+
+  gh_jkff u2e (
+    .clk(clk),
+    .rst(rst),
+    .j(clr_d),
+    .k(clr_brk),
+    .q(ibreak_itr)
+  );
+
+//------------------------------------------------------------
+//------------------------------------------------------------
 
 
-always(R_state,BRCx16,BRC,iRX,R_WCOUNT,Parity_EN,R_brdCOUNT,iBreak_ITR)
-begin
-	case R_state
-		when idle => // idle  
-			iD_RDY <= 1'b0; s_DATA_LD <= 1'b0; RWC_LD <= 1'b1; 
-			s_chk_par <= 1'b0; s_chk_frm <= 1'b0; clr_brk <= 1'b0;
-			clr_D <= 1'b0;
-			if (iRX == 1'b0) begin	
-				R_nstate <= R_start_bit;
-			else 
-				R_nstate <= idle;
-			end
-		when R_start_bit => // 
-			iD_RDY <= 1'b0; s_DATA_LD <= 1'b0; RWC_LD <= 1'b1; 
-			s_chk_par <= 1'b0; s_chk_frm <= 1'b0; clr_brk <= 1'b0;
-			if (BRC == 1'b1) begin
-				clr_D <= 1'b1;
-				R_nstate <= shift_data;
-			end else if ((R_brdCOUNT == 8) and (iRX == 1'b1)) begin // false start bit detection
-				clr_D <= 1'b0;
-				R_nstate <= idle;
-			else
-				clr_D <= 1'b0;
-				R_nstate <= R_start_bit;
-			end
-		when shift_data => // send data bit	
-			iD_RDY <= 1'b0; RWC_LD <= 1'b0;
-			s_chk_par <= 1'b0; s_chk_frm <= 1'b0;
-			clr_D <= 1'b0;
-			if (BRCx16 == 1'b0) begin
-				s_DATA_LD <= 1'b0; clr_brk <= 1'b0;
-				R_nstate <= shift_data;	
-			end else if (R_brdCOUNT == 8) begin
-				s_DATA_LD <= 1'b1; clr_brk <= iRX; 
-				R_nstate <= shift_data;	
-			end else if ((R_WCOUNT == 1) and (R_brdCOUNT == 0) and (Parity_EN == 1'b1)) begin
-				s_DATA_LD <= 1'b0; clr_brk <= 1'b0;
-				R_nstate <= R_parity;	
-			end else if ((R_WCOUNT == 1) and (R_brdCOUNT == 0)) begin
-				s_DATA_LD <= 1'b0; clr_brk <= 1'b0;
-				R_nstate <= R_stop_bit;
-			else
-				s_DATA_LD <= 1'b0; clr_brk <= 1'b0; 
-				R_nstate <= shift_data;
-			end
-		when R_parity => // check parity bit
-			iD_RDY <= 1'b0; s_DATA_LD <= 1'b0; 
-			RWC_LD <= 1'b0; s_chk_frm <= 1'b0;
-			clr_D <= 1'b0;
-			if (BRCx16 == 1'b0) begin
-				s_chk_par <= 1'b0;  clr_brk <= 1'b0;
-				R_nstate <= R_parity;
-			end else if (R_brdCOUNT == 8) begin
-				s_chk_par <= 1'b1; clr_brk <= iRX; 
-				R_nstate <= R_parity;
-			end else if (BRC == 1'b1) begin
-				s_chk_par <= 1'b0; clr_brk <= 1'b0;
-				R_nstate <= R_stop_bit;
-			else 
-				s_chk_par <= 1'b0; clr_brk <= 1'b0;
-				R_nstate <= R_parity;
-			end	 
-		when R_stop_bit => // check stop bit
-			s_DATA_LD <= 1'b0; RWC_LD <= 1'b0; 
-			s_chk_par <= 1'b0; clr_brk <= iRX;
-			clr_D <= 1'b0;
-			if ((BRC == 1'b1) and (iBreak_ITR == 1'b1)) begin
-				iD_RDY <= 1'b1; s_chk_frm <= 1'b0;
-				R_nstate <= break_err; 
-			end else if (BRC == 1'b1) begin
-				iD_RDY <= 1'b1; s_chk_frm <= 1'b0;
-				R_nstate <=	idle;
-			end else if (R_brdCOUNT == 8) begin
-				iD_RDY <= 1'b0; s_chk_frm <= 1'b1;
-				R_nstate <= R_stop_bit;	
-			end else if ((R_brdCOUNT == 7) and (iBreak_ITR == 1'b0)) begin // added 02/20/06
-				iD_RDY <= 1'b1; s_chk_frm <= 1'b0;
-				R_nstate <=	idle;
-			else 
-				iD_RDY <= 1'b0; s_chk_frm <= 1'b0;
-				R_nstate <= R_stop_bit;
-			end	
-		when break_err => 
-			iD_RDY <= 1'b0; s_DATA_LD <= 1'b0; RWC_LD <= 1'b0; 
-			s_chk_par <= 1'b0; s_chk_frm <= 1'b0; clr_brk <= 1'b0;
-			clr_D <= 1'b0;
-			if (iRX == 1'b1) begin
-				R_nstate <= idle;
-			else
-				R_nstate <= break_err;
-			end
-		when others => 
-			iD_RDY <= 1'b0; s_DATA_LD <= 1'b0; RWC_LD <= 1'b0; 
-			s_chk_par <= 1'b0; s_chk_frm <= 1'b0; clr_brk <= 1'b0;
-			clr_D <= 1'b0;
-			R_nstate <= idle;
-	end case;
-end
+  always_comb
+  begin
+    unique case (r_state)
+      idle: begin // idle
+        id_rdy = 1'b0;
+        s_data_ld = 1'b0;
+        rwc_ld = 1'b1;
+        s_chk_par = 1'b0;
+        s_chk_frm = 1'b0;
+        clr_brk = 1'b0;
+        clr_d = 1'b0;
+        if (irx == 1'b0) r_nstate = r_start_bit;
+        else r_nstate = idle;
+      end
+      r_start_bit: begin //
+        id_rdy = 1'b0;
+        s_data_ld = 1'b0;
+        rwc_ld = 1'b1;
+        s_chk_par = 1'b0;
+        s_chk_frm = 1'b0;
+        clr_brk = 1'b0;
+        if (brc == 1'b1) begin
+          clr_d = 1'b1;
+          r_nstate = shift_data;
+        end
+        else if ((r_brdcount == 8) && (irx == 1'b1)) begin // false start bit detection
+          clr_d = 1'b0;
+          r_nstate = idle;
+        end
+        else begin
+          clr_d = 1'b0;
+          r_nstate = r_start_bit;
+        end
+      end
+      shift_data: begin // send data bit
+        id_rdy = 1'b0;
+        rwc_ld = 1'b0;
+        s_chk_par = 1'b0;
+        s_chk_frm = 1'b0;
+        clr_d = 1'b0;
+        if (brcx16 == 1'b0) begin
+          s_data_ld = 1'b0;
+          clr_brk = 1'b0;
+          r_nstate = shift_data;
+        end
+        else if (r_brdcount == 8) begin
+          s_data_ld = 1'b1;
+          clr_brk = irx;
+          r_nstate = shift_data;
+        end
+        else if ((r_wcount == 1) && (r_brdcount == 0) && (parity_en == 1'b1)) begin
+          s_data_ld = 1'b0;
+          clr_brk = 1'b0;
+          r_nstate = r_parity;
+        end
+        else if ((r_wcount == 1) && (r_brdcount == 0)) begin
+          s_data_ld = 1'b0;
+          clr_brk = 1'b0;
+          r_nstate = r_stop_bit;
+        end
+        else begin
+          s_data_ld = 1'b0;
+          clr_brk = 1'b0;
+          r_nstate = shift_data;
+        end
+      end
+      r_parity: begin // check parity bit
+        id_rdy = 1'b0;
+        s_data_ld = 1'b0;
+        rwc_ld = 1'b0;
+        s_chk_frm = 1'b0;
+        clr_d = 1'b0;
+        if (brcx16 == 1'b0) begin
+          s_chk_par = 1'b0;
+          clr_brk = 1'b0;
+          r_nstate = r_parity;
+        end
+        else if (r_brdcount == 8) begin
+          s_chk_par = 1'b1;
+          clr_brk = irx;
+          r_nstate = r_parity;
+        end
+        else if (brc == 1'b1) begin
+          s_chk_par = 1'b0;
+          clr_brk = 1'b0;
+          r_nstate = r_stop_bit;
+        end
+        else begin
+          s_chk_par = 1'b0;
+          clr_brk = 1'b0;
+          r_nstate = r_parity;
+        end
+      end
+      r_stop_bit: begin // check stop bit
+        s_data_ld = 1'b0;
+        rwc_ld = 1'b0;
+        s_chk_par = 1'b0;
+        clr_brk = irx;
+        clr_d = 1'b0;
+        if ((brc == 1'b1) && (ibreak_itr == 1'b1)) begin
+          id_rdy = 1'b1;
+          s_chk_frm = 1'b0;
+          r_nstate = break_err;
+        end
+        else if (brc == 1'b1) begin
+          id_rdy = 1'b1;
+          s_chk_frm = 1'b0;
+          r_nstate =  idle;
+        end
+        else if (r_brdcount == 8) begin
+          id_rdy = 1'b0;
+          s_chk_frm = 1'b1;
+          r_nstate = r_stop_bit;
+        end
+        else if ((r_brdcount == 7) && (ibreak_itr == 1'b0)) begin // added 02/20/06
+          id_rdy = 1'b1;
+          s_chk_frm = 1'b0;
+          r_nstate =  idle;
+        end
+        else begin
+          id_rdy = 1'b0;
+          s_chk_frm = 1'b0;
+          r_nstate = r_stop_bit;
+        end
+      end
+      break_err: begin
+        id_rdy = 1'b0;
+        s_data_ld = 1'b0;
+        rwc_ld = 1'b0;
+        s_chk_par = 1'b0;
+        s_chk_frm = 1'b0;
+        clr_brk = 1'b0;
+        clr_d = 1'b0;
+        if (irx == 1'b1) r_nstate = idle;
+        else r_nstate = break_err;
+      end
+      default: begin
+        id_rdy = 1'b0;
+        s_data_ld = 1'b0;
+        rwc_ld = 1'b0;
+        s_chk_par = 1'b0;
+        s_chk_frm = 1'b0;
+        clr_brk = 1'b0;
+        clr_d = 1'b0;
+        r_nstate = idle;
+      end
+    endcase
+  end
 
-//
-// registers for SM
-always(CLK,rst)
-begin
-	if (rst == 1'b1) begin	
-		iRX <= 1'b1;
-		R_state <= idle;
-	end else if (posedge(CLK)) begin
-		if (BRCx16 == 1'b1) begin
-			iRX <= sRX;
-			R_state <= R_nstate;
-		else 
-			iRX <= iRX;
-			R_state <= R_state;
-		end
-	end
-end
+  //
+  // registers for sm
+  always_ff @(posedge clk or posedge rst)
+  begin
+    if (rst == 1'b1) begin
+      irx <= 1'b1;
+      r_state <= idle;
+    end
+    else begin
+      if (brcx16 == 1'b1) begin
+        irx <= srx;
+        r_state <= r_nstate;
+      end
+      else begin
+        irx <= irx;
+        r_state <= r_state;
+      end
+    end
+  end
 
-u3 : gh_counter_integer_down // word counter
-	generic map (8)
-	port map(
-		clk => clk,  
-		rst  => rst, 
-		LOAD => RWC_LD,
-		CE => BRC,
-		D => num_bits,
-		Q => R_WCOUNT
-		);
+  gh_counter_integer_down #( // word counter
+    .max_count(8)
+  ) u3 (
+    .clk(clk),
+    .rst(rst),
+    .load(rwc_ld),
+    .ce(brc),
+    .d(num_bits),
+    .q(r_wcount)
+  );
 
-////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////
-			   
-	parity_Grst <= 1'b1 when (R_state == R_start_bit) else
-	               1'b0;
-	
-U4 : gh_parity_gen_Serial 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		srst => parity_Grst,
-		SD => BRC,
-		D => R_shift_reg(7),
-		Q => parity);
+//------------------------------------------------------
+//------------------------------------------------------
 
-		
-endmodule
+  assign parity_grst = (r_state == r_start_bit) ? 1'b1 : 1'b0;
 
+  gh_parity_gen_serial u4 (
+    .clk(clk),
+    .rst(rst),
+    .srst(parity_grst),
+    .sd(brc),
+    .d(r_shift_reg[7]),
+    .q(parity)
+  );
+endmodule : gh_uart_rx_8bit

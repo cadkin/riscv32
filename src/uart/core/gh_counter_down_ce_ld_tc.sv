@@ -17,79 +17,55 @@
 //	2.1     	09/24/05  	S A Dodd 	fix description	
 //	2.2      	05/21/06  	S A Dodd 	fix typo's
 ////////////////////////////////////////////////////////////////////////////-
-//LIBRARY ieee;
-//USE ieee.std_logic_1164.all;
-//USE ieee.std_logic_unsigned.all;
-//USE ieee.std_logic_arith.all;
+module gh_counter_down_ce_ld_tc #(
+  parameter int size = 8
+) (
+input logic clk,
+input logic rst,
+input logic load,
+input logic ce,
+input logic [size-1:0] d,
+output logic [size-1:0] q,
+output logic tc
+);
 
-module gh_counter_down_ce_ld_tc#(
-	parameter size= 8)
-(
-		input logic CLK;//      : IN STD_LOGIC;
-		input logic rst;//      : IN STD_LOGIC; 
-		input logic LOAD;//     : in STD_LOGIC; // load D
-		input logic CE;//       : IN STD_LOGIC; // count enable
-		output logic [size-1,0] D;// : IN  STD_LOGIC_VECTOR(size-1 DOWNTO 0); in integer RANGE 0 TO size-1;
-		output logic [size-1,0] Q//: OUT STD_LOGIC_VECTOR(size-1 DOWNTO 0) out integer RANGE 0 TO size-1
-		output logic TC //: OUT STD_LOGIC
-		);
-
-
-
-	logic [size-1,0] iQ;//  : STD_LOGIC_VECTOR (size-1 DOWNTO 0);
-	logic iTC;
-	
-begin
+logic [size-1:0] iq;
+logic itc;
 
 //
 // outputs
 
-	assign TC = (iTC and CE);
-	      
-	assign Q = iQ;
+assign tc = (itc & ce);
 
-//////////////////////////////////
-//////////////////////////////////
+assign q = iq;
 
-always(CLK,rst)
-begin
-	if (rst == 1'b1) begin 
-		iTC <= 1'b0;
-	end else if (posedge(CLK)) begin
-		if (LOAD == 1'b1) begin
-			if (D == 8'h0) begin
-				iTC <= 1'b1;
-			end else begin
-				iTC <= 1'b0;
-			end
-		end else if (CE == 1'b0) begin  // LOAD == 1'b0
-				if (iQ == 8'h0) begin
-					iTC <= 1'b1;
-				end else begin
-					iTC <= 1'b0;
-				end
-		else begin// (CE == 1'b1)	
-			if (iQ == 8'h1) begin
-				iTC <= 1'b1;
-			end else begin
-				iTC <= 1'b0;
-			end
-		end			
-	end
+//--------------------------------
+//--------------------------------
+
+always_ff @(posedge clk or posedge rst) begin
+  if (rst == 1'b1) itc <= 1'b0;
+  else begin
+    if (load == 1'b1) begin
+      if (d == 4'h0) itc <= 1'b1;
+      else itc <= 1'b0;
+    end
+    else if (ce == 1'b0) begin  // load == 1'b0
+      if (iq == 4'h0) itc <= 1'b1;
+      else itc <= 1'b0;
+    end
+    else begin // (ce == 1'b1)
+      if (iq == 4'h1) itc <= 1'b1;
+      else itc <= 1'b0;
+    end
+  end
 end
 
 
-always(CLK,rst)
-begin
-	if (rst == 1'b1) begin 
-		iQ <= {size{1'b0}}; //(others => 1'b0);
-	end else if (posedge(CLK)) begin
-		if (LOAD == 1'b1) begin 
-			iQ <= D;
-		end else if (CE == 1'b1) begin
-			iQ <= (iQ - 2'b01);
-		end			
-	end
+always_ff @(posedge clk or posedge rst) begin
+  if (rst == 1'b1) iq <= 0;
+  else begin
+    if (load == 1'b1) iq <= d;
+    else if (ce == 1'b1) iq <= (iq - 2'b01);
+  end
 end
-
-endmodule
+endmodule : gh_counter_down_ce_ld_tc

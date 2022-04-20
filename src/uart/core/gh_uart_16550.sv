@@ -39,902 +39,716 @@
 //	        	        	         	   as suggested by Nathan Z.
 //
 ////////////////////////////////////////////////////////////////////////////-
-//library ieee ;
-//use ieee.std_logic_1164.all ;
-
 module gh_uart_16550 (
-		clk     : in std_logic;
-		BR_clk  : in std_logic;
-		rst     : in std_logic;
-		CS      : in std_logic;
-		WR      : in std_logic;
-		ADD     : in std_logic_vector(2 downto 0);
-		D       : in std_logic_vector(7 downto 0);
-		
-		sRX	    : in std_logic;
-		
-		sTX     : out std_logic;
-		DTRn    : out std_logic;
-		RTSn    : out std_logic;
-		OUT1n   : out std_logic;
-		OUT2n   : out std_logic;
-		TXRDYn  : out std_logic;
-		RXRDYn  : out std_logic;
-		
-		IRQ     : out std_logic;
-		B_CLK   : out std_logic;
-		RD      : out std_logic_vector(7 downto 0)
-		);
-endmodule
-
-architecture a of gh_uart_16550
-
-COMPONENT gh_edge_det
-(	
-		clk : in STD_LOGIC;
-		rst : in STD_LOGIC;
-		D   : in STD_LOGIC;
-		re  : out STD_LOGIC; // rising edge (need sync source at D)
-		fe  : out STD_LOGIC; // falling edge (need sync source at D)
-		sre : out STD_LOGIC; // sync'd rising edge
-		sfe : out STD_LOGIC  // sync'd falling edge
-		);
-end COMPONENT;
-
-COMPONENT gh_register_ce
-	GENERIC (size: INTEGER := 8);
-(	
-		clk : IN		STD_LOGIC;
-		rst : IN		STD_LOGIC; 
-		CE  : IN		STD_LOGIC; // clock enable
-		D   : IN		STD_LOGIC_VECTOR(size-1 DOWNTO 0);
-		Q   : OUT		STD_LOGIC_VECTOR(size-1 DOWNTO 0)
-		);
-end COMPONENT;
-
-COMPONENT gh_DECODE_3to8
-(
-		A   : IN  STD_LOGIC_VECTOR(2 DOWNTO 0); // address
-		G1  : IN  STD_LOGIC; // enable positive
-		G2n : IN  STD_LOGIC; // enable negitive
-		G3n : IN  STD_LOGIC; // enable negitive
-		Y   : out STD_LOGIC_VECTOR(7 downto 0)
-		);
-end COMPONENT;
-
-COMPONENT gh_jkff
-(	
-		clk  : IN STD_logic;
-		rst  : IN STD_logic;
-		J,K  : IN STD_logic;
-		Q    : OUT STD_LOGIC
-		);
-end COMPONENT;
-
-COMPONENT gh_uart_Tx_8bit	
-(
-		clk       : in std_logic; //  clock
-		rst       : in std_logic;
-		xBRC      : in std_logic; // x clock enable
-		D_RYn     : in std_logic; // data ready 
-		D         : in std_logic_vector(7 downto 0);
-		num_bits  : in integer RANGE 0 to 8 := 8; // number of bits in transfer
-		Break_CB  : in std_logic;
-		stopB     : in std_logic;
-		Parity_EN : in std_logic;
-		Parity_EV : in std_logic;
-		sTX       : out std_logic;
-		BUSYn     : out std_logic;
-		read      : out std_logic // data read
-		);
-end COMPONENT;
-
-COMPONENT gh_uart_Rx_8bit	
-(
-		clk       : in std_logic; // clock
-		rst       : in std_logic;
-		BRCx16    : in std_logic; // 16x clock enable
-		sRX       : in std_logic; 
-		num_bits  : in integer RANGE 0 to 8;
-		Parity_EN : in std_logic;
-		Parity_EV : in std_logic;
-		Parity_ER : out std_logic;
-		Frame_ER  : out std_logic;
-		Break_ITR : out std_logic;
-		D_RDY     : out std_logic;
-		D         : out std_logic_vector(7 downto 0)
-		);
-end COMPONENT;
-
-COMPONENT gh_fifo_async16_sr
-	GENERIC (data_width: INTEGER :=8 ); // size of data bus
-	port (					
-		clk_WR : in STD_LOGIC; // write clock
-		clk_RD : in STD_LOGIC; // read clock
-		rst    : in STD_LOGIC; // resets counters
-		srst   : in STD_LOGIC; // resets counters
-		WR     : in STD_LOGIC; // write control 
-		RD     : in STD_LOGIC; // read control
-		D      : in STD_LOGIC_VECTOR (data_width-1 downto 0);
-		Q      : out STD_LOGIC_VECTOR (data_width-1 downto 0);
-		empty  : out STD_LOGIC; 
-		full   : out STD_LOGIC);
-end COMPONENT;
-
-COMPONENT gh_baud_rate_gen
-(
-		clk     : in std_logic;
-		rst     : in std_logic;
-		BR_clk  : in std_logic;
-		WR      : in std_logic;
-		BE      : in std_logic_vector (1 downto 0); // byte enable
-		D       : in std_logic_vector (15 downto 0);
-		RD      : out std_logic_vector (15 downto 0);
-		rCE     : out std_logic;
-		rCLK    : out std_logic
-		);
-end COMPONENT;
-
-COMPONENT gh_fifo_async16_rcsr_wf
-	GENERIC (data_width: INTEGER :=8 ); // size of data bus
-	port (					
-		clk_WR  : in STD_LOGIC; // write clock
-		clk_RD  : in STD_LOGIC; // read clock
-		rst     : in STD_LOGIC; // resets counters
-		rc_srst : in STD_LOGIC:=1'b0; // resets counters (sync with clk_RD!!!)
-		WR      : in STD_LOGIC; // write control 
-		RD      : in STD_LOGIC; // read control
-		D       : in STD_LOGIC_VECTOR (data_width-1 downto 0);
-		Q       : out STD_LOGIC_VECTOR (data_width-1 downto 0);
-		empty   : out STD_LOGIC; // sync with clk_RD!!!
-		q_full  : out STD_LOGIC; // sync with clk_RD!!!
-		h_full  : out STD_LOGIC; // sync with clk_RD!!!
-		a_full  : out STD_LOGIC; // sync with clk_RD!!!
-		full    : out STD_LOGIC);
-end COMPONENT;
-
-COMPONENT  gh_counter_down_ce_ld_tc
-	GENERIC (size: INTEGER :=8);
-(
-		CLK   : IN	STD_LOGIC;
-		rst   : IN	STD_LOGIC;
-		LOAD  : IN	STD_LOGIC;
-		CE    : IN	STD_LOGIC;
-		D     : IN  STD_LOGIC_VECTOR(size-1 DOWNTO 0);
-		Q     : OUT STD_LOGIC_VECTOR(size-1 DOWNTO 0);
-		TC    : OUT STD_LOGIC
-		);
-end COMPONENT;
-
-COMPONENT  gh_edge_det_XCD// added 2 aug 2007
-(
-		iclk : in STD_LOGIC;  // clock for input data signal
-		oclk : in STD_LOGIC;  // clock for output data pulse
-		rst  : in STD_LOGIC;
-		D    : in STD_LOGIC;
-		re   : out STD_LOGIC; // rising edge 
-		fe   : out STD_LOGIC  // falling edge 
-		);
-end COMPONENT;
-
-	logic IER    : std_logic_vector(3 downto 0); // Interrupt Enable Register
-	logic IIR    : std_logic_vector(7 downto 0); // Interrupt ID Register
-	logic iIIR   : std_logic_vector(3 downto 0); // 12/23/06
-	logic FCR    : std_logic_vector(7 downto 0); // FIFO Control register
-	logic LCR    : std_logic_vector(7 downto 0); // Line Control Register
-	logic MCR    : std_logic_vector(4 downto 0); // Modem Control Register
-	logic LSR    : std_logic_vector(7 downto 0); // Line Status Register
-	logic MSR    : std_logic_vector(7 downto 0); // Modem Status Register
-	logic SCR    : std_logic_vector(7 downto 0); // Line Control Register
-	logic RDD    : std_logic_vector(15 downto 0); // Divisor Latch 
-	logic iMSR   : std_logic_vector(7 downto 4); // Modem Status Register
-	logic RD_IIR;
-	
-	logic iRD    : std_logic_vector(7 downto 0);
-	logic CSn   ;
-	logic WR_B   : std_logic_vector(7 downto 0);
-	logic WR_F  ;
-	logic WR_IER;
-	logic WR_D  ;
-	logic WR_DML : std_logic_vector(1 downto 0);
-	logic D16    : std_logic_vector(15 downto 0);
-	logic BRC16x; // baud rate clock 
-	
-	logic ITR0  ;
-	signalITR1;
-	logic sITR1 ;
-	logic cITR1 ;
-	logic cITR1a;
-	logic ITR1  ;
-	logic ITR2  ;
-	logic ITR3  ;
-	
-	logic DCTS    ;
-	logic iLOOP   ;
-	
-	logic DDSR    ;
-
-	logic TERI   ;
-		
-	logic DDCD    ;
-
-	logic RD_MSR  ;
-	logic MSR_CLR ;
-
-	logic RD_LSR  ;
-	logic LSR_CLR ;
-	
-	logic num_bits  : integer RANGE 0 to 8 :=0;
-	logic stopB    ;
-	logic Parity_EN;
-	logic Parity_OD;
-	logic Parity_EV;
-//	logic Parity_sticky;
-	logic Break_CB;
-	
-	logic TF_RD   ;
-	logic TF_CLR  ;
-	logic TF_CLRS ;
-	logic TF_DO    : std_logic_vector(7 downto 0);
-	logic TF_empty	: std_logic;
-	logic TF_full ;
-
-	logic RF_WR    ;
-	logic RF_RD    ;
-	logic RF_RD_brs; // added 3 aug 2007
-	logic RF_CLR   ;
-	logic RF_CLRS  ;
-	logic RF_DI     : std_logic_vector(10 downto 0); // Read FIFO data input
-	logic RF_DO     : std_logic_vector(10 downto 0); // Read FIFO data output
-	logic RF_empty ;
-	logic RF_full  ;
-	logic RD_RDY   ;
-	
-	logic iParity_ER; // added 13 oct 2007
-	logic iFRAME_ER ; // added 13 oct 2007
-	logic iBreak_ITR; // added 13 oct 2007
-	logic Parity_ER ;
-	logic FRAME_ER  ;
-	logic Break_ITR ;
-	logic TSR_EMPTY ;
-	logic OVR_ER    ;
-	signalTX      ;
-	signalRX      ;
-	
-	logic q_full  ;
-	logic h_full  ;
-	logic a_full  ;
-	
-	logic RF_ER  ;
-	logic TX_RDY ;
-	logic TX_RDYS;
-	logic TX_RDYC;
-	logic RX_RDY ;
-	logic RX_RDYS;
-	logic RX_RDYC;
-
-	logic TOI     ; // time out interrupt 
-	logic TOI_enc ; // time out interrupt counter inable
-	logic iTOI_enc;
-	logic TOI_set ;
-	logic iTOI_set; // added 3 aug 2007
-	logic TOI_clr ;
-	logic TOI_c_ld;
-	logic TOI_c_d  : std_logic_vector(11 downto 0);
-	
-begin
-
-//////////////////////////////////////////////
-//// resd   //////////////////////////////////
-//////////////////////////////////////////////
-
-	RD <= RF_DO(7 downto 0) when ((ADD == o"0") and (LCR(7) == 1'b0)) else
-	      (x"0" & IER) when ((ADD == o"1") and (LCR(7) == 1'b0)) else
-	      IIR when (ADD == o"2") else
-	      LCR when (ADD == o"3") else
-	      ("000" & MCR) when (ADD == o"4") else
-	      LSR when (ADD == o"5") else
-	      MSR when (ADD == o"6") else
-	      SCR when (ADD == o"7") else
-	      RDD(7 downto 0) when (ADD == o"0") else
-	      RDD(15 downto 8);
-
-//////////////////////////////////////////////
-
-U1 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => TX_RDYS,
-		k => TX_RDYC,
-		Q => TX_RDY);	  
-	
-	TXRDYn <= (not TX_RDY);
-		
-	TX_RDYS <= 1'b1 when ((FCR(3) == 1'b0) and (TF_empty == 1'b1) and (TSR_EMPTY == 1'b1)) else
-	           1'b1 when ((FCR(3) == 1'b1) and (TF_empty == 1'b1)) else
-	           1'b0;
-	
-	TX_RDYC <= 1'b1 when ((FCR(3) == 1'b0) and (TF_empty == 1'b0)) else
-	           1'b1 when ((FCR(3) == 1'b1) and (TF_full == 1'b1)) else
-	           1'b0;
-	
-U2 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => RX_RDYS,
-		k => RX_RDYC,
-		Q => RX_RDY);	
-		
-	RXRDYn <= (not RX_RDY);
-		
-	RX_RDYS <= 1'b1 when ((FCR(3) == 1'b0) and (RF_empty == 1'b0)) else	// mod 01/20/07
-	           1'b1 when ((FCR(3) == 1'b1) and (FCR(7 downto 6) == "11") and (a_full == 1'b1)) else
-	           1'b1 when ((FCR(3) == 1'b1) and (FCR(7 downto 6) == "10") and (h_full == 1'b1)) else
-	           1'b1 when ((FCR(3) == 1'b1) and (FCR(7 downto 6) == "01") and (q_full == 1'b1)) else
-	           1'b1 when ((FCR(3) == 1'b1) and (FCR(7 downto 6) == "00") and (RF_empty == 1'b0)) else
-	           1'b0;
-		
-		
-	RX_RDYC <= 1'b1 when (RF_empty == 1'b1) else
-	           1'b0;
-		
-		
-//////////////////////////////////////////////
-//// Modem Status Register Bits //////////////
-//////////////////////////////////////////////
-
-U4 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => 1'b0, // TODO Optimize out 1'b0 inputs (becomes D-ff w/ K as enable)
-		k => MSR_CLR,
-		Q => DCTS);
-	
-	MSR(0) <= DCTS;
-
-U6 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => 1'b0,
-		k => MSR_CLR,
-		Q => DDSR);
-	
-	MSR(1) <= DDSR;
-		
-U8 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => 1'b0,
-		k => MSR_CLR,
-		Q => TERI);
-	
-	MSR(2) <= TERI;
-
-U10 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => 1'b0,
-		k => MSR_CLR,
-		Q => DDCD);
-	
-	MSR(3) <= DDCD;
-	
-	iMSR(4) <= 1'b0 when (iLOOP == 1'b0) else
-	            MCR(1);
-	
-	iMSR(5) <= 1'b0 when (iLOOP == 1'b0) else
-	            MCR(0);
-	
-	iMSR(6) <= 1'b0 when (iLOOP == 1'b0) else
-	            MCR(2);
-	
-	iMSR(7) <= 1'b0 when (iLOOP == 1'b0) else
-	            MCR(3);
-  
-	RD_MSR <= 1'b0 when ((CS == 1'b0) or (WR == 1'b1)) else
-	          1'b0 when (ADD /= o"6") else
-	          1'b1;
-
-
-	ITR0 <= 1'b0 when (IER(3) == 1'b0) else
-	        1'b1 when (MSR(3 downto 0) > x"0") else
-	        1'b0;
-			  
-U11 : gh_edge_det 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		d => RD_MSR,
-		sfe => MSR_CLR);
-
-u12 : gh_register_ce 
-	generic map (4)
-	port map(
-		clk => clk,
-		rst => rst,
-		ce => 1'b1,
-		D => iMSR,
-		Q => MSR(7 downto 4)
-		);
-		
-//////////////////////////////////////////////////-
-//////// LSR //////////////////////////////////////
-//////////////////////////////////////////////////-
-
-	LSR(0) <= (not RF_empty);
-
-U13 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => OVR_ER,
-		k => LSR_CLR,
-		Q => LSR(1));
-
-	OVR_ER <= 1'b1 when ((RF_full == 1'b1) and (RF_WR == 1'b1)) else
-	          1'b0;
-		
-U14 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => PARITY_ER,
-		k => LSR_CLR,
-		Q => LSR(2));
-
-U15 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => FRAME_ER,
-		k => LSR_CLR,
-		Q => LSR(3));
-
-U16 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => Break_ITR,
-		k => LSR_CLR,
-		Q => LSR(4));
-
-	LSR(5) <= TF_EMPTY;
-	LSR(6) <= TF_EMPTY and TSR_EMPTY;
-
-U17 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => RF_ER,
-		k => LSR_CLR,
-		Q => LSR(7));
-
-	RF_ER <= 1'b1 when (RF_DI(10 downto 8) > "000") else
-	         1'b0;
-	
-	RD_LSR <= 1'b0 when ((CS == 1'b0) or (WR == 1'b1)) else
-	          1'b0 when (ADD /= o"5") else
-	          1'b1;
-	
-U18 : gh_edge_det 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		d => RD_LSR,
-		sfe => LSR_CLR);
-		
-//////////////////////////////////////////////
-//////  registers //////-
-//////////////////////////////////////////////
-
-	CSn <= (not CS);
-	
-	
-u19 : gh_DECODE_3to8 
-	port map(
-		A => ADD,
-		G1 => WR,
-		G2n => CSn,
-		G3n => 1'b0,
-		Y => WR_B
-		);
-
-	WR_F <= WR_B(0) and (not LCR(7));
-	WR_IER <= WR_B(1) and (not LCR(7));
-	WR_D <= LCR(7) and (WR_B(0) or WR_B(1));
-	WR_DML <= (WR_B(1) and LCR(7)) & (WR_B(0) and LCR(7));
-		
-u20 : gh_register_ce 
-	generic map (4)
-	port map(
-		clk => clk,
-		rst => rst,
-		ce => WR_IER,
-		D => D(3 downto 0),
-		Q => IER
-		);
-		
-u21 : gh_register_ce 
-	generic map (8)
-	port map(
-		clk => clk,
-		rst => rst,
-		ce => WR_B(2),
-		D => D,
-		Q => FCR
-		);
-		
-U22 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => RF_CLRS,
-		k => RF_EMPTY,
-		Q => RF_CLR);
-		
-	RF_CLRS <= D(1) AND WR_B(2);
-		
-U23 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => TF_CLRS,
-		k => TF_EMPTY,
-		Q => TF_CLR);
-		
-	TF_CLRS <= D(2) AND WR_B(2);
-		
-u24 : gh_register_ce 
-	generic map (8)
-	port map(
-		clk => clk,
-		rst => rst,
-		ce => WR_B(3),
-		D => D,
-		Q => LCR
-		);		
-	
-	num_bits <= 5 when ((LCR(0) == 1'b0) and (LCR(1) == 1'b0)) else
-	            6 when ((LCR(0) == 1'b1) and (LCR(1) == 1'b0)) else	 // 07/12/07
-	            7 when ((LCR(0) == 1'b0) and (LCR(1) == 1'b1)) else	 // 07/12/07
-	            8;				   
-
-	stopB <= LCR(2);
-	
-	Parity_EN <= LCR(3);
-	Parity_OD <= LCR(3) and (not LCR(4)) and (not LCR(5));
-	Parity_EV <= LCR(3) and LCR(4) and (not LCR(5)); 
-//	Parity_sticky <= LCR(3) and LCR(5);
-	Break_CB <= LCR(6);
-		
-u25 : gh_register_ce 
-	generic map (5)
-	port map(
-		clk => clk,
-		rst => rst,
-		ce => WR_B(4),
-		D => D(4 downto 0),
-		Q => MCR
-		);		
-
-	DTRn <= (not MCR(0)) or iLOOP;
-	RTSn <= (not MCR(1)) or iLOOP;
-	OUT1n <= (not MCR(2)) or iLOOP;
-	OUT2n <= (not MCR(3)) or iLOOP;
-  	iLOOP <= MCR(4);   
-	  
-u26 : gh_register_ce 
-	generic map (8)
-	port map(
-		clk => clk,
-		rst => rst,
-		ce => WR_B(7),
-		D => D,
-		Q => SCR
-		);		
-
-//////////////////////////////////////////////////////////
-		
-	D16 <= D & D;
-		
-u27 : gh_baud_rate_gen
-	port map(
-		clk => clk,  
-		BR_clk => BR_clk, 
-		rst  => rst, 
-		WR => WR_D,
-		BE => WR_DML,
-		D => D16,
-		RD => RDD,
-		rCE => BRC16x,
-		rCLK => B_clk
-		);		
-	
-//////////////////////////////////////////////////
-//// trans FIFO   12/23/06 //////////////////////-
-//////////////////////////////////////////////////
-
-U28 : gh_fifo_async16_sr
-	Generic Map(data_width => 8)
-	PORT MAP (
-		clk_WR => clk,
-		clk_RD => BR_clk,
-		rst => rst,
-		srst => TF_CLR,
-		WR => WR_F,
-		RD => TF_RD,
-		D => D,
-		Q => TF_DO,
-		empty => TF_empty,
-		full => TF_full);
-
-////////////////////////////////////////////////////////////////
-//////////- added 03/18/06 ////////////////////////////////////-
-//////////-  mod 10/12/07 //////////////////////////////////////
-
-U28a : gh_edge_det  
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		d =>ITR1,
-		sre => sITR1);
-		
-	isITR1 <= TF_empty and IER(1);
-	
-////////// end mod 10/12/07 ////////////////-
-	
-	RD_IIR <= 1'b0 when (ADD /= o"2") else
-	          1'b0 when (WR == 1'b1) else
-	          1'b0 when (CS == 1'b0) else
-	          1'b0 when (IIR(3 downto 1) /= "001") else // walter hogan 12/12/2006
-	          1'b1;
-
-U28b : gh_edge_det  
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		d => RD_IIR,
-		sfe => cITR1a);
-		
-	cITR1 <= cITR1a or (not TF_empty);
-		
-U28c : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => sITR1,
-		k => cITR1,
-		Q => ITR1);
-		
-//////////- added 03/18/06 //////////////////////////////////////////
-////////////////////////////////////////////////////////////////////-
-
-U29 : gh_UART_Tx_8bit 
-	PORT MAP (
-		clk => BR_clk,
-		rst => rst,
-		xBRC => BRC16x,
-		D_RYn => TF_empty,
-		D => TF_DO,
-		num_bits => num_bits,
-		Break_CB => Break_CB,
-		StopB => stopB,
-		Parity_EN => Parity_EN,
-		Parity_EV => Parity_EV,
-		sTX =>TX,
-		BUSYn => TSR_EMPTY,
-		read => TF_RD);
-
-	sTX <=TX;
-
-		
-//////////////////////////////////////////////////
-//// Receive FIFO //////////////////////////////////
-//////////////////////////////////////////////////
-
-U30 : gh_edge_det 
-	PORT MAP (
-		clk => BR_clk,
-		rst => rst,
-		d => RD_RDY,
-		re => RF_WR);
-		
-	RF_RD <= 1'b0 when (LCR(7) == 1'b1) else // added 04/19/06
-	         1'b1 when ((ADD == "000") and (CS == 1'b1) and (WR == 1'b0)) else
-	         1'b0;
-		
-U31 : gh_fifo_async16_rcsr_wf // 01/20/07
-	Generic Map(data_width => 11)
-	PORT MAP (
-		clk_WR => BR_clk,
-		clk_RD => clk,
-		rst => rst,
-		rc_srst => RF_CLR,
-		WR => RF_WR,
-		RD => RF_RD,
-		D => RF_DI,
-		Q => RF_DO,
-		empty => RF_empty,
-		q_full => q_full,
-		h_full => h_full,
-		a_full => a_full,
-		full => RF_full);
-
-//////////// 10/12/07 //////////////////////////////////////
-////- as suggested  Matthias Klemm ////////////////////////-
-////- mod 10/13/07 ////////////////////////////////////////-
-
-	iParity_ER <= RF_DO(8) and (not RF_RD);
-
-U32a : gh_edge_det 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		d => iParity_ER,
-		sre => Parity_ER);
-		
-	iFRAME_ER <= RF_DO(9) and (not RF_RD);
-		
-U32b : gh_edge_det 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		d => iFRAME_ER,
-		sre => FRAME_ER);
-		
-	iBreak_ITR <= RF_DO(10) and (not RF_RD) and (not RF_EMPTY);	// 07/21/08
-		
-U32c : gh_edge_det 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		d => iBreak_ITR,
-		sre => Break_ITR);
-	
-	ITR3 <= 1'b0 when (IER(2) == 1'b0) else
-	        1'b1 when (LSR(1) == 1'b1) else
-	        1'b1 when (LSR(4 downto 2) > "000") else
-	        1'b0;
-
-//////////////////////////////////////////////////////////////////////-
-
-			
-	isRX <= sRX when (iLOOP == 1'b0) else
-	       TX;
-
-
-	ITR2 <= 1'b0 when (IER(0) == 1'b0) else  // mod 01/20/07
-	        1'b1 when ((FCR(7 downto 6) == "11") and (a_full == 1'b1)) else
-	        1'b1 when ((FCR(7 downto 6) == "10") and (h_full == 1'b1)) else
-	        1'b1 when ((FCR(7 downto 6) == "01") and (q_full == 1'b1)) else
-	        1'b1 when ((FCR(7 downto 6) == "00") and(RF_empty == 1'b0)) else
-	        1'b0;
- 
-U33 : gh_UART_Rx_8bit 
-	PORT MAP (
-		clk => BR_clk,
-		rst => rst,
-		BRCx16 => BRC16x,
-		sRX =>RX,
-		num_bits => num_bits,
-		Parity_EN => Parity_EN,
-		Parity_EV => Parity_EV,
-		Parity_ER => RF_DI(8),
-		FRAME_ER => RF_DI(9),
-		Break_ITR => RF_DI(10),
-		D_RDY => RD_RDY,
-		D => RF_DI(7 downto 0)
-		);
-
-////////////////////////////////////////////////////////////////
-////////// added 04/08/06 time out interrupt //////////////////-
-////////// once there a received data wordrecieved, ////////
-////////// the counter will be running until //////////////////-
-////////// FIFOempty, counter reset on FIFO read or write //
-//////- mod 3 aug 2007
-
-	TOI_clr <= RF_empty or RF_RD or (not IER(0)); 
-
-U34 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => TOI_set,
-		k => TOI_clr,
-		Q => TOI);
-
-U35 : gh_jkff 
-	PORT MAP (
-		clk => clk,
-		rst => rst,
-		j => LSR(0), // enable time out counter with received data
-		k => RF_empty, // once FIFOempty, stop counter
-		Q => iTOI_enc);
-		
-U35a : gh_edge_det_XCD 
-	PORT MAP (
-		iclk => clk,
-		oclk => BR_clk,
-		rst => rst,
-		d => RF_RD,
-		re => RF_RD_brs,
-		fe => open);
-		
-always(BR_clk,rst)
-begin
-	if (rst == 1'b1) begin
-		TOI_enc <= 1'b0;
-	end else if (posedge(BR_clk)) begin
-		TOI_enc <= iTOI_enc;
-	end
-end
-
-	TOI_c_ld <= 1'b1 when (IER(0) == 1'b0) else // added 4 aug 2007
-	            1'b1 when (TOI_enc == 1'b0) else
-	            1'b1 when (RF_RD_brs == 1'b1) else
-	            1'b1 when (RF_WR == 1'b1) else 
-	            1'b0;
-		
-U36 : gh_counter_down_ce_ld_tc
-	generic	map(10)
-	port map(
-		clk => BR_clk,
-		rst => rst,
-		LOAD => TOI_c_ld,
-		CE => BRC16x,
-		D => TOI_c_d(9 downto 0),
-//		Q => ,
-		TC => iTOI_set
-		);
-
-U36a : gh_edge_det_XCD 
-	PORT MAP (
-		iclk => BR_clk,
-		oclk => clk,
-		rst => rst,
-		d => iTOI_set,
-		re => TOI_set,
-		fe => open);
-
-		
-	TOI_c_d <= x"1C0" when (num_bits == 5) else
-	           x"200" when (num_bits == 6) else
-	           x"240" when (num_bits == 7) else
-	           x"280";// when (num_bits == 8)
-
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-
-	IRQ <= 1'b1 when ((ITR3 or ITR2 or TOI or ITR1 or ITR0) == 1'b1) else
-	       1'b0;
-		   
-	iIIR(0) <= 1'b0 when ((ITR3 or ITR2 or TOI or ITR1 or ITR0) == 1'b1) else
-	           1'b1;
-			  
-	iIIR(3 downto 1) <= "011" when (ITR3 == 1'b1) else
-	                    "010" when (ITR2 == 1'b1) else
-	                    "110" when (TOI  == 1'b1) else	// added 04/08/06	
-	                    "001" when (ITR1 == 1'b1) else
-	                    "000";
-			  
-	IIR(7 downto 4) <= x"C"; // FIFO's always enabled
-
-u37 : gh_register_ce // 12/23/06
-	generic map (4)
-	port map(
-		clk => clk,
-		rst => rst,
-		ce => CSn,
-		D => iIIR,
-		Q => IIR(3 downto 0)
-		);	
-
-//////////////////////////////////////////////////////////////
-
-endmodule
+  input logic clk,
+  input logic br_clk,
+  input logic rst,
+  input logic cs,
+  input logic wr,
+  input logic [2:0] add,
+  input logic [7:0] d,
+
+  input logic srx,
+
+  output logic stx,
+  output logic dtrn,
+  output logic rtsn,
+  output logic out1n,
+  output logic out2n,
+  output logic txrdyn,
+  output logic rxrdyn,
+
+  output logic irq,
+  output logic b_clk,
+  output logic [7:0] rd
+);
+
+  logic [3:0] ier;   // interrupt enable register
+  logic [7:0] iir;   // interrupt id register
+  logic [3:0] iiir;  // 12/23/06
+  logic [7:0] fcr;   // fifo control register
+  logic [7:0] lcr;   // line control register
+  logic [4:0] mcr;   // modem control register
+  logic [7:0] lsr;   // line status register
+  logic [7:0] msr;   // modem status register
+  logic [7:0] scr;   // line control register
+  logic [15:0] rdd;  // divisor latch
+  logic [7:4] imsr;  // modem status register
+  logic rd_iir;
+
+  logic [7:0] ird;
+  logic csn;
+  logic [7:0] wr_b;
+  logic wr_f;
+  logic wr_ier;
+  logic wr_d;
+  logic [1:0] wr_dml;
+  logic [15:0] d16;
+  logic brc16x;  // baud rate clock
+
+  logic itr0;
+  logic isitr1;
+  logic sitr1;
+  logic citr1;
+  logic citr1a;
+  logic itr1;
+  logic itr2;
+  logic itr3;
+
+  logic dcts;
+  logic iloop;
+
+  logic ddsr;
+
+  logic teri;
+
+  logic ddcd;
+
+  logic rd_msr;
+  logic msr_clr;
+
+  logic rd_lsr;
+  logic lsr_clr;
+
+  int num_bits;  // range 0 to 8 :=0;
+  logic stopb;
+  logic parity_en;
+  logic parity_od;
+  logic parity_ev;
+//logic parity_sticky;
+  logic break_cb;
+
+  logic tf_rd;
+  logic tf_clr;
+  logic tf_clrs;
+  logic [7:0] tf_do;
+  logic tf_empty;
+  logic tf_full;
+
+  logic rf_wr;
+  logic rf_rd;
+  logic rf_rd_brs;  // added 3 aug 2007
+  logic rf_clr;
+  logic rf_clrs;
+  logic [10:0] rf_di;  // read fifo data input
+  logic [10:0] rf_do;  // read fifo data output
+  logic rf_empty;
+  logic rf_full;
+  logic rd_rdy;
+
+  logic iparity_er;  // added 13 oct 2007
+  logic iframe_er;   // added 13 oct 2007
+  logic ibreak_itr;  // added 13 oct 2007
+  logic parity_er;
+  logic frame_er;
+  logic break_itr;
+  logic tsr_empty;
+  logic ovr_er;
+  logic istx;
+  logic isrx;
+
+  logic q_full;
+  logic h_full;
+  logic a_full;
+
+  logic rf_er;
+  logic tx_rdy;
+  logic tx_rdys;
+  logic tx_rdyc;
+  logic rx_rdy;
+  logic rx_rdys;
+  logic rx_rdyc;
+
+  logic toi;      // time out interrupt
+  logic toi_enc;  // time out interrupt counter inable
+  logic itoi_enc;
+  logic toi_set;
+  logic itoi_set;  // added 3 aug 2007
+  logic toi_clr;
+  logic toi_c_ld;
+  logic [11:0] toi_c_d;
+
+//--------------------------------------------
+//-- resd   ----------------------------------
+//--------------------------------------------
+
+  assign rd = ((add == 0) & (lcr[7] == 1'b0)) ? rf_do[7:0] :
+              ((add == 1) & (lcr[7] == 1'b0)) ? ({4'h0, ier}) :
+              (add == 2) ? iir :
+              (add == 3) ? lcr :
+              (add == 4) ? ({3'b000, mcr}) :
+              (add == 5) ? lsr :
+              (add == 6) ? msr :
+              (add == 7) ? scr :
+              (add == 0) ? rdd[7:0] : rdd[15:8];
+
+//--------------------------------------------
+
+  gh_jkff u1 (
+    .clk(clk),
+    .rst(rst),
+    .j(tx_rdys),
+    .k(tx_rdyc),
+    .q(tx_rdy)
+  );
+
+  assign txrdyn = (~tx_rdy);
+
+  assign tx_rdys = ((fcr[3] == 1'b0) & (tf_empty == 1'b1) & (tsr_empty == 1'b1)) ? 1'b1 :
+                   ((fcr[3] == 1'b1) & (tf_empty == 1'b1)) ? 1'b1 : 1'b0;
+
+  assign tx_rdyc = ((fcr[3] == 1'b0) & (tf_empty == 1'b0)) ? 1'b1 :
+                   ((fcr[3] == 1'b1) & (tf_full == 1'b1)) ? 1'b1 : 1'b0;
+
+  gh_jkff u2 (
+    .clk(clk),
+    .rst(rst),
+    .j(rx_rdys),
+    .k(rx_rdyc),
+    .q(rx_rdy)
+  );
+
+  assign rxrdyn = (~rx_rdy);
+
+  assign rx_rdys = ((fcr[3] == 1'b0) & (rf_empty == 1'b0)) ? 1'b1 :  // mod 01/20/07
+                   ((fcr[3] == 1'b1) & (fcr[7:6] == 2'b11) & (a_full == 1'b1)) ? 1'b1 :
+                   ((fcr[3] == 1'b1) & (fcr[7:6] == 2'b10) & (h_full == 1'b1)) ? 1'b1 :
+                   ((fcr[3] == 1'b1) & (fcr[7:6] == 2'b01) & (q_full == 1'b1)) ? 1'b1 :
+                   ((fcr[3] == 1'b1) & (fcr[7:6] == 2'b00) & (rf_empty == 1'b0)) ? 1'b1 : 1'b0;
+
+
+  assign rx_rdyc = (rf_empty == 1'b1) ? 1'b1 : 1'b0;
+
+
+//--------------------------------------------
+//-- modem status register bits --------------
+//--------------------------------------------
+
+  gh_jkff u4 (
+    .clk(clk),
+    .rst(rst),
+    .j(1'b0),  // todo optimize out 1'b0 inputs (becomes d-ff w/ k as enable)
+    .k(msr_clr),
+    .q(dcts)
+  );
+
+  assign msr[0] = dcts;
+
+  gh_jkff u6 (
+    .clk(clk),
+    .rst(rst),
+    .j(1'b0),
+    .k(msr_clr),
+    .q(ddsr)
+  );
+
+  assign msr[1] = ddsr;
+
+  gh_jkff u8 (
+    .clk(clk),
+    .rst(rst),
+    .j(1'b0),
+    .k(msr_clr),
+    .q(teri)
+  );
+
+  assign msr[2] = teri;
+
+  gh_jkff u10 (
+    .clk(clk),
+    .rst(rst),
+    .j(1'b0),
+    .k(msr_clr),
+    .q(ddcd)
+  );
+
+  assign msr[3] = ddcd;
+
+  assign imsr[4] = (iloop == 1'b0) ? 1'b0 : mcr[1];
+
+  assign imsr[5] = (iloop == 1'b0) ? 1'b0 : mcr[0];
+
+  assign imsr[6] = (iloop == 1'b0) ? 1'b0 : mcr[2];
+
+  assign imsr[7] = (iloop == 1'b0) ? 1'b0 : mcr[3];
+
+  assign rd_msr = ((cs == 1'b0) | (wr == 1'b1)) ? 1'b0 :
+                  (add != 6) ? 1'b0 : 1'b1;
+
+
+  assign itr0 = (ier[3] == 1'b0) ? 1'b0 :
+                (msr[3:0] > 4'h0) ? 1'b1 : 1'b0;
+
+  gh_edge_det u11 (
+    .clk(clk),
+    .rst(rst),
+    .d(rd_msr),
+    .sfe(msr_clr)
+  );
+
+  gh_register_ce #(
+    .size(4)
+  ) u12 (
+    .clk(clk),
+    .rst(rst),
+    .ce(1'b1),
+    .d(imsr),
+    .q(msr[7:4])
+  );
+
+//-------------------------------------------------
+//------ lsr --------------------------------------
+//-------------------------------------------------
+
+  assign lsr[0] = (~rf_empty);
+
+  gh_jkff u13 (
+    .clk(clk),
+    .rst(rst),
+    .j(ovr_er),
+    .k(lsr_clr),
+    .q(lsr[1])
+  );
+
+  assign ovr_er = ((rf_full == 1'b1) & (rf_wr == 1'b1)) ? 1'b1 : 1'b0;
+
+  gh_jkff u14 (
+    .clk(clk),
+    .rst(rst),
+    .j(parity_er),
+    .k(lsr_clr),
+    .q(lsr[2])
+  );
+
+  gh_jkff u15 (
+    .clk(clk),
+    .rst(rst),
+    .j(frame_er),
+    .k(lsr_clr),
+    .q(lsr[3])
+  );
+
+  gh_jkff u16 (
+    .clk(clk),
+    .rst(rst),
+    .j(break_itr),
+    .k(lsr_clr),
+    .q(lsr[4])
+  );
+
+  assign lsr[5] = tf_empty;
+  assign lsr[6] = tf_empty & tsr_empty;
+
+  gh_jkff u17 (
+    .clk(clk),
+    .rst(rst),
+    .j(rf_er),
+    .k(lsr_clr),
+    .q(lsr[7])
+  );
+
+  assign rf_er = (rf_di[10:8] > 3'b000) ? 1'b1 : 1'b0;
+
+  assign rd_lsr = ((cs == 1'b0) | (wr == 1'b1)) ? 1'b0 :
+                  (add != 5) ? 1'b0 : 1'b1;
+
+  gh_edge_det u18 (
+    .clk(clk),
+    .rst(rst),
+    .d(rd_lsr),
+    .sfe(lsr_clr)
+  );
+
+//--------------------------------------------
+//----  registers -------
+//--------------------------------------------
+
+  assign csn = (~cs);
+
+
+  gh_decode_3to8 u19 (
+    .a(add),
+    .g1(wr),
+    .g2n(csn),
+    .g3n(1'b0),
+    .y(wr_b)
+  );
+
+  assign wr_f = wr_b[0] & (~lcr[7]);
+  assign wr_ier = wr_b[1] & (~lcr[7]);
+  assign wr_d = lcr[7] & (wr_b[0] | wr_b[1]);
+  assign wr_dml = {(wr_b[1] & lcr[7]), (wr_b[0] & lcr[7])};
+
+  gh_register_ce #(
+    .size(4)
+  ) u20 (
+    .clk(clk),
+    .rst(rst),
+    .ce(wr_ier),
+    .d(d[3:0]),
+    .q(ier)
+  );
+
+  gh_register_ce #(
+    .size(8)
+  ) u21 (
+    .clk(clk),
+    .rst(rst),
+    .ce(wr_b[2]),
+    .d(d),
+    .q(fcr)
+  );
+
+  gh_jkff u22 (
+    .clk(clk),
+    .rst(rst),
+    .j(rf_clrs),
+    .k(rf_empty),
+    .q(rf_clr)
+  );
+
+  assign rf_clrs = d[1] & wr_b[2];
+
+  gh_jkff u23 (
+    .clk(clk),
+    .rst(rst),
+    .j(tf_clrs),
+    .k(tf_empty),
+    .q(tf_clr)
+  );
+
+  assign tf_clrs = d[2] & wr_b[2];
+
+  gh_register_ce #(
+    .size(8)
+  ) u24 (
+    .clk(clk),
+    .rst(rst),
+    .ce(wr_b[3]),
+    .d(d),
+    .q(lcr)
+  );
+
+  assign num_bits = ((lcr[0] == 1'b0) & (lcr[1] == 1'b0)) ? 5 :
+                    ((lcr[0] == 1'b1) & (lcr[1] == 1'b0)) ? 6 :     // 07/12/07
+                    ((lcr[0] == 1'b0) & (lcr[1] == 1'b1)) ? 7 : 8;  // 07/12/07
+
+  assign stopb = lcr[2];
+
+  assign parity_en = lcr[3];
+  assign parity_od = lcr[3] & (~lcr[4]) & (~lcr[5]);
+  assign parity_ev = lcr[3] & lcr[4] & (~lcr[5]);
+//assign parity_sticky = lcr[3] & lcr[5];
+  assign break_cb = lcr[6];
+
+  gh_register_ce #(
+    .size(5)
+  ) u25 (
+    .clk(clk),
+    .rst(rst),
+    .ce(wr_b[4]),
+    .d(d[4:0]),
+    .q(mcr)
+  );
+
+  assign dtrn = (~mcr[0]) | iloop;
+  assign rtsn = (~mcr[1]) | iloop;
+  assign out1n = (~mcr[2]) | iloop;
+  assign out2n = (~mcr[3]) | iloop;
+  assign iloop = mcr[4];
+
+  gh_register_ce #(
+    .size(8)
+  ) u26 (
+    .clk(clk),
+    .rst(rst),
+    .ce(wr_b[7]),
+    .d(d),
+    .q(scr)
+  );
+
+//--------------------------------------------------------
+
+  assign d16 = {d, d};
+
+  gh_baud_rate_gen u27 (
+    .clk(clk),
+    .br_clk(br_clk),
+    .rst(rst),
+    .wr(wr_d),
+    .be(wr_dml),
+    .d(d16),
+    .rd(rdd),
+    .rce(brc16x),
+    .rclk(b_clk)
+  );
+
+//------------------------------------------------
+//-- trans fifo   12/23/06 -----------------------
+//------------------------------------------------
+
+  gh_fifo_async16_sr #(
+    .data_width(8)
+  ) u28 (
+    .clk_wr(clk),
+    .clk_rd(br_clk),
+    .rst(rst),
+    .srst(tf_clr),
+    .wr(wr_f),
+    .rd(tf_rd),
+    .d(d),
+    .q(tf_do),
+    .empty(tf_empty),
+    .full(tf_full)
+  );
+
+//--------------------------------------------------------------
+//--------- added 03/18/06 -------------------------------------
+//---------  mod 10/12/07 --------------------------------------
+
+  gh_edge_det u28a (
+    .clk(clk),
+    .rst(rst),
+    .d(isitr1),
+    .sre(sitr1)
+  );
+
+  assign isitr1 = tf_empty & ier[1];
+
+//-------- end mod 10/12/07 -----------------
+
+  assign rd_iir = (add != 2) ? 1'b0 :
+                  (wr == 1'b1) ? 1'b0 :
+                  (cs == 1'b0) ? 1'b0 :
+                  (iir[3:1] != 3'b001) ? 1'b0 : 1'b1;  // walter hogan 12/12/2006
+
+  gh_edge_det u28b (
+    .clk(clk),
+    .rst(rst),
+    .d(rd_iir),
+    .sfe(citr1a)
+  );
+
+  assign citr1 = citr1a | (~tf_empty);
+
+  gh_jkff u28c (
+    .clk(clk),
+    .rst(rst),
+    .j(sitr1),
+    .k(citr1),
+    .q(itr1)
+  );
+
+//--------- added 03/18/06 ------------------------------------------
+//-------------------------------------------------------------------
+
+  gh_uart_tx_8bit u29 (
+    .clk(br_clk),
+    .rst(rst),
+    .xbrc(brc16x),
+    .d_ryn(tf_empty),
+    .d(tf_do),
+    .num_bits(num_bits),
+    .break_cb(break_cb),
+    .stopb(stopb),
+    .parity_en(parity_en),
+    .parity_ev(parity_ev),
+    .stx(istx),
+    .busyn(tsr_empty),
+    .read(tf_rd)
+  );
+
+  assign stx = istx;
+
+
+//------------------------------------------------
+//-- receive fifo ----------------------------------
+//------------------------------------------------
+
+  gh_edge_det u30 (
+    .clk(br_clk),
+    .rst(rst),
+    .d(rd_rdy),
+    .re(rf_wr)
+  );
+
+  assign rf_rd = (lcr[7] == 1'b1) ? 1'b0 :  // added 04/19/06
+                 ((add == 3'b000) & (cs == 1'b1) & (wr == 1'b0)) ? 1'b1 : 1'b0;
+
+  gh_fifo_async16_rcsr_wf #(  // 01/20/07
+    .data_width(11)
+  ) u31 (
+    .clk_wr(br_clk),
+    .clk_rd(clk),
+    .rst(rst),
+    .rc_srst(rf_clr),
+    .wr(rf_wr),
+    .rd(rf_rd),
+    .d(rf_di),
+    .q(rf_do),
+    .empty(rf_empty),
+    .q_full(q_full),
+    .h_full(h_full),
+    .a_full(a_full),
+    .full(rf_full)
+  );
+
+//---------- 10/12/07 --------------------------------------
+//--- as suggested  matthias klemm -------------------------
+//--- mod 10/13/07 -----------------------------------------
+
+  assign iparity_er = rf_do[8] & (~rf_rd);
+
+  gh_edge_det u32a (
+    .clk(clk),
+    .rst(rst),
+    .d(iparity_er),
+    .sre(parity_er)
+  );
+
+  assign iframe_er = rf_do[9] & (~rf_rd);
+
+  gh_edge_det u32b (
+    .clk(clk),
+    .rst(rst),
+    .d(iframe_er),
+    .sre(frame_er)
+  );
+
+  assign ibreak_itr = rf_do[10] & (~rf_rd) & (~rf_empty);  // 07/21/08
+
+  gh_edge_det u32c (
+    .clk(clk),
+    .rst(rst),
+    .d(ibreak_itr),
+    .sre(break_itr)
+  );
+
+  assign itr3 = (ier[2] == 1'b0) ? 1'b0 :
+                (lsr[1] == 1'b1) ? 1'b1 :
+                (lsr[4:2] > 3'b000) ? 1'b1 : 1'b0;
+
+//---------------------------------------------------------------------
+
+
+  assign isrx = (iloop == 1'b0) ? srx : istx;
+
+
+  assign itr2 = (ier[0] == 1'b0) ? 1'b0 :  // mod 01/20/07
+                ((fcr[7:6] == 2'b11) & (a_full == 1'b1)) ? 1'b1 :
+                ((fcr[7:6] == 2'b10) & (h_full == 1'b1)) ? 1'b1 :
+                ((fcr[7:6] == 2'b01) & (q_full == 1'b1)) ? 1'b1 :
+                ((fcr[7:6] == 2'b00) & (rf_empty == 1'b0)) ? 1'b1 : 1'b0;
+
+  gh_uart_rx_8bit u33 (
+    .clk(br_clk),
+    .rst(rst),
+    .brcx16(brc16x),
+    .srx(isrx),
+    .num_bits(num_bits),
+    .parity_en(parity_en),
+    .parity_ev(parity_ev),
+    .parity_er(rf_di[8]),
+    .frame_er(rf_di[9]),
+    .break_itr(rf_di[10]),
+    .d_rdy(rd_rdy),
+    .d(rf_di[7:0])
+  );
+
+//--------------------------------------------------------------
+//-------- added 04/08/06 time out interrupt -------------------
+//-------- once there a received data word is recieved, --------
+//-------- the counter will be running until -------------------
+//-------- fifo is empty, counter reset on fifo read | write --
+//----- mod 3 aug 2007
+
+  assign toi_clr = rf_empty | rf_rd | (~ier[0]);
+
+  gh_jkff u34 (
+    .clk(clk),
+    .rst(rst),
+    .j(toi_set),
+    .k(toi_clr),
+    .q(toi)
+  );
+
+  gh_jkff u35 (
+    .clk(clk),
+    .rst(rst),
+    .j(lsr[0]),    // enable time out counter with received data
+    .k(rf_empty),  // once fifo is empty), stop counter
+    .q(itoi_enc)
+  );
+
+  gh_edge_det_xcd u35a (
+    .iclk(clk),
+    .oclk(br_clk),
+    .rst(rst),
+    .d(rf_rd),
+    .re(rf_rd_brs),
+    .fe(open)
+  );
+
+  always_ff @(posedge br_clk or posedge rst) begin
+    if (rst == 1'b1) toi_enc <= 1'b0;
+    else toi_enc <= itoi_enc;
+  end
+
+  assign toi_c_ld = (ier[0] == 1'b0) ? 1'b1 :  // added 4 aug 2007
+                    (toi_enc == 1'b0) ? 1'b1 :
+                    (rf_rd_brs == 1'b1) ? 1'b1 :
+                    (rf_wr == 1'b1) ? 1'b1 : 1'b0;
+
+  gh_counter_down_ce_ld_tc #(
+    .size(10)
+  ) u36 (
+    .clk(br_clk),
+    .rst(rst),
+    .load(toi_c_ld),
+    .ce(brc16x),
+    .d(toi_c_d[9:0]),
+//  .q(),
+    .tc(itoi_set)
+  );
+
+  gh_edge_det_xcd u36a (
+    .iclk(br_clk),
+    .oclk(clk),
+    .rst(rst),
+    .d(itoi_set),
+    .re(toi_set),
+    .fe(open)
+  );
+
+
+  assign toi_c_d = (num_bits == 5) ? 12'h1c0 :
+                   (num_bits == 6) ? 12'h200 :
+                   (num_bits == 7) ? 12'h240 : 280;  // when (num_bits == 8)
+
+//------------------------------------------------------------
+//------------------------------------------------------------
+
+  assign irq = ((itr3 | itr2 | toi | itr1 | itr0) == 1'b1) ? 1'b1 : 1'b0;
+
+  assign iiir[0] = ((itr3 | itr2 | toi | itr1 | itr0) == 1'b1) ? 1'b0 : 1'b1;
+
+  assign iiir[3:1] = (itr3 == 1'b1) ? 3'b011 :
+                     (itr2 == 1'b1) ? 3'b010 :
+                     (toi == 1'b1) ? 3'b110 :  // added 04/08/06
+                     (itr1 == 1'b1) ? 3'b001 : 3'b000;
+
+  assign iir[7:4] = 4'hc;  // fifo's always enabled
+
+  gh_register_ce #(  // 12/23/06
+    .size(4)
+  ) u37 (
+    .clk(clk),
+    .rst(rst),
+    .ce(csn),
+    .d(iiir),
+    .q(iir[3:0])
+  );
+
+//------------------------------------------------------------
+
+endmodule : gh_uart_16550

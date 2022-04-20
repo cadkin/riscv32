@@ -16,31 +16,20 @@
 //	        	          	         	  with other librarys
 //
 ////////////////////////////////////////////////////////////////////////////-
-//LIBRARY ieee;
-//USE ieee.std_logic_1164.all;
+module gh_register_ce #(
+  parameter int size = 8
+) (
+  input logic clk,
+  input logic rst,
+  input logic ce, // clock enable
+  input logic [size-1:0] d,
+  output logic [size-1:0] q
+);
 
-module gh_register_ce#(
- parameter size= 8;)
-
-(	
-		input logic clk;// : IN		STD_LOGIC;
-		input logic rst;// : IN		STD_LOGIC; 
-		input logic CE;//  : IN		STD_LOGIC; // clock enable
-		input logic [size-1,0] D;//   : IN		STD_LOGIC_VECTOR(size-1 DOWNTO 0);
-		output logic [size-1,0] Q;//  : OUT		STD_LOGIC_VECTOR(size-1 DOWNTO 0)
-		);
-
-
-always(clk,rst)
-begin
-	if (rst == 1'b1) begin
-		Q <= {size{1'b0}};
-	end else if (posedge (clk)) begin
-		if (CE == 1'b1) begin
-			Q <= D;
-		end
-	end
-end
-
-endmodule
-
+  always_ff @(posedge clk or posedge rst) begin
+    if (rst == 1'b1) q <= 0;
+    else begin
+      if (ce == 1'b1) q <= d;
+    end;
+  end;
+endmodule : gh_register_ce

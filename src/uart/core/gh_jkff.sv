@@ -17,41 +17,24 @@
 //	2.1      	05/21/06  	S A Dodd 	fix typo's
 //
 ////////////////////////////////////////////////////////////////////////////-
-//LIBRARY ieee;
-//USE ieee.std_logic_1164.all;
+module gh_jkff (
+  input logic clk,
+  input logic rst,
+  input logic j,
+  input logic k,
+  output logic q
+);
 
+  logic iq;
 
-module gh_jkff
-(
-		input logic clk;//  : IN STD_logic;
-		input logic rst;// : IN STD_logic;
-		input logic J,K;//  : IN STD_logic;
-		output logic Q//    : OUT STD_LOGIC
-	);
+  assign q = iq;
 
-
-
-	logic iQ;// :  STD_LOGIC;
-	
-
- 
-assign	Q = iQ;
-
-always(clk,rst)
-begin
-	if (rst == 1'b1) begin 
-		iQ <= 1'b0;
-	end else if (posedge(clk)) begin 
-		if ((J = 1'b1) and (K == 1'b1)) begin
-			iQ <= (~ iQ);
-		end else if (J == 1'b1) begin
-			iQ <= 1'b1;
-		end else if (K == 1'b1) begin
-			iQ <= 1'b0;
-		end
-	end
-end
-
-
-endmodule
-
+  always_ff @(posedge clk or posedge rst) begin
+    if (rst == 1'b1) iq <= 1'b0;
+    else begin
+      if ((j == 1'b1) && (k == 1'b1)) iq <= ~iq;
+      else if (j == 1'b1) iq <= 1'b1;
+      else if (k == 1'b1) iq <= 1'b0;
+    end;
+  end;
+endmodule : gh_jkff

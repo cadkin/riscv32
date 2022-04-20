@@ -55,22 +55,22 @@ module uart_controller (
 
   gh_uart_16550 u0 (
       .clk(clk),
-      .BR_clk(BR_clk),
+      .br_clk(BR_clk),
       .rst(rst),
-      .CS(CS),
-      .WR(WR),
-      .ADD(ADD),
-      .D(D),
-      .sRX(sRX),
-      .sTX(sTX),
-      .DTRn(DTRn),
-      .RTSn(RTSn),
-      .OUT1n(OUT1n),
-      .OUT2n(OUT2n),
-      .TXRDYn(TXRDYn),
-      .RXRDYn(RXRDYn),
-      .IRQ(IRQ),
-      .B_CLK(B_CLK),
-      .RD(RD)
+      .cs(CS),
+      .wr(WR),
+      .add(ADD),
+      .d(D),
+      .srx(sRX),
+      .stx(sTX),
+      .dtrn(DTRn),
+      .rtsn(RTSn),
+      .out1n(OUT1n),
+      .out2n(OUT2n),
+      .txrdyn(TXRDYn),
+      .rxrdyn(RXRDYn),
+      .irq(IRQ),
+      .b_clk(B_CLK),
+      .rd(RD)
   );
 endmodule

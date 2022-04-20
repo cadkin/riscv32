@@ -14,36 +14,24 @@
 //	1.0      	10/15/05  	S A Dodd	Initial revision
 //
 ////////////////////////////////////////////////////////////////////////////-
-//LIBRARY ieee;
-//USE ieee.std_logic_1164.all;
+module gh_parity_gen_serial (
+  input logic clk,
+  input logic rst,
+  input logic srst,
+  input logic sd, // sample data pulse
+  input logic d,  // data
+  output logic q  // parity
+);
 
-module gh_parity_gen_Serial
-(	
-		input logic clk      : IN STD_LOGIC;
-		input logic rst      : IN STD_LOGIC; 
-		input logic srst     : in STD_LOGIC;
-		input logic SD       : in STD_LOGIC; // sample data pulse
-		input logic D        : in STD_LOGIC; // data
-		output logic Q        : out STD_LOGIC // parity 
-		);
+  logic parity;
 
+  assign q = parity;
 
-	logic parity;
-	
-	assign Q = parity;
-	
-always(clk,rst)
-begin
-	if (rst == 1'b1) begin 
-		parity <= 1'b0;
-	end else if (posedge(clk)) begin
-		if (srst == 1'b1) begin // need to clear before start of data word
-			parity <= 1'b0;
-		end else if (SD == 1'b1) begin // sample data bit for parity generation
-			parity <= (parity xor D);
-		end
-	end
-end
-		
-endmodule
-
+  always_ff @(posedge clk or posedge rst) begin
+    if (rst == 1'b1) parity <= 1'b0;
+    else begin
+      if (srst == 1'b1) parity <= 1'b0; // need to clear before start of data word
+      else if (sd == 1'b1) parity <= (parity ^ d); // sample data bit for parity generation
+    end
+  end
+endmodule : gh_parity_gen_serial

@@ -15,186 +15,167 @@
 //	1.0     	12/17/06  	h lefevre	Initial revision
 //	
 ////////////////////////////////////////////////////////
-
-//LIBRARY ieee;
-//USE ieee.std_logic_1164.all;
-//USE ieee.std_logic_unsigned.all;
-//USE ieee.std_logic_arith.all;
-
-module gh_fifo_async16_sr#(
-	parameter data_width = 8;) // size of data bus
-	(					
-		input logic clk_WR;// : in STD_LOGIC; // write clock
-		input logic clk_RD;// : in STD_LOGIC; // read clock
-		input logic rst;//    : in STD_LOGIC; // resets counters
-		input logic srst =1'b0;//   : in STD_LOGIC:=1'b0; // resets counters (sync with clk_WR)
-		input logic WR;//     : in STD_LOGIC; // write control 
-		input logic RD;//     : in STD_LOGIC; // read control
-		input logic [data_width-1,0] D;//      : in STD_LOGIC_VECTOR (data_width-1 downto 0);
-		output logic [data_width-1,0] Q;//      : out STD_LOGIC_VECTOR (data_width-1 downto 0);
-		output logic empty;//  : out STD_LOGIC; 
-		output logic full//   : out STD_LOGIC);
+module gh_fifo_async16_sr #(
+  parameter int data_width = 8
+) (// size of data bus
+  input logic clk_wr, // write clock
+  input logic clk_rd, // read clock
+  input logic rst,    // resets counters
+  input logic srst,   // resets counters (sync with clk_wr)
+  input logic wr,     // write control
+  input logic rd,     // read control
+  input logic [data_width-1:0] d,
+  output logic [data_width-1:0] q,
+  output logic empty,
+  output logic full
 );
 
-	type ram_mem_typearray (15 downto 0) 
-	        of STD_LOGIC_VECTOR (data_width-1 downto 0);
-	logic ram_mem : ram_mem_type; 
-	logic iempty     ;
-	logic ifull      ;
-	logic add_WR_CE  ;
-	logic [4,0] add_WR;//      : std_logic_vector(4 downto 0); // 4 bits are used to address MEM
-	logic [4,0] add_WR_GC;//   : std_logic_vector(4 downto 0); // 5 bits are used to compare
-	logic [4,0] n_add_WR;//    : std_logic_vector(4 downto 0); //   for empty, full flags
-	logic [4,0] add_WR_RS;//   : std_logic_vector(4 downto 0); // synced to read clk
-	logic add_RD_CE  ;
-	logic [4,0] add_RD;//      : std_logic_vector(4 downto 0);
-	logic [4,0] add_RD_GC;//   : std_logic_vector(4 downto 0);
-	logic [4,0] add_RD_GCwc;// : std_logic_vector(4 downto 0);
-	logic [4,0] n_add_RD;//    : std_logic_vector(4 downto 0);
-	logic [4,0] add_RD_WS;//   : std_logic_vector(4 downto 0); // synced to write clk
-	logic srst_w     ;
-	logic signalrst_w    ;
-	logic srst_r     ;
-	logic signalrst_r    ;
+  logic [data_width-1:0] ram_mem[16];
+  logic iempty;
+  logic ifull;
+  logic add_wr_ce;
+  logic [4:0] add_wr;    // 4 bits are used to address mem
+  logic [4:0] add_wr_gc; // 5 bits are used to compare
+  logic [4:0] n_add_wr;  //   for empty, full flags
+  logic [4:0] add_wr_rs; // synced to read clk
+  logic add_rd_ce;
+  logic [4:0] add_rd;
+  logic [4:0] add_rd_gc;
+  logic [4:0] add_rd_gcwc;
+  logic [4:0] n_add_rd;
+  logic [4:0] add_rd_ws; // synced to write clk
+  logic srst_w;
+  logic isrst_w;
+  logic srst_r;
+  logic isrst_r;
 
-begin
+//------------------------------------------
+//----- memory -----------------------------
+//------------------------------------------
 
-////////////////////////////////////////////
-//////- memory ////////////////////////////-
-////////////////////////////////////////////
+  always_ff @(posedge clk_wr) begin
+    if ((wr == 1'b1) && (ifull == 1'b0)) ram_mem[add_wr[3:0]] <= d;
+  end
 
-always(clk_WR)
-begin			  
-	if (posedge(clk_WR)) begin
-		if ((WR == 1'b1) and (ifull == 1'b0)) begin
-			ram_mem(CONV_INTEGER(add_WR(3 downto 0))) <= D;
-		end if;
-	end if;		
-end
+  assign q = ram_mem[add_rd[3:0]];
 
-	assign Q = ram_mem(CONV_INTEGER(add_RD[3,0]));
+//---------------------------------------
+//--- write address counter -------------
+//---------------------------------------
 
-////////////////////////////////////////-
-////- Write address counter ////////////-
-////////////////////////////////////////-
-	assign add_WR_CE = (ifull) ? 1'b0 : (~WR)? 1'b0 :  1'b1;
-	//assign add_WR_CE <= 1'b0 when (ifull == 1'b1) else
-	//             1'b0 when (WR == 1'b0) else
-	//             1'b1;
+  assign add_wr_ce = (ifull == 1'b1) ? 1'b0 :
+                     (wr == 1'b0) ? 1'b0 : 1'b1;
 
-	assign n_add_WR = add_WR + 1'b'1;
-				 
-always(clk_WR,rst)
-begin 
-	if (rst == 1'b1) begin
-		add_WR <= {5{1'b0}};//(others => 1'b0);
-		add_RD_WS <= 5b'11000; 
-		add_WR_GC <= {5{1'b0}};//(others => 1'b0);
-	end else if (posedge(clk_WR)) begin
-		add_RD_WS <= add_RD_GCwc;
-		if (srst_w == 1'b1) begin
-			add_WR <= {5{1'b0}};//(others => 1'b0);
-			add_WR_GC <= {5{1'b0}}// (others => 1'b0);
-		end else if (add_WR_CE == 1'b1) begin
-			add_WR <= n_add_WR;
-			add_WR_GC[0] <= n_add_WR(0) xor n_add_WR[1];
-			add_WR_GC[1] <= n_add_WR[1] xor n_add_WR[2];
-			add_WR_GC[2] <= n_add_WR[2] xor n_add_WR[3];
-			add_WR_GC[3] <= n_add_WR[3] xor n_add_WR[4];
-			add_WR_GC[4] <= n_add_WR[4];
-		end else begin
-			add_WR <= add_WR;
-			add_WR_GC <= add_WR_GC;
-		end if;
-	end if;
-end
-				 
-	assign full = ifull;
-	assign ifull = (iempty) ? 1'b0 : // just in case add_RD_WSreset to "00000"
-			(add_RD_WS != add_WR_G)? 1'b0 :  1'b1;  //// instend of "11000"
-			 
-////////////////////////////////////////-
-////- Read address counter //////////////
-////////////////////////////////////////-
+  assign n_add_wr = add_wr + 4'h1;
 
-	assign add_RD_CE = (iempty) ? 1'b0 : (~RD)? 1'b0 :  1'b1;
-	//add_RD_CE <= 1'b0 when (iempty == 1'b1) else
-	//             1'b0 when (RD == 1'b0) else
-	//             1'b1;
-				 
-	assign n_add_RD = add_RD + 1'b'1;
-				 
-always(clk_RD,rst)
-begin 
-	if (rst == 1'b1) begin
-		add_RD <= {5{1'b0}};//(others => 1'b0);	
-		add_WR_RS <= {5{1'b0}};//(others => 1'b0);
-		add_RD_GC <= {5{1'b0}};//(others => 1'b0);
-		add_RD_GCwc <= 5b'11000;
-	end else if (posedge(clk_RD)) begin
-		add_WR_RS <= add_WR_GC;
-		if (srst_r == 1'b1) begin
-			add_RD <= {5{1'b0}};//(others => 1'b0);
-			add_RD_GC <= {5{1'b0}};//(others => 1'b0);
-			add_RD_GCwc <= 5b'11000;
-		end else if (add_RD_CE == 1'b1) begin
-			add_RD <= n_add_RD;
-			add_RD_GC[0] <= n_add_RD(0) xor n_add_RD[1];
-			add_RD_GC[1] <= n_add_RD[1] xor n_add_RD[2];
-			add_RD_GC[2] <= n_add_RD[2] xor n_add_RD[3];
-			add_RD_GC[3] <= n_add_RD[3] xor n_add_RD[4];
-			add_RD_GC[4] <= n_add_RD[4];
-			add_RD_GCwc[0] <= n_add_RD(0) xor n_add_RD[1];
-			add_RD_GCwc[1] <= n_add_RD[1] xor n_add_RD[2];
-			add_RD_GCwc[2] <= n_add_RD[2] xor n_add_RD[3];
-			add_RD_GCwc[3] <= n_add_RD[3] xor n_add_RD[4];
-			add_RD_GCwc[4] <= (not n_add_RD[4]);
-		end else begin
-			add_RD <= add_RD; 
-			add_RD_GC <= add_RD_GC;
-			add_RD_GCwc <= add_RD_GCwc;
-		end if;
-	end if;
-end
+  always_ff @(posedge clk_wr or posedge rst) begin
+    if (rst == 1'b1) begin
+      add_wr <= 0;
+      add_rd_ws <= 5'b11000;
+      add_wr_gc <= 0;
+    end
+    else begin
+      add_rd_ws <= add_rd_gcwc;
+      if (srst_w == 1'b1) begin
+        add_wr <= 0;
+        add_wr_gc <= 0;
+      end
+      else if (add_wr_ce == 1'b1) begin
+        add_wr <= n_add_wr;
+        add_wr_gc[0] <= n_add_wr[0] ^ n_add_wr[1];
+        add_wr_gc[1] <= n_add_wr[1] ^ n_add_wr[2];
+        add_wr_gc[2] <= n_add_wr[2] ^ n_add_wr[3];
+        add_wr_gc[3] <= n_add_wr[3] ^ n_add_wr[4];
+        add_wr_gc[4] <= n_add_wr[4];
+      end
+      else begin
+        add_wr <= add_wr;
+        add_wr_gc <= add_wr_gc;
+      end
+    end
+  end
 
-	assign empty = iempty;
- 
-	assign iempty =  (add_WR_RS == add_RD_GC) ? 1'b1 : 1'b0;
- 
-//////////////////////////////////
-//-	sync rest stuff //////////////
-//- srstsync with clk_WR ////-
-//- srst_rsync with clk_RD //-
-//////////////////////////////////
+  assign full = ifull;
 
-always(clk_WR,rst)
-begin 
-	if (rst == 1'b1) begin
-		srst_w <= 1'b0;	
-		isrst_r <= 1'b0;	
-	end else if (posedge(clk_WR)) begin
-		isrst_r <= srst_r;
-		if (srst == 1'b1) begin
-			srst_w <= 1'b1;
-		end else if (isrst_r == 1'b1) begin
-			srst_w <= 1'b0;
-		end if;
-	end if;
-end
+  assign ifull = (iempty == 1'b1) ? 1'b0 :               // just in case add_rd_ws is reset to 5'b00000
+                 (add_rd_ws != add_wr_gc) ? 1'b0 : 1'b1; // instend of 5'b11000
 
-always(clk_RD,rst)
-begin 
-	if (rst == 1'b1) begin
-		srst_r <= 1'b0;	
-		isrst_w <= 1'b0;	
-	end else if (posedge(clk_RD)) begin
-		isrst_w <= srst_w;
-		if (isrst_w == 1'b1) begin
-			srst_r <= 1'b1;
-		end else begin
-			srst_r <= 1'b0;
-		end if;
-	end if;
-end
+//---------------------------------------
+//--- read address counter --------------
+//---------------------------------------
 
-endmodule
+
+  assign add_rd_ce = (iempty == 1'b1) ? 1'b0 :
+                     (rd == 1'b0) ? 1'b0 : 1'b1;
+
+  assign n_add_rd = add_rd + 4'h1;
+
+  always_ff @(posedge clk_rd or posedge rst) begin
+    if (rst == 1'b1) begin
+      add_rd <= 0;
+      add_wr_rs <= 0;
+      add_rd_gc <= 0;
+      add_rd_gcwc <= 5'b11000;
+    end
+    else begin
+      add_wr_rs <= add_wr_gc;
+      if (srst_r == 1'b1) begin
+        add_rd <= 0;
+        add_rd_gc <= 0;
+        add_rd_gcwc <= 5'b11000;
+      end
+      else if (add_rd_ce == 1'b1) begin
+        add_rd <= n_add_rd;
+        add_rd_gc[0] <= n_add_rd[0] ^ n_add_rd[1];
+        add_rd_gc[1] <= n_add_rd[1] ^ n_add_rd[2];
+        add_rd_gc[2] <= n_add_rd[2] ^ n_add_rd[3];
+        add_rd_gc[3] <= n_add_rd[3] ^ n_add_rd[4];
+        add_rd_gc[4] <= n_add_rd[4];
+        add_rd_gcwc[0] <= n_add_rd[0] ^ n_add_rd[1];
+        add_rd_gcwc[1] <= n_add_rd[1] ^ n_add_rd[2];
+        add_rd_gcwc[2] <= n_add_rd[2] ^ n_add_rd[3];
+        add_rd_gcwc[3] <= n_add_rd[3] ^ (~n_add_rd[4]);
+        add_rd_gcwc[4] <= (~n_add_rd[4]);
+      end
+      else begin
+        add_rd <= add_rd;
+        add_rd_gc <= add_rd_gc;
+        add_rd_gcwc <= add_rd_gcwc;
+      end
+    end
+  end
+
+  assign empty = iempty;
+
+  assign iempty = (add_wr_rs == add_rd_gc) ? 1'b1 : 1'b0;
+
+//--------------------------------
+//-  sync rest stuff --------------
+//- srst is sync with clk_wr -----
+//- srst_r is sync with clk_rd ---
+//--------------------------------
+
+  always_ff @(posedge clk_wr or posedge rst) begin
+    if (rst == 1'b1) begin
+      srst_w <= 1'b0;
+      isrst_r <= 1'b0;
+    end
+    else begin
+      isrst_r <= srst_r;
+      if (srst == 1'b1) srst_w <= 1'b1;
+      else if (isrst_r == 1'b1) srst_w <= 1'b0;
+    end
+  end
+
+  always_ff @(posedge clk_rd or posedge rst) begin
+    if (rst == 1'b1) begin
+      srst_r <= 1'b0;
+      isrst_w <= 1'b0;
+    end
+    else begin
+      isrst_w <= srst_w;
+      if (isrst_w == 1'b1) srst_r <= 1'b1;
+      else srst_r <= 1'b0;
+    end
+  end
+endmodule : gh_fifo_async16_sr

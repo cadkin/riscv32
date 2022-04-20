@@ -15,33 +15,22 @@
 //	1.1     	05/05/06  	G Huber  	fix typo
 //
 ////////////////////////////////////////////////////////////////////////////-
-//LIBRARY ieee;
-//USE ieee.std_logic_1164.all;
+module gh_decode_3to8 (
+  input logic [2:0] a, // address
+  input logic g1, // enable positive
+  input logic g2n, // enable negative
+  input logic g3n, // enable negative
+  output logic [7:0] y
+);
 
-module gh_decode_3to8
-(	
-		input logic [3,0] A;//   : IN  STD_LOGIC_VECTOR(2 DOWNTO 0); // address
-		input logic G1;//  : IN  STD_LOGIC; // enable positive
-		input logic G2n;// : IN  STD_LOGIC; // enable negative
-		input logic G3n;// : IN  STD_LOGIC; // enable negative
-		output logic [7,0] Y//   : out STD_LOGIC_VECTOR(7 downto 0)
-		);
-  
-
-begin
-
-	Y <= x"00" when (G3n == 1'b1) else
-	     x"00" when (G2n == 1'b1) else
-	     x"00" when (G1 == 1'b0) else
-	     x"80" when (A == 3'h7) else
-	     x"40" when (A == 3'h6) else
-	     x"20" when (A == 3'h5) else
-	     x"10" when (A == 3'h4) else
-	     x"08" when (A == 3'h3) else
-	     x"04" when (A == 3'h2) else
-	     x"02" when (A == 3'h1) else
-	     x"01";// when (A == 3'h0)
-
-
-endmodule
-
+  assign y = (g3n == 1'b1) ? 8'h00 :
+             (g2n == 1'b1) ? 8'h00 :
+             (g1 == 1'b0) ? 8'h00 :
+             (a == 7) ? 8'h80 :
+             (a == 6) ? 8'h40 :
+             (a == 5) ? 8'h20 :
+             (a == 4) ? 8'h10 :
+             (a == 3) ? 8'h08 :
+             (a == 2) ? 8'h04 :
+             (a == 1) ? 8'h02 : 8'h01; // when (a == 0)
+endmodule : gh_decode_3to8

@@ -14,31 +14,22 @@
 //	1.0      	12/26/06  	G Huber 	Initial revision
 //
 ////////////////////////////////////////////////////////////////////////////-
-//LIBRARY ieee;
-//USE ieee.std_logic_1164.all;
+module gh_gray2binary #(
+  parameter int size = 8
+) (
+  input logic [size-1:0] g, // gray code in
+  output logic [size-1:0] b // binary value out
+);
 
-module gh_gray2binary#(
-	parameter size= 8;)
-(	
-		input logic [size-1,0] G;	// gray code in
-		output logic[size-1,0] B  // binary value out
-		);
-logic [size-1,0] iB;
+  logic [size-1:0] ib;
 
-assign B = iB;
-	
-always(G,iB)
-begin
-//The for-loop creates 16 assign statements
-	genvar i;
-	generate
-		for (i=0; i < size-2; i++) begin
-			iB(i) <= G(i) xor iB(i+1);
-		end
-	endgenerate
+  assign b = ib;
 
-	iB(size-1) <= G(size-1);
-end
-		
-endmodule
-
+  genvar j;
+  generate
+    for (j = 0; j < size-1; j = j+1) begin : gen_g2b
+      assign ib[j] = g[j] ^ ib[j+1];
+    end
+  endgenerate
+  assign ib[size-1] = g[size-1];
+endmodule : gh_gray2binary
