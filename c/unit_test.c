@@ -58,7 +58,7 @@ int main(void)
     test = qsort_test(12);
     print(test);
 
-    // Qsort Test
+    // SPI Test
     test = spi_test(13);
     print(test);
 
