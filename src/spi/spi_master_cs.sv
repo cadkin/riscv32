@@ -32,7 +32,7 @@
 //              time when CS is high between trasnfers.
 ///////////////////////////////////////////////////////////////////////////////
 
-module spi_cs_ctrl
+module spi_master_cs
 #(parameter SPI_MODE = 0,
   parameter CLKS_PER_HALF_BIT = 2,
   parameter MAX_BYTES_PER_CS = 2,
@@ -71,7 +71,7 @@ reg [$clog2(MAX_BYTES_PER_CS+1)-1:0] r_TX_Count;
 wire w_Master_Ready;
 
 // Instantiate Master
-spi_master_v
+spi_master
   #(.SPI_MODE(SPI_MODE),
     .CLKS_PER_HALF_BIT(CLKS_PER_HALF_BIT)
     ) SPI_Master_Inst
@@ -182,4 +182,4 @@ assign o_SPI_CS_n = r_CS_n;
 
 assign o_TX_Ready  = ((r_SM_CS == IDLE) | (r_SM_CS == TRANSFER && w_Master_Ready == 1'b1 && r_TX_Count > 0)) & ~i_TX_DV;
 
-endmodule : spi_cs_ctrl // SPI_Master_With_Single_CS
+endmodule : spi_master_cs // SPI_Master_With_Single_CS

@@ -30,7 +30,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-module spi_master_v
+module spi_master
 #(parameter SPI_MODE = 0,
   parameter CLKS_PER_HALF_BIT = 2)
 (
@@ -236,4 +236,4 @@ begin
 end // always @ (posedge i_Clk or negedge i_Rst_L)
 
 
-endmodule : spi_master_v // SPI_Master
+endmodule : spi_master // SPI_Master

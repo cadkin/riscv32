@@ -66,7 +66,7 @@ module spi_controller (
   int tx_count;
   assign tx_count = 1;
 
-  spi_cs_ctrl spi0 (
+  spi_master_cs spi0 (
       .i_Rst_L(~rst),
       .i_Clk(clk),
       .i_TX_Count(tx_count),
