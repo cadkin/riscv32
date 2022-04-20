@@ -16,18 +16,16 @@
 //  2.0        04/20/22     SenecaUTK Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
-module gh_shift_reg_pl_sl #(
-  parameter int SIZE = 16
-) (
+module gh_shift_reg_pl_sl (
   input logic clk,
   input logic rst,
   input logic load, // load data
   input logic se,   // shift enable
-  input logic [SIZE-1:0] d,
-  output logic [SIZE-1:0] q
+  input logic [8-1:0] d,
+  output logic [8-1:0] q
 );
 
-  logic [SIZE-1:0] iq;
+  logic [8-1:0] iq;
 
   assign q = iq;
 
@@ -35,7 +33,7 @@ module gh_shift_reg_pl_sl #(
     if (rst == 1'b1) iq <= 0;
     else begin
       if (load == 1'b1) iq <= d;
-      else if (se == 1'b1) iq[SIZE-1:0] <= {1'b0, iq[SIZE-1:1]};
+      else if (se == 1'b1) iq[8-1:0] <= {1'b0, iq[8-1:1]};
       else iq <= iq;
     end
   end

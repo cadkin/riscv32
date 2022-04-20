@@ -84,9 +84,7 @@ module gh_uart_tx_8bit (
                (x_dcount == 0) ? 1'b1 : 1'b0;
 
 
-  gh_counter_integer_down #( // baud rate divider
-    .MAX_COUNT(15)
-  ) u1 (
+  gh_counter_integer_down_15 u1 ( // baud rate divider
     .clk(clk),
     .rst(rst),
     .load(dclk_ld),
@@ -95,9 +93,7 @@ module gh_uart_tx_8bit (
     .q(x_dcount)
   );
 
-  gh_shift_reg_pl_sl #(
-    .SIZE(8)
-  ) u2 (
+  gh_shift_reg_pl_sl u2 (
     .clk(clk),
     .rst(rst),
     .load(d_ld),
@@ -273,9 +269,7 @@ module gh_uart_tx_8bit (
     else t_state <= t_nstate;
   end
 
-  gh_counter_integer_down #( // word counter
-    .MAX_COUNT(8)
-  ) u3 (
+  gh_counter_integer_down_8 u3 ( // word counter
     .clk(clk),
     .rst(rst),
     .load(twc_ld),

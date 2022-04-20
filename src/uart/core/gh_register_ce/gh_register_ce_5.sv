@@ -17,14 +17,12 @@
 //  3.0        04/20/22     SenecaUTK  Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
-module gh_register_ce #(
-  parameter int SIZE = 8
-) (
+module gh_register_ce_5 (
   input logic clk,
   input logic rst,
   input logic ce, // clock enable
-  input logic [SIZE-1:0] d,
-  output logic [SIZE-1:0] q
+  input logic [5-1:0] d,
+  output logic [5-1:0] q
 );
 
   always_ff @(posedge clk or posedge rst) begin
@@ -33,4 +31,4 @@ module gh_register_ce #(
       if (ce == 1'b1) q <= d;
     end;
   end;
-endmodule : gh_register_ce
+endmodule : gh_register_ce_5

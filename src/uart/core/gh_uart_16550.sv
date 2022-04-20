@@ -287,9 +287,7 @@ module gh_uart_16550 (
     .sfe(msr_clr)
   );
 
-  gh_register_ce #(
-    .SIZE(4)
-  ) u12 (
+  gh_register_ce_4 u12 (
     .clk(clk),
     .rst(rst),
     .ce(1'b1),
@@ -380,9 +378,7 @@ module gh_uart_16550 (
   assign wr_d = lcr[7] & (wr_b[0] | wr_b[1]);
   assign wr_dml = {(wr_b[1] & lcr[7]), (wr_b[0] & lcr[7])};
 
-  gh_register_ce #(
-    .SIZE(4)
-  ) u20 (
+  gh_register_ce_4 u20 (
     .clk(clk),
     .rst(rst),
     .ce(wr_ier),
@@ -390,9 +386,7 @@ module gh_uart_16550 (
     .q(ier)
   );
 
-  gh_register_ce #(
-    .SIZE(8)
-  ) u21 (
+  gh_register_ce_8 u21 (
     .clk(clk),
     .rst(rst),
     .ce(wr_b[2]),
@@ -420,9 +414,7 @@ module gh_uart_16550 (
 
   assign tf_clrs = d[2] & wr_b[2];
 
-  gh_register_ce #(
-    .SIZE(8)
-  ) u24 (
+  gh_register_ce_8 u24 (
     .clk(clk),
     .rst(rst),
     .ce(wr_b[3]),
@@ -442,9 +434,7 @@ module gh_uart_16550 (
 //assign parity_sticky = lcr[3] & lcr[5];
   assign break_cb = lcr[6];
 
-  gh_register_ce #(
-    .SIZE(5)
-  ) u25 (
+  gh_register_ce_5 u25 (
     .clk(clk),
     .rst(rst),
     .ce(wr_b[4]),
@@ -458,9 +448,7 @@ module gh_uart_16550 (
   assign out2n = (~mcr[3]) | iloop;
   assign iloop = mcr[4];
 
-  gh_register_ce #(
-    .SIZE(8)
-  ) u26 (
+  gh_register_ce_8 u26 (
     .clk(clk),
     .rst(rst),
     .ce(wr_b[7]),
@@ -488,9 +476,7 @@ module gh_uart_16550 (
 //-- trans fifo   12/23/06 -----------------------
 //------------------------------------------------
 
-  gh_fifo_async16_sr #(
-    .DATA_WIDTH(8)
-  ) u28 (
+  gh_fifo_async16_sr u28 (
     .clk_wr(clk),
     .clk_rd(br_clk),
     .rst(rst),
@@ -576,9 +562,7 @@ module gh_uart_16550 (
   assign rf_rd = (lcr[7] == 1'b1) ? 1'b0 :  // added 04/19/06
                  ((add == 3'b000) & (cs == 1'b1) & (wr == 1'b0)) ? 1'b1 : 1'b0;
 
-  gh_fifo_async16_rcsr_wf #(  // 01/20/07
-    .DATA_WIDTH(11)
-  ) u31 (
+  gh_fifo_async16_rcsr_wf u31 (  // 01/20/07
     .clk_wr(br_clk),
     .clk_rd(clk),
     .rst(rst),
@@ -700,9 +684,7 @@ module gh_uart_16550 (
                     (rf_rd_brs == 1'b1) ? 1'b1 :
                     (rf_wr == 1'b1) ? 1'b1 : 1'b0;
 
-  gh_counter_down_ce_ld_tc #(
-    .SIZE(10)
-  ) u36 (
+  gh_counter_down_ce_ld_tc u36 (
     .clk(br_clk),
     .rst(rst),
     .load(toi_c_ld),
@@ -740,9 +722,7 @@ module gh_uart_16550 (
 
   assign iir[7:4] = 4'hc;  // fifo's always enabled
 
-  gh_register_ce #(  // 12/23/06
-    .SIZE(4)
-  ) u37 (
+  gh_register_ce_4 u37 (  // 12/23/06
     .clk(clk),
     .rst(rst),
     .ce(csn),

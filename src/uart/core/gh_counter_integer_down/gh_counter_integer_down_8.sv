@@ -15,9 +15,7 @@
 //  2.0        04/20/22     SenecaUTK Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
-module gh_counter_integer_down #(
-  parameter int MAX_COUNT = 8
-) (
+module gh_counter_integer_down_8 (
     input logic clk,
     input logic rst,
     input logic load, // load d
@@ -35,9 +33,9 @@ module gh_counter_integer_down #(
     else begin
       if (load == 1'b1) iq <= d;
       else if (ce == 1'b1) begin
-        if (iq == 0) iq <= MAX_COUNT;
+        if (iq == 0) iq <= 8;
         else iq <= iq - 1;
       end
     end
   end
-endmodule : gh_counter_integer_down
+endmodule : gh_counter_integer_down_8

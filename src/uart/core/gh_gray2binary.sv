@@ -15,22 +15,20 @@
 //  2.0        04/20/22     SenecaUTK Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
-module gh_gray2binary #(
-  parameter int SIZE = 8
-) (
-  input logic [SIZE-1:0] g, // gray code in
-  output logic [SIZE-1:0] b // binary value out
+module gh_gray2binary (
+  input logic [5-1:0] g, // gray code in
+  output logic [5-1:0] b // binary value out
 );
 
-  logic [SIZE-1:0] ib;
+  logic [5-1:0] ib;
 
   assign b = ib;
 
   genvar j;
   generate
-    for (j = 0; j < SIZE-1; j = j+1) begin : gen_g2b
+    for (j = 0; j < 5-1; j = j+1) begin : gen_g2b
       assign ib[j] = g[j] ^ ib[j+1];
     end
   endgenerate
-  assign ib[SIZE-1] = g[SIZE-1];
+  assign ib[5-1] = g[5-1];
 endmodule : gh_gray2binary

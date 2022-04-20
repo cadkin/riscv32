@@ -18,17 +18,15 @@
 //  2.0       04/20/22    SenecaUTK Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////
-module gh_fifo_async16_rcsr_wf #(
-  parameter int DATA_WIDTH = 8 // size of data bus
-) (
+module gh_fifo_async16_rcsr_wf (
   input logic clk_wr,  // write clock
   input logic clk_rd,  // read clock
   input logic rst,     // resets counters
   input logic rc_srst, // resets counters (sync with clk_rd!!!)
   input logic wr,      // write control
   input logic rd,      // read control
-  input logic [DATA_WIDTH-1:0] d,
-  output logic [DATA_WIDTH-1:0] q,
+  input logic [11-1:0] d,
+  output logic [11-1:0] q,
   output logic empty,  // sync with clk_rd!!!
   output logic q_full, // sync with clk_rd!!!
   output logic h_full, // sync with clk_rd!!!
@@ -36,7 +34,7 @@ module gh_fifo_async16_rcsr_wf #(
   output logic full
 );
 
-  logic [DATA_WIDTH-1:0] ram_mem[16];
+  logic [11-1:0] ram_mem[16];
   logic iempty;
   logic diempty;
   logic ifull;
@@ -83,9 +81,7 @@ module gh_fifo_async16_rcsr_wf #(
 
   assign n_add_wr = add_wr + 2'b01;
 
-  gh_binary2gray #(
-    .SIZE(5)
-  ) u1 (
+  gh_binary2gray u1 (
     .b(n_add_wr),
     .g(iadd_wr_gc)
   );
@@ -130,18 +126,14 @@ module gh_fifo_async16_rcsr_wf #(
 
   assign n_add_rd = add_rd + 2'b01;
 
-  gh_binary2gray #(
-    .SIZE(5)
-  ) u2 (
+  gh_binary2gray u2 (
     .b(n_add_rd),
     .g(iadd_rd_gc) // to be used for empty flag
   );
 
   assign iiadd_rd_gcwc = {(~n_add_rd[4]), n_add_rd[3:0]};
 
-  gh_binary2gray #(
-    .SIZE(5)
-  ) u3 (
+  gh_binary2gray u3 (
     .b(iiadd_rd_gcwc),
     .g(iadd_rd_gcwc) // to be used for full flag
   );
@@ -181,16 +173,12 @@ module gh_fifo_async16_rcsr_wf #(
 
   assign iempty = (add_wr_rs == add_rd_gc) ? 1'b1 : 1'b0;
 
-  gh_gray2binary #(
-    .SIZE(5)
-  ) u4 (
+  gh_gray2binary u4 (
     .g(add_rd_gc),
     .b(c_add_rd)
   );
 
-  gh_gray2binary #(
-    .SIZE(5)
-  ) u5 (
+  gh_gray2binary u5 (
     .g(add_wr_rs),
     .b(c_add_wr)
   );

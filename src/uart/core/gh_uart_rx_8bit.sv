@@ -101,9 +101,7 @@ module gh_uart_rx_8bit (
   assign brc = (brcx16 == 1'b0) ? 1'b0 :
                (r_brdcount == 0) ? 1'b1 : 1'b0;
 
-  gh_counter_integer_down #( // baud rate divider
-    .MAX_COUNT(15)
-  ) u1 (
+  gh_counter_integer_down_15 u1 ( // baud rate divider
     .clk(clk),
     .rst(rst),
     .load(dclk_ld),
@@ -114,9 +112,7 @@ module gh_uart_rx_8bit (
 
 //--------------------------------------------------------
 
-  gh_shift_reg_se_sl #(
-    .SIZE(8)
-  ) u2 (
+  gh_shift_reg_se_sl u2 (
     .clk(clk),
     .rst(rst),
     .srst(clr_d),
@@ -329,9 +325,7 @@ module gh_uart_rx_8bit (
     end
   end
 
-  gh_counter_integer_down #( // word counter
-    .MAX_COUNT(8)
-  ) u3 (
+  gh_counter_integer_down_8 u3 ( // word counter
     .clk(clk),
     .rst(rst),
     .load(rwc_ld),
