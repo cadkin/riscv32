@@ -1,24 +1,26 @@
 ////////////////////////////////////////////////////////////////////////////-
-//	Filename:	gh_uart_Tx_8bit.vhd
+//  Filename:  gh_uart_tx_8bit.sv
 //
-//	Description:
-//		an 8 bit UART Tx Module
+//  Description:
+//    an 8 bit UART Tx Module
 //
-//	Copyright (c) 2006, 2007 by H LeFevre
-//		A VHDL 16550 UART core
-//		an OpenCores.org Project
-//		free to use, but see documentation for conditions 
+//  Copyright (c) 2006, 2007 by H LeFevre
+//    A SystemVerilog 16550 UART core
+//    an OpenCores.org Project
+//    free to use, but see documentation for conditions
 //
-//	Revision 	History:
-//	Revision 	Date       	Author    	Comment
-//	//////// 	////////// 	////////-	//////////-
-//	1.0      	02/18/06  	H LeFevre	Initial revision
-//	1.1      	02/25/06  	H LeFevre	add BUSYn output
-//	2.0     	06/18/07  	P.Azkarate  Define "range" in T_WCOUNT and x_dCOUNT signals
-//	2.1     	07/12/07  	H LeFevre	fix a problem with 5 bit data and 1.5 stop bits
-//       		          	         	   as pointed out by Matthias Klemm
-//	2.2     	08/17/07  	H LeFevre	add stopB to sensitivity list line 164
-//       		          	         	   as suggested by Guillaume Zin 
+//  Revision   History:
+//  Revision   Date         Author     Comment
+//  ////////   //////////   ////////-  //////////-
+//  1.0        02/18/06     H LeFevre  Initial revision
+//  1.1        02/25/06     H LeFevre  add BUSYn output
+//  2.0        06/18/07     P.Azkarate Define "range" in T_WCOUNT and x_dCOUNT signals
+//  2.1        07/12/07     H LeFevre  fix a problem with 5 bit data and 1.5 stop bits
+//                                     as pointed out by Matthias Klemm
+//  2.2        08/17/07     H LeFevre  add stopB to sensitivity list line 164
+//                                     as suggested by Guillaume Zin
+//  3.0        04/20/22     SenecaUTK  Convert to SystemVerilog
+//
 ////////////////////////////////////////////////////////////////////////////-
 module gh_uart_tx_8bit (
   input logic clk, //  clock

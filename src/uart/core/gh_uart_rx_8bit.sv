@@ -1,21 +1,23 @@
 ////////////////////////////////////////////////////////////////////////////-
-//	Filename:	gh_uart_Rx_8bit.vhd
+//  Filename:  gh_uart_rx_8bit.sv
 //
-//	Description:
-//		an 8 bit UART Rx Module
+//  Description:
+//    an 8 bit UART Rx Module
 //
-//	Copyright (c) 2006 by H LeFevre 
-//		A VHDL 16550 UART core
-//		an OpenCores.org Project
-//		free to use, but see documentation for conditions 
+//  Copyright (c) 2006 by H LeFevre
+//    A SystemVerilog 16550 UART core
+//    an OpenCores.org Project
+//    free to use, but see documentation for conditions
 //
-//	Revision 	History:
-//	Revision 	Date       	Author    	Comment
-//	//////// 	////////// 	////////-	//////////-
-//	1.0      	02/18/06  	H LeFevre  	Initial revision
-//	1.1      	02/25/06  	H LeFevre  	mod to SM, goes to idle faster
-//	        	          	         	   if no break error  
-//	2.0     	06/18/07  	P.Azkarate  Define "range" in R_WCOUNT and R_brdCOUNT signals
+//  Revision   History:
+//  Revision   Date         Author     Comment
+//  ////////   //////////   ////////-  //////////-
+//  1.0        02/18/06     H LeFevre  Initial revision
+//  1.1        02/25/06     H LeFevre  mod to SM, goes to idle faster
+//                                      if no break error
+//  2.0        06/18/07     P.Azkarate Define "range" in R_WCOUNT and R_brdCOUNT signals
+//  3.0        04/20/22     SenecaUTK  Convert to SystemVerilog
+//
 ////////////////////////////////////////////////////////////////////////////-
 module gh_uart_rx_8bit (
   input logic clk,    // clock

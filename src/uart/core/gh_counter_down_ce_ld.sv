@@ -1,17 +1,18 @@
 ////////////////////////////////////////////////////////////////////////////-
-//	Filename:	gh_Counter_down_ce_ld.vhd
+//  Filename:  gh_counter_down_ce_ld.sv
 //
-//	Description:
-//		Binary up/down counter with load, and count enable
+//  Description:
+//    Binary up/down counter with load, and count enable
 //
-//	Copyright (c) 2005 by George Huber 
-//		an OpenCores.org Project
-//		free to use, but see documentation for conditions 
+//  Copyright (c) 2005 by George Huber
+//    an OpenCores.org Project
+//    free to use, but see documentation for conditions
 //
-//	Revision 	History:
-//	Revision 	Date       	Author   	Comment
-//	//////// 	////////// 	////////-	//////////-
-//	1.0      	09/24/05  	S A Dodd	Initial revision
+//  Revision   History:
+//  Revision   Date         Author     Comment
+//  ////////   //////////   ////////-  //////////-
+//  1.0        09/24/05     S A Dodd   Initial revision
+//  2.0        04/20/22     SenecaUTK  Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
 module gh_counter_down_ce_ld #(

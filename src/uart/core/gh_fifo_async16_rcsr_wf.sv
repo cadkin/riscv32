@@ -1,21 +1,22 @@
 ////////////////////////////////////////////////////////////////////-
-//	Filename:	gh_fifo_async16_rcsr_wf.vhd
+//  Filename:  gh_fifo_async16_rcsr_wf.sv
 //
 //
-//	Description:
-//		a simple Asynchronous FIFO - uses FASM style Memory
-//		16 word depth with UART level read flags
-//		has "Style #2" gray code address compare
-//              
-//	Copyright (c) 2007 by Howard LeFevre 
-//		an OpenCores.org Project
-//		free to use, but see documentation for conditions 								 
+//  Description:
+//    a simple Asynchronous FIFO - uses FASM style Memory
+//    16 word depth with UART level read flags
+//    has "Style #2" gray code address compare
 //
-//	Revision	History:
-//	Revision	Date      	Author   	Comment
-//	////////	//////////	////////-	//////////-
-//	1.0     	01/20/07  	h lefevre	Initial revision
-//	
+//  Copyright (c) 2007 by Howard LeFevre
+//    an OpenCores.org Project
+//    free to use, but see documentation for conditions
+//
+//  Revision  History:
+//  Revision  Date        Author     Comment
+//  ////////  //////////  ////////-  //////////-
+//  1.0       01/20/07    h lefevre  Initial revision
+//  2.0       04/20/22    SenecaUTK Convert to SystemVerilog
+//
 ////////////////////////////////////////////////////////
 module gh_fifo_async16_rcsr_wf #(
   parameter int data_width = 8 // size of data bus

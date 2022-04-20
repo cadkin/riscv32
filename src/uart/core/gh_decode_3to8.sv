@@ -1,18 +1,19 @@
 ////////////////////////////////////////////////////////////////////////////-
-//	Filename:	gh_DECODE_3to8.vhd
+//  Filename:  gh_decode_3to8.sv
 //
-//	Description:
-//		a 3 to 8 decoder	 
+//  Description:
+//    a 3 to 8 decoder
 //
-//	Copyright (c) 2005 by George Huber 
-//		an OpenCores.org Project
-//		free to use, but see documentation for conditions 
+//  Copyright (c) 2005 by George Huber
+//    an OpenCores.org Project
+//    free to use, but see documentation for conditions
 //
-//	Revision 	History:
-//	Revision 	Date      	Author   	Comment
-//	//////// 	//////////	////////-	//////////-
-//	1.0      	09/17/05  	G Huber  	Initial revision
-//	1.1     	05/05/06  	G Huber  	fix typo
+//  Revision   History:
+//  Revision   Date        Author     Comment
+//  ////////   //////////  ////////-  //////////-
+//  1.0        09/17/05    G Huber    Initial revision
+//  1.1        05/05/06    G Huber    fix typo
+//  2.0        04/20/22    SenecaUTK  Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
 module gh_decode_3to8 (

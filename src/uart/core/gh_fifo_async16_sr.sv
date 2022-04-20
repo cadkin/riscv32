@@ -1,19 +1,20 @@
 ////////////////////////////////////////////////////////////////////-
-//	Filename:	gh_fifo_async16_sr.vhd
+//  Filename:  gh_fifo_async16_sr.sv
 //
-//			
-//	Description:
-//		an Asynchronous FIFO 
-//              
-//	Copyright (c) 2006 by George Huber 
-//		an OpenCores.org Project
-//		free to use, but see documentation for conditions 								 
 //
-//	Revision	History:
-//	Revision	Date      	Author   	Comment
-//	////////	//////////	////////-	//////////-
-//	1.0     	12/17/06  	h lefevre	Initial revision
-//	
+//  Description:
+//    an Asynchronous FIFO
+//
+//  Copyright (c) 2006 by George Huber
+//    an OpenCores.org Project
+//    free to use, but see documentation for conditions
+//
+//  Revision  History:
+//  Revision  Date        Author     Comment
+//  ////////  //////////  ////////-  //////////-
+//  1.0       12/17/06    h lefevre  Initial revision
+//  2.0       04/20/22    SenecaUTK  Convert to SystemVerilog
+//
 ////////////////////////////////////////////////////////
 module gh_fifo_async16_sr #(
   parameter int data_width = 8

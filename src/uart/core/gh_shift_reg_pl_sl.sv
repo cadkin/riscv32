@@ -1,18 +1,19 @@
 ////////////////////////////////////////////////////////////////////////////-
-//	Filename:	gh_shift_reg_PL_sl.vhd
+//  Filename:  gh_shift_reg_pl_sl.sv
 //
-//	Description:
-//		a shift register with Parallel Load	
-//		   will shift left (MSB to LSB)
+//  Description:
+//    a shift register with Parallel Load
+//       will shift left (MSB to LSB)
 //
-//	Copyright (c) 2006 by George Huber 
-//		an OpenCores.org Project
-//		free to use, but see documentation for conditions 
+//  Copyright (c) 2006 by George Huber
+//    an OpenCores.org Project
+//    free to use, but see documentation for conditions
 //
-//	Revision 	History:
-//	Revision 	Date       	Author    	Comment
-//	//////// 	////////// 	////////	//////////-
-//	1.0      	02/11/06  	G Huber 	Initial revision
+//  Revision   History:
+//  Revision   Date         Author    Comment
+//  ////////   //////////   ////////  //////////-
+//  1.0        02/11/06     G Huber   Initial revision
+//  2.0        04/20/22     SenecaUTK Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
 module gh_shift_reg_pl_sl #(

@@ -1,19 +1,20 @@
 ////////////////////////////////////////////////////////////////////////////-
-//	Filename:	gh_baud_rate_gen.vhd
+//  Filename:  gh_baud_rate_gen.sv
 //
-//	Description:
-//		a 16 bit baud rate generator
+//  Description:
+//    a 16 bit baud rate generator
 //
-//	Copyright (c) 2005 by George Huber 
-//		an OpenCores.org Project
-//		free to use, but see documentation for conditions 
+//  Copyright (c) 2005 by George Huber
+//    an OpenCores.org Project
+//    free to use, but see documentation for conditions
 //
-//	Revision 	History:
-//	Revision 	Date       	Author    	Comment
-//	//////// 	////////// 	////////-	//////////-
-//	1.0      	01/28/06  	H LeFevre	Initial revision
-//	2.0      	02/04/06  	H LeFevre	reload counter with register load
-//	2.1      	04/10/06  	H LeFevre	Fix error in rCLK
+//  Revision   History:
+//  Revision   Date         Author     Comment
+//  ////////   //////////   ////////-  //////////-
+//  1.0        01/28/06     H LeFevre  Initial revision
+//  2.0        02/04/06     H LeFevre  reload counter with register load
+//  2.1        04/10/06     H LeFevre  Fix error in rCLK
+//  3.0        04/20/22     SenecaUTK  Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
 module gh_baud_rate_gen (

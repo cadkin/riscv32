@@ -1,20 +1,21 @@
 ////////////////////////////////////////////////////////////////////////////-
-//	Filename:	gh_jkff.vhd
+//  Filename:  gh_jkff.sv
 //
-//	Description:
-//		a JK Flip-Flop
+//  Description:
+//    a JK Flip-Flop
 //
-//	Copyright (c) 2005 by George Huber 
-//		an OpenCores.org Project
-//		free to use, but see documentation for conditions  
+//  Copyright (c) 2005 by George Huber
+//    an OpenCores.org Project
+//    free to use, but see documentation for conditions
 //
-//	Revision 	History:
-//	Revision 	Date       	Author    	Comment
-//	//////// 	////////// 	////////	//////////-
-//	1.0      	09/03/05  	G Huber 	Initial revision
-//	2.0     	10/06/05  	G Huber 	name change to avoid conflict
-//	        	          	         	  with other libraries
-//	2.1      	05/21/06  	S A Dodd 	fix typo's
+//  Revision   History:
+//  Revision   Date         Author    Comment
+//  ////////   //////////   ////////  //////////-
+//  1.0        09/03/05     G Huber   Initial revision
+//  2.0        10/06/05     G Huber   name change to avoid conflict
+//                                     with other libraries
+//  2.1        05/21/06     S A Dodd  fix typo's
+//  3.0        04/20/22     SenecaUTK Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
 module gh_jkff (

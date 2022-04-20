@@ -1,21 +1,22 @@
 ////////////////////////////////////////////////////////////////////////////-
-//	Filename:	gh_edge_det.vhd
+//  Filename:  gh_edge_det.sv
 //
-//	Description:
-//		an edge detector - 
-//		   finds the rising edge and falling edge
+//  Description:
+//    an edge detector -
+//       finds the rising edge and falling edge
 //
-//	Copyright (c) 2005 by George Huber 
-//		an OpenCores.org Project
-//		free to use, but see documentation for conditions  
+//  Copyright (c) 2005 by George Huber
+//    an OpenCores.org Project
+//    free to use, but see documentation for conditions
 //
-//	Revision 	History:
-//	Revision 	Date       	Author    	Comment
-//	//////// 	//////////	////////	//////////-
-//	1.0      	09/10/05  	G Huber 	Initial revision
-//	2.0     	09/17/05  	h lefevre	name change to avoid conflict
-//	        	          	         	  with other libraries
-//	2.1      	05/21/06  	S A Dodd 	fix typo's
+//  Revision   History:
+//  Revision   Date        Author    Comment
+//  ////////   //////////  ////////  //////////-
+//  1.0        09/10/05    G Huber   Initial revision
+//  2.0        09/17/05    h lefevre name change to avoid conflict
+//                                    with other libraries
+//  2.1        05/21/06    S A Dodd  fix typo's
+//  3.0        04/20/22    SenecaUTK Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
 module gh_edge_det (

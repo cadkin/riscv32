@@ -1,42 +1,43 @@
 ////////////////////////////////////////////////////////////////////////////-
-//	Filename:	gh_uart_16550.vhd
+//  Filename:  gh_uart_16550.sv
 //
-//	Description:
-//		designed to be a 16550 compatible UART 
+//  Description:
+//    designed to be a 16550 compatible UART
 //
-//	Copyright (c) 2006, 2007, 2008 by H LeFevre 
-//		A VHDL 16550 UART core
-//		an OpenCores.org Project
-//		free to use, but see documentation for conditions 
+//  Copyright (c) 2006, 2007, 2008 by H LeFevre
+//    A SystemVerilog 16550 UART core
+//    an OpenCores.org Project
+//    free to use, but see documentation for conditions
 //
-//	Revision 	History:signal
-//	Revision 	Date       	Author    	Comment
-//	//////// 	////////// 	////////-	//////////-
-//	1.0      	02/25/06  	H LeFevre	Initial revision 
-//	1.1     	03/18/06  	H LeFevre	mod to clear THREmpty interrupt 
-//	        	          	         	    with IIR read 
-//	1.2     	04/08/06  	H LeFevre	add time out interrupt
-//	1.3     	04/19/06  	H LeFevre	fix read fifo signal, so fifo 
-//	        	          	         	   will not lose data when baud rate 
-//	        	          	         	   generatorread
-//	2.0     	12/13/06  	H LeFevre	Fixed THRE interrupt, as recommended
-//	       		          	         	   by Walter Hogan 12/12/06 
-//	2.1     	12/23/06  	H LeFevre	replace fifo's
-//	2.2    		01/20/07  	H LeFevre	replace read fifo 
-//	2.3     	02/22/07  	B Chini  	Modified TOI Function To Work as Specified in 16550D manual
-//	2.4    		07/12/07  	H LeFevre	fix 6, 7 bits transfers (LCR bits 1,0 were swapped
-//       		          	         	   as pointed out by Matthias Klemm
-//	2.5     	08/03/07  	H LeFevre	Mod TOI to fixsues missed in 2.3 (enabled with receiveIRQ, 
-//       		          	         	   time reset with receive word- as Specified in 16550D manual)
-//	2.6     	08/04/07  	H LeFevre	load TOI when receive IRQ disabled
-//	2.7     	10/12/07  	H LeFevre	fix LSR Interrupt, as suggested by Matthias Klemm
-//	   	    	          	         	+  mod to THRE Interrupt now, will be generated
-//	   	    	          	         	   when enabled while trans FIFOempty
-//	   	    	          	         	   (opencore bug report)
-//	2.7     	10/13/07  	H LeFevre	mod LSR Interrupt so that it will retrigger with
-//	   	    	          	         	   back to back errors
-//	2.8     	07/21/08  	H LeFevre	mod equ for iBreak_ITR [add (and (not RF_EMPTY))]
-//	        	        	         	   as suggested by Nathan Z.
+//  Revision   History:signal
+//  Revision   Date         Author     Comment
+//  ////////   //////////   ////////-  //////////-
+//  1.0        02/25/06     H LeFevre  Initial revision
+//  1.1        03/18/06     H LeFevre  mod to clear THREmpty interrupt
+//                                       with IIR read
+//  1.2        04/08/06     H LeFevre  add time out interrupt
+//  1.3        04/19/06     H LeFevre  fix read fifo signal, so fifo
+//                                      will not lose data when baud rate
+//                                      generatorread
+//  2.0        12/13/06     H LeFevre  Fixed THRE interrupt, as recommended
+//                                       by Walter Hogan 12/12/06
+//  2.1        12/23/06     H LeFevre  replace fifo's
+//  2.2        01/20/07     H LeFevre  replace read fifo
+//  2.3        02/22/07     B Chini    Modified TOI Function To Work as Specified in 16550D manual
+//  2.4        07/12/07     H LeFevre  fix 6, 7 bits transfers (LCR bits 1,0 were swapped
+//                                      as pointed out by Matthias Klemm
+//  2.5        08/03/07     H LeFevre  Mod TOI to fixsues missed in 2.3 (enabled with receiveIRQ,
+//                                      time reset with receive word- as Specified in 16550D manual)
+//  2.6        08/04/07     H LeFevre  load TOI when receive IRQ disabled
+//  2.7        10/12/07     H LeFevre  fix LSR Interrupt, as suggested by Matthias Klemm
+//                                      + mod to THRE Interrupt now, will be generated
+//                                      when enabled while trans FIFOempty
+//                                      (opencore bug report)
+//  2.7        10/13/07     H LeFevre  mod LSR Interrupt so that it will retrigger with
+//                                       back to back errors
+//  2.8        07/21/08     H LeFevre  mod equ for iBreak_ITR [add (and (not RF_EMPTY))]
+//                                      as suggested by Nathan Z.
+//  3.0        04/20/22     SenecaUTK  Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
 module gh_uart_16550 (

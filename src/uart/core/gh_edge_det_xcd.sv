@@ -1,20 +1,21 @@
 ////////////////////////////////////////////////////////////////////////////-
-//	Filename:	gh_edge_det_XCD.vhd
+//  Filename:  gh_edge_det_xcd.sv
 //
-//	Description:
-//		an edge detector, for crossing clock domains - 
-//		   finds the rising edge and falling edge for a pulse crossing clock domains
+//  Description:
+//    an edge detector, for crossing clock domains -
+//       finds the rising edge and falling edge for a pulse crossing clock domains
 //
-//	Copyright (c) 2006, 2008 by George Huber 
-//		an OpenCores.org Project
-//		free to use, but see documentation for conditions  
+//  Copyright (c) 2006, 2008 by George Huber
+//    an OpenCores.org Project
+//    free to use, but see documentation for conditions
 //
-//	Revision 	History:
-//	Revision 	Date       	Author    	Comment
-//	//////// 	//////////	////////	//////////-
-//	1.0        	09/16/06  	S A Dodd 	Initial revision
-//	2.0     	04/12/08  	hlefevre	mod to double register between clocks
-//	        	          	        	   output time remains the same
+//  Revision   History:
+//  Revision   Date        Author    Comment
+//  ////////   //////////  ////////  //////////-
+//  1.0        09/16/06    S A Dodd  Initial revision
+//  2.0        04/12/08    hlefevre  mod to double register between clocks
+//                                     output time remains the same
+//  3.0        04/20/22    SenecaUTK Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
 module gh_edge_det_xcd (

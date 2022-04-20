@@ -1,17 +1,18 @@
 ////////////////////////////////////////////////////////////////////////////-
-//	Filename:	gh_parity_gen_Serial.vhd
+//  Filename:  gh_parity_gen_serial.sv
 //
-//	Description:
-//		a Serial parity bit generator
+//  Description:
+//    a Serial parity bit generator
 //
-//	Copyright (c) 2005 by George Huber 
-//		an OpenCores.org Project
-//		free to use, but see documentation for conditions 
+//  Copyright (c) 2005 by George Huber
+//    an OpenCores.org Project
+//    free to use, but see documentation for conditions
 //
-//	Revision 	History:
-//	Revision 	Date       	Author    	Comment
-//	//////// 	////////// 	////////	//////////-
-//	1.0      	10/15/05  	S A Dodd	Initial revision
+//  Revision   History:
+//  Revision   Date         Author    Comment
+//  ////////   //////////   ////////  //////////-
+//  1.0        10/15/05     S A Dodd  Initial revision
+//  2.0        04/20/22     SenecaUTK Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
 module gh_parity_gen_serial (
