@@ -30,10 +30,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-module spi_master
-#(parameter SPI_MODE = 0,
-  parameter CLKS_PER_HALF_BIT = 2)
-(
+module spi_master (
  // Control/Data Signals,
  input        i_Rst_L,     // FPGA Reset
  input        i_Clk,       // FPGA Clock
@@ -57,7 +54,7 @@ module spi_master
 wire w_CPOL;     // Clock polarity
 wire w_CPHA;     // Clock phase
 
-reg [$clog2(CLKS_PER_HALF_BIT*2)-1:0] r_SPI_Clk_Count;
+reg [$clog2(2*2)-1:0] r_SPI_Clk_Count;
 reg r_SPI_Clk;
 int r_SPI_Clk_Edges;
 reg r_Leading_Edge;
@@ -71,14 +68,14 @@ reg [2:0] r_TX_Bit_Count;
 // CPOL: Clock Polarity
 // CPOL=0 means clock idles at 0, leading edge is rising edge.
 // CPOL=1 means clock idles at 1, leading edge is falling edge.
-assign w_CPOL  = (SPI_MODE == 2) | (SPI_MODE == 3);
+assign w_CPOL  = (0 == 2) | (0 == 3);
 
 // CPHA: Clock Phase
 // CPHA=0 means the "out" side changes the data on trailing edge of clock
 //              the "in" side captures data on leading edge of clock
 // CPHA=1 means the "out" side changes the data on leading edge of clock
 //              the "in" side captures data on the trailing edge of clock
-assign w_CPHA  = (SPI_MODE == 1) | (SPI_MODE == 3);
+assign w_CPHA  = (0 == 1) | (0 == 3);
 
 
 
@@ -110,14 +107,14 @@ begin
     begin
       o_TX_Ready <= 1'b0;
 
-      if (r_SPI_Clk_Count == CLKS_PER_HALF_BIT*2-1)
+      if (r_SPI_Clk_Count == 2*2-1)
       begin
         r_SPI_Clk_Edges <= r_SPI_Clk_Edges - 1;
         r_Trailing_Edge <= 1'b1;
         r_SPI_Clk_Count <= 0;
         r_SPI_Clk       <= ~r_SPI_Clk;
       end
-      else if (r_SPI_Clk_Count == CLKS_PER_HALF_BIT-1)
+      else if (r_SPI_Clk_Count == 2-1)
       begin
         r_SPI_Clk_Edges <= r_SPI_Clk_Edges - 1;
         r_Leading_Edge  <= 1'b1;
