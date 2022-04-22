@@ -153,9 +153,12 @@ module execute (
       .frm(bus.EX_MEM_frm),
       .fpusel_s(bus.ID_EX_fpusel),
       .fpusel_d(bus.ID_EX_fpusel),
+      .fcsr(bus.fcsr),
+      .fp_enable(bus.ID_EX_fpusrc),
       .g_clk(bus.clk),
       .fp_clk(bus.clk),
       .g_rst(bus.Rst),
+      .fcsr_res(bus.EX_MEM_fcsr),
       .res(fpures),
       .stall(f_stall)
   );

@@ -11,7 +11,8 @@ module unsig_int_to_float(
     input logic [2:0] rm,
 	input logic clk,rst,
 	output logic [31:0] output_z,
-	output logic output_z_stb);
+	output logic output_z_stb,
+  output logic [4:0] flag);
 		
 	logic [31:0] z,s_output_z; 
 	logic [31:0] value;
