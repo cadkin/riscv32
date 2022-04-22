@@ -12,24 +12,24 @@ module unsig_int_to_float(
 	input logic clk,rst,
 	output logic [31:0] output_z,
 	output logic output_z_stb);
-		
-	logic [31:0] z,s_output_z; 
+
+	logic [31:0] z,s_output_z;
 	logic [31:0] value;
-	logic [7:0]  z_r,z_e;
+	logic [9:0]  z_r,z_e;
 	logic [23:0] z_m;
 	logic sign,guard, round_bit, sticky,s_output_z_stb;
 	logic [2:0] state;
 	logic     [23:0] round_zm;
     logic     [9:0] round_ze;
     rounding r1(z_m,z_e,z_s,guard,round_bit,sticky,rm, round_zm, round_ze);
-	
-	parameter 
+
+	parameter
         convert_1     = 3'h2,
         convert_2     = 3'h3,
         round         = 3'h4,
         pack          = 3'h5,
         put_z         = 3'h6;
-		
+
 	//assign sign = input_a[31];
 	always @(posedge clk)
 	begin

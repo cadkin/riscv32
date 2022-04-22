@@ -10,9 +10,9 @@ module int_to_float(
 	input logic clk,rst,
 	output logic [31:0] output_z,
 	output logic output_z_stb);
-		
+
 	logic [31:0] a, z, value,s_output_z;
-	logic [7:0]  z_r,z_e;
+	logic [9:0]  z_r,z_e;
 	logic [23:0] z_m;
 	logic z_s,s_output_z_stb;
 	logic sign,guard, round_bit, sticky;
@@ -21,14 +21,14 @@ module int_to_float(
     logic     [9:0] round_ze;
     rounding r1(z_m,z_e,z_s,guard,round_bit,sticky,rm, round_zm, round_ze);
 
-	parameter 
+	parameter
         convert_0     = 3'h1,
         convert_1     = 3'h2,
         convert_2     = 3'h3,
         round         = 3'h4,
         pack          = 3'h5,
         put_z         = 3'h6;
-		
+
 	//assign sign = input_a[31];
 	always @(posedge clk)
 	begin
