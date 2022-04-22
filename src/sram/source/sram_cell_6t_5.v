@@ -15,11 +15,11 @@ module sram_cell_6t_5 (BL, BLN, WL );
 
   always @ (*) begin
    if (WL) begin
-	if ((BL === 1'b0) && sram_4kb_256x128x8.write_en) begin
+	if ((BL == 1'b0) && sram_4kb_256x128x8.write_en) begin
 		Q <= 1'b0;
 		Qbar <= 1'b1;
 		drive <= 1'b0;
-	end 	else if((BLN === 1'b0) && sram_4kb_256x128x8.write_en) begin
+	end else if((BLN == 1'b0) && sram_4kb_256x128x8.write_en) begin
 		Q <= 1'b1;
 		Qbar <= 1'b0;
 		drive <= 1'b0;

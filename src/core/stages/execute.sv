@@ -199,7 +199,8 @@ module execute (
       bus.EX_MEM_CSR_read <= 0;
       div_ready <= 0;
       mul_ready <= 0;
-      bus.f_stall <= 1'b0;
+      // Doesn't work on synopsis - find alternative
+      //bus.f_stall <= 1'b0;
     // Set EX/MEM pipeline register with ID/EX values
     // Freeze pipeline if debug or prog activated
     end else if ((!bus.dbg) && (!bus.mem_hold) && (!bus.f_stall)) begin
@@ -229,7 +230,8 @@ module execute (
       bus.EX_MEM_CSR_read <= bus.ID_EX_CSR_read;
       div_ready <= div_ready_sig;
       mul_ready <= mul_ready_sig;
-      bus.f_stall <= f_stall;
+      // Doesn't work on synopsis - find alternative
+      //bus.f_stall <= f_stall;
     end
   end
 endmodule : execute

@@ -71,18 +71,18 @@ module divider (
     end
     else if (busy) // Stage 2: Calculate multiplication.
     begin
-      remainder    = remainder << 1'b1;
-      remainder[0] = numerator[index];
+      remainder    <= remainder << 1'b1;
+      remainder[0] <= numerator[index];
 
       if (divisor <= remainder) begin
-        remainder       = remainder - divisor;
-        quotient[index] = 1'b1;
+        remainder       <= remainder - divisor;
+        quotient[index] <= 1'b1;
       end
 
-      count = ~(|index);
-      rdy   = ~(|index);
-      busy  = |index;
-      index = ~(|index) ? 5'd0 : index - 5'd1;
+      count <= ~(|index);
+      rdy   <= ~(|index);
+      busy  <= |index;
+      index <= ~(|index) ? 5'd0 : index - 5'd1;
     end
     else // Stage 1: Set operands and result formatting conditions.
     begin

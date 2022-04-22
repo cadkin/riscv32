@@ -63,7 +63,7 @@ module spi_controller (
 
   logic ctrl_state;
 
-  int tx_count;
+  logic [$clog2(2+1)-1:0] tx_count;
   assign tx_count = 1;
 
   spi_master_cs spi0 (

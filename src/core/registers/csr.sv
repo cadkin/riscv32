@@ -40,7 +40,7 @@ module csr (
   logic [31:0] mip;       // Machine Interrupt Register
 
   // Writes a code to mcause register indicating the event that caused the trap
-  function static logic [31:0] build_mcause();
+  function logic [31:0] build_mcause();
     begin
       // Trap caused by interrupt
       if (bus.ecall) return {1'b1, 31'h3}; // Interrupt bit set, Exception Code 3: Machine software interrupt

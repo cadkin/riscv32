@@ -40,7 +40,7 @@ module mem_controller (
 
   // Connection to SRAM/BRAM interface
   mem_interface #(
-      .USE_SRAM(0)
+      .USE_SRAM(1)
   ) sharedmem (
       .clk(clk),
       .imem_en(imem_en),

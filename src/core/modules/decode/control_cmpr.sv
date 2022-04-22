@@ -29,7 +29,7 @@ module control_cmpr (
   assign stall = flush || hazard || ins_zero;
 
   // Converts register field in instruction to the register number
-  function static logic [4:0] RVC_Reg(input logic [2:0] rs);
+  function logic [4:0] RVC_Reg(input logic [2:0] rs);
     case (rs)
       3'b000:  return 8;
       3'b001:  return 9;
