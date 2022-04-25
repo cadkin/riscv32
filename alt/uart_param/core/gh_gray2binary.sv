@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////-
-//  Filename:  gh_binary2gray.sv
+//  Filename:  gh_gray2binary.sv
 //
 //  Description:
-//    a binary to gray code converter
+//    a gray code to binary converter
 //
 //  Copyright (c) 2006 by George Huber
 //    an OpenCores.org Project
@@ -15,16 +15,22 @@
 //  2.0        04/20/22     SenecaUTK Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
-module gh_binary2gray (
-  input logic [5-1:0] b, // binary value in
-  output logic [5-1:0] g // gray code out
+module gh_gray2binary #(
+  parameter int SIZE = 8
+) (
+  input logic [SIZE-1:0] g, // gray code in
+  output logic [SIZE-1:0] b // binary value out
 );
+
+  logic [SIZE-1:0] ib;
+
+  assign b = ib;
 
   genvar j;
   generate
-    for (j = 0; j < 5-1; j = j+1) begin : gen_b2g
-      assign g[j] = b[j] ^ b[j+1];
+    for (j = 0; j < SIZE-1; j = j+1) begin : gen_g2b
+      assign ib[j] = g[j] ^ ib[j+1];
     end
   endgenerate
-  assign g[5-1] = b[5-1];
-endmodule : gh_binary2gray
+  assign ib[SIZE-1] = g[SIZE-1];
+endmodule : gh_gray2binary

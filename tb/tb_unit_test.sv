@@ -39,6 +39,7 @@ module tb_unit_test ();
 
   // Core SPI
   logic miso, mosi, cs;
+  logic sck;
 
   // Testbench UART Rx
   logic byte_sent;

@@ -19,17 +19,19 @@
 //  3.0        04/20/22     SenecaUTK  Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
-module gh_counter_down_ce_ld_tc (
+module gh_counter_down_ce_ld_tc #(
+  parameter int SIZE = 8
+) (
 input logic clk,
 input logic rst,
 input logic load,
 input logic ce,
-input logic [10-1:0] d,
-output logic [10-1:0] q,
+input logic [SIZE-1:0] d,
+output logic [SIZE-1:0] q,
 output logic tc
 );
 
-logic [10-1:0] iq;
+logic [SIZE-1:0] iq;
 logic itc;
 
 //

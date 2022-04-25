@@ -1,8 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////-
-//  Filename:  gh_shift_reg_se_sl.sv
+//  Filename:  gh_shift_reg_pl_sl.sv
 //
 //  Description:
-//    a shift register with async reset and count enable
+//    a shift register with Parallel Load
+//       will shift left (MSB to LSB)
 //
 //  Copyright (c) 2006 by George Huber
 //    an OpenCores.org Project
@@ -15,12 +16,12 @@
 //  2.0        04/20/22     SenecaUTK Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
-module gh_shift_reg_se_sl (
+module gh_shift_reg_pl_sl (
   input logic clk,
   input logic rst,
-  input logic srst,
-  input logic se, // shift enable
-  input logic d,
+  input logic load, // load data
+  input logic se,   // shift enable
+  input logic [8-1:0] d,
   output logic [8-1:0] q
 );
 
@@ -31,11 +32,9 @@ module gh_shift_reg_se_sl (
   always_ff @(posedge clk or posedge rst) begin
     if (rst == 1'b1) iq <= 0;
     else begin
-      if (srst == 1'b1) iq <= 0;
-      else if (se == 1'b1) begin
-        iq[8-1] <= d;
-        iq[8-2:0] <= iq[8-1:1];
-      end
+      if (load == 1'b1) iq <= d;
+      else if (se == 1'b1) iq[8-1:0] <= {1'b0, iq[8-1:1]};
+      else iq <= iq;
     end
   end
-endmodule : gh_shift_reg_se_sl
+endmodule : gh_shift_reg_pl_sl

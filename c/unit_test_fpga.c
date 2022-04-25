@@ -1,5 +1,6 @@
 #include "print.h"
 #include "uart.h"
+#include "spi.h"
 #include "malloc.h"
 #include "qsort.h"
 #include "utils.h"
@@ -10,12 +11,13 @@
 int m_ext_test(int a);
 int itoa_atoi_test(int a);
 int qsort_test(int a);
-void uart_test();
+int spi_test(int a);
 
 int main(void)
 {
     int test = 0;
 	char num_char[9];
+    char newline[9] = "\r\n";
 
     // Initialize UART
 	uart_init();
@@ -24,97 +26,65 @@ int main(void)
     test = d_hz_3(1); // Fails all (doesn't raise mmio_wea)
     itoa(test, num_char);
     uart_print(num_char);
+    uart_print(newline);
 
     test = d_hz_2(2); // Fails all (raises mmio_wea, outputs 0)
     itoa(test, num_char);
     uart_print(num_char);
+    uart_print(newline);
 
     test = d_hz_1(3); // Fails all (raises mmio_wea, outputs 20)
     itoa(test, num_char);
     uart_print(num_char);
+    uart_print(newline);
 
     test = b_hz_3(4); // Fails B HZ 3 and LB HZ 
     itoa(test, num_char);
     uart_print(num_char);
+    uart_print(newline);
 
     test = b_hz_2(5); // Fails B HZ 2 and B HZ 1
     itoa(test, num_char);
     uart_print(num_char);
+    uart_print(newline);
 
     test = b_hz_1(6); // Fails itself
     itoa(test, num_char);
     uart_print(num_char);
+    uart_print(newline);
 
     test = lb_hz(7);  // Fails itself
     itoa(test, num_char);
     uart_print(num_char);
+    uart_print(newline);
 
     test = l_hz(8);   // Fails itself
     itoa(test, num_char);
     uart_print(num_char);
+    uart_print(newline);
 
     test = s_hz(9);   // Fails itself
     itoa(test, num_char);
     uart_print(num_char);
+    uart_print(newline);
 
     // M-EXT Test
     test = m_ext_test(10);
     itoa(test, num_char);
     uart_print(num_char);
+    uart_print(newline);
 
     // ITOA/ATOI Test
     test = itoa_atoi_test(11);
     itoa(test, num_char);
     uart_print(num_char);
+    uart_print(newline);
 
     // Qsort Test
     test = qsort_test(12);
     itoa(test, num_char);
     uart_print(num_char);
-}
-
-int qsort_test(int a)
-{
-    int result = 0;
-    int i = 0;
-
-    int check_data[DATA_SIZE] = {
-        4,
-        8,
-        16,
-        32,
-        64,
-        128,
-        256,
-        512,
-        1024,
-        65536
-    };
-
-    int *input_data = malloc(DATA_SIZE * sizeof(int));
-    input_data[0] = 65536;
-    input_data[1] = 1024;
-    input_data[2] = 512;
-    input_data[3] = 256;
-    input_data[4] = 128;
-    input_data[5] = 64;
-    input_data[6] = 32;
-    input_data[7] = 16;
-    input_data[8] = 8;
-    input_data[9] = 4;
-
-    sort(DATA_SIZE, input_data);
-
-    result = a;
-    for(i = 0; i < DATA_SIZE; i++)
-    {
-        if(input_data[i] != check_data[i])
-        {
-            result = 0;
-        }
-    }
-
-    return result;
+    uart_print(newline);
 }
 
 int m_ext_test(int a)
@@ -233,6 +203,50 @@ int itoa_atoi_test(int a)
 
         num = atoi(numchar);
         if(num != input_data[i])
+        {
+            result = 0;
+        }
+    }
+
+    return result;
+}
+
+int qsort_test(int a)
+{
+    int result = 0;
+    int i = 0;
+
+    int check_data[DATA_SIZE] = {
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1024,
+        65536
+    };
+
+    int *input_data = malloc(DATA_SIZE * sizeof(int));
+    input_data[0] = 65536;
+    input_data[1] = 1024;
+    input_data[2] = 512;
+    input_data[3] = 256;
+    input_data[4] = 128;
+    input_data[5] = 64;
+    input_data[6] = 32;
+    input_data[7] = 16;
+    input_data[8] = 8;
+    input_data[9] = 4;
+
+    sort(DATA_SIZE, input_data);
+
+    result = a;
+    for(i = 0; i < DATA_SIZE; i++)
+    {
+        if(input_data[i] != check_data[i])
         {
             result = 0;
         }

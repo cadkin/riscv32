@@ -51,12 +51,25 @@ module divider (
   end
 
   always @(posedge clk or posedge rst) begin
-    if (rdy) // Stage 3: Wait 2 clock cycles.
+    if (rst)
+    begin
+      numerator  <= 32'b0;
+      divisor    <= 32'b0;
+      quotient   <= 32'b0;
+      remainder  <= 32'b0;
+      index      <= 5'b0;
+      div_inst   <= 1'b0;
+      invert_res <= 1'b0;
+      count      <= 1'b0;
+      rdy        <= 1'b0;
+      busy       <= 1'b0;
+    end
+    else if (rdy) // Stage 3: Wait 2 clock cycles.
     begin
       if (count) count <= 0;
       else rdy <= 0;
     end
-    else if (rst || !divrem_op) // Reset
+    else if (!divrem_op) // Reset
     begin
       numerator  <= 32'b0;
       divisor    <= 32'b0;

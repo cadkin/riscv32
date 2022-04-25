@@ -1,44 +1,34 @@
 ////////////////////////////////////////////////////////////////////////////-
-//	Filename:	gh_gray2binary.vhd
+//  Filename:  gh_gray2binary.sv
 //
-//	Description:
-//		a gray code to binary converter
+//  Description:
+//    a gray code to binary converter
 //
-//	Copyright (c) 2006 by George Huber 
-//		an OpenCores.org Project
-//		free to use, but see documentation for conditions 
+//  Copyright (c) 2006 by George Huber
+//    an OpenCores.org Project
+//    free to use, but see documentation for conditions
 //
-//	Revision 	History:
-//	Revision 	Date       	Author    	Comment
-//	//////// 	////////// 	////////	//////////-
-//	1.0      	12/26/06  	G Huber 	Initial revision
+//  Revision   History:
+//  Revision   Date         Author    Comment
+//  ////////   //////////   ////////  //////////-
+//  1.0        12/26/06     G Huber   Initial revision
+//  2.0        04/20/22     SenecaUTK Convert to SystemVerilog
 //
 ////////////////////////////////////////////////////////////////////////////-
-//LIBRARY ieee;
-//USE ieee.std_logic_1164.all;
+module gh_gray2binary (
+  input logic [5-1:0] g, // gray code in
+  output logic [5-1:0] b // binary value out
+);
 
-module gh_gray2binary#(
-	parameter size= 8;)
-(	
-		input logic [size-1,0] G;	// gray code in
-		output logic[size-1,0] B  // binary value out
-		);
-logic [size-1,0] iB;
+  logic [5-1:0] ib;
 
-assign B = iB;
-	
-always(G,iB)
-begin
-//The for-loop creates 16 assign statements
-	genvar i;
-	generate
-		for (i=0; i < size-2; i++) begin
-			iB(i) <= G(i) xor iB(i+1);
-		end
-	endgenerate
+  assign b = ib;
 
-	iB(size-1) <= G(size-1);
-end
-		
-endmodule
-
+  genvar j;
+  generate
+    for (j = 0; j < 5-1; j = j+1) begin : gen_g2b
+      assign ib[j] = g[j] ^ ib[j+1];
+    end
+  endgenerate
+  assign ib[5-1] = g[5-1];
+endmodule : gh_gray2binary

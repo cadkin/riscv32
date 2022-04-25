@@ -1,28 +1,31 @@
-module sync_fifo (
+module sync_fifo #(
+    parameter int ADD_WIDTH  = 3,
+    parameter int DATA_WIDTH = 8
+) (
     input logic clk,
     input logic rst,
     input logic srst,
     input logic wr,
     input logic rd,
-    input logic [8-1:0] d,
-    output logic [8-1:0] q,
+    input logic [DATA_WIDTH-1:0] d,
+    output logic [DATA_WIDTH-1:0] q,
     output logic empty,
     output logic full
 );
 
-  logic [8-1:0] ram_mem[2**4];
+  logic [DATA_WIDTH-1:0] ram_mem[2**ADD_WIDTH];
   logic iempty;
   logic ifull;
   logic add_wr_ce;
-  logic [4:0] add_wr;
+  logic [ADD_WIDTH:0] add_wr;
   logic add_rd_ce;
-  logic [4:0] add_rd;
+  logic [ADD_WIDTH:0] add_rd;
 
   always_ff @(posedge clk) begin
-    if ((wr == 1'b1) && (ifull == 1'b0)) ram_mem[add_wr[4-1:0]] <= d;
+    if ((wr == 1'b1) && (ifull == 1'b0)) ram_mem[add_wr[ADD_WIDTH-1:0]] <= d;
   end
 
-  assign q = ram_mem[add_rd[4-1:0]];
+  assign q = ram_mem[add_rd[ADD_WIDTH-1:0]];
 
   assign add_wr_ce = (ifull == 1'b1) ? 1'b0 :
                      (wr == 1'b0)    ? 1'b0 : 1'b1;
@@ -37,8 +40,8 @@ module sync_fifo (
   end
 
   assign full = ifull;
-  assign ifull = (add_rd[4] != add_wr[4]) &&
-                 (add_rd[4-1:0] == add_wr[4-1:0]) ? 1'b1 : 1'b0;
+  assign ifull = (add_rd[ADD_WIDTH] != add_wr[ADD_WIDTH]) &&
+                 (add_rd[ADD_WIDTH-1:0] == add_wr[ADD_WIDTH-1:0]) ? 1'b1 : 1'b0;
 
   assign add_rd_ce = (iempty == 1'b1) ? 1'b0 : (rd == 1'b0) ? 1'b0 : 1'b1;
 
@@ -58,7 +61,7 @@ module sync_fifo (
 `ifndef SYNTHESIS
   integer i;
   initial begin
-    for (i = 0; i < 2 ** 4; i = i + 1) begin
+    for (i = 0; i < 2 ** ADD_WIDTH; i = i + 1) begin
       ram_mem[i] = 0;
     end
   end
