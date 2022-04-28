@@ -20,6 +20,12 @@ module sram_scan_wrapper (
   output scan_out;
   reg scan_out;
   reg write_en, sense_en;
+  // Scanchain Control Logic
+  // 65 bit register
+  // | 64 (32 bits) 33 | 32 (32 bits) 1 | 0 (1 bit) |
+  // ------------------------------------------------
+  // | addr            | cnt            | r/w       |
+  // ------------------------------------------------
   reg [N_ADDR + N_CNT-1 : 0] addr_cnt_reg;
   reg [N_DATA-1 : 0] data_scan_reg, data_in_reg, data_out_reg;
   wire [N_DATA-1 : 0] dout;
@@ -31,7 +37,8 @@ module sram_scan_wrapper (
   reg scan_in_sync;
   reg [N_DATA-1:0] clk_count;
   reg clk_div;
-  reg [N_CNT-1:0] addr_counter;
+  reg [N_CNT-2:0] addr_counter;
+  reg rw_skip;
 
   wire clk_1 = scan_rst_n & scan_clk;
   //sync inputs with negedge of scan_clk
@@ -56,8 +63,6 @@ module sram_scan_wrapper (
   wire demux_out_addr = !scan_select & scan_in_sync;
   wire demux_out_data = scan_select & scan_in_sync;
 
-
-
   //Load Addr_cnt register
   always @(posedge clk_1 or negedge rst_n_sync) begin
     if (!rst_n_sync) addr_cnt_reg <= 'd0;
@@ -74,10 +79,15 @@ module sram_scan_wrapper (
 
   //scan_clk divide logic
   always @(posedge scan_clk) begin
-    if (!rst_n_sync) clk_count <= 'd0;
+    if (!rst_n_sync) begin
+      clk_count <= 'd0;
+      rw_skip <= 'd0;
+    end
     else if (clk_count == N_DATA - 1) clk_count <= 'd0;
-    else clk_count <= clk_count + 1;
+    else if (rw_skip) clk_count <= clk_count + 1;
+    else rw_skip <= 'd1;
   end
+
   always @(posedge scan_clk) begin
     if (!rst_n_sync) clk_div <= 'd0;
     if ((clk_count == N_CLK - 1) || (clk_count == N_DATA - 1)) clk_div <= ~clk_div;
@@ -104,21 +114,25 @@ module sram_scan_wrapper (
     load_addr_d1 <= load_addr_d;
   end
 
-
-
   //Addr generator from addr_cnt_reg
   always @(posedge clk_1) begin
     if (!rst_n_sync) begin
       addr <= 'd0;
       write_en <= 'b0;
-      sense_en <= 'b1;
+      sense_en <= 'b0;
       addr_counter <= 'd0;
     end else if (scan_select) begin
       if (clk_count == N_CLK - 1) begin
-        addr[N_ADDR-1:0] <= addr_cnt_reg[N_ADDR+N_CNT-1:N_CNT] + (addr_cnt_reg[N_CNT-1:0] - addr_counter[N_CNT-1:0]);
-        addr_counter <= addr_counter - 1;
-        write_en <= addr_cnt_reg[0];
-        sense_en <= addr_cnt_reg[0];
+        if (addr_counter != 0) begin
+          addr[N_ADDR-1:0] <= addr_cnt_reg[N_ADDR+N_CNT-1:N_CNT] + (addr_cnt_reg[N_CNT-1:1] - addr_counter[N_CNT-2:0]);
+          addr_counter <= addr_counter - 1;
+          write_en <= addr_cnt_reg[0];
+          sense_en <= 'b1;
+        end
+        else begin
+          write_en <= 'd0;
+          sense_en <= 'd0;
+        end
       end else if (load_addr) begin
         addr <= addr;
         write_en <= write_en;
@@ -128,26 +142,46 @@ module sram_scan_wrapper (
     end
   end
 
+  reg scan_next_cycle;
+
   //Scan out data output register
-  always @(posedge clk_1) begin
+  always @(negedge clk_1) begin
     if (!rst_n_sync) begin
       scan_out <= 'b0;
       data_out_reg <= 'd0;
+      scan_next_cycle <= 0;
     end else if (clk_count == N_CLK - 1) begin
-      scan_out <= scan_out;
-      data_out_reg <= dout;
+      if (scan_next_cycle) begin
+        scan_out <= scan_out;
+        data_out_reg <= dout;
+      end
+      else begin
+        scan_out <= 0;
+        data_out_reg <= 0;
+      end
+      if (sense_en) scan_next_cycle <= 1;
+      else scan_next_cycle <= 0;
     end else begin
       scan_out <= rst_n_sync & data_out_reg[0];
       data_out_reg[N_DATA-1:0] <= {data_out_reg[0], data_out_reg[N_DATA-1:1]};
     end
   end
 
-  wire    clk_w = clk_div;
-  wire    write_en_w = write_en;
-  wire    sense_en_w = sense_en;
-  wire [N_ADDR-1:0]   addr_w = addr[N_ADDR-1:0];
-  wire [N_DATA-1:0]   din_w = data_in_reg[N_DATA-1:0];
+  wire clk_w = clk_div;
+  wire write_en_w = write_en;
+  wire sense_en_w = sense_en;
+  wire [N_ADDR-1:0] addr_w = addr[N_ADDR-1:0];
+  wire [N_DATA-1:0] din_w = data_in_reg[N_DATA-1:0];
 
+  imem_cell_scan imem (
+      .clka (clk_w),
+      .addra(addr_w),
+      .dina (din_w),
+      .douta(dout),
+      .ena  (sense_en_w),
+      .wea  (write_en_w)
+  );
+  /*
   sram_4kb_256x128x8 imem0 (
       .dout7(dout[7]),
       .dout6(dout[6]),
@@ -279,5 +313,5 @@ module sram_scan_wrapper (
       .addr1(addr_w[1]),
       .addr0(addr_w[0])
   );
-
+*/
 endmodule
