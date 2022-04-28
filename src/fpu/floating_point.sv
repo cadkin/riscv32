@@ -30,7 +30,9 @@ module FPU
   input  logic [31:0] c,
   input  logic [2:0] frm,sys_rm,
   input  logic [4:0]  fpusel_s,fpusel_d,
+  input  logic [7:0]  fcsr,
   input  logic fp_enable,g_clk,fp_clk,g_rst, //global clock, floating point logic unit clock, global reset
+  output  logic [7:0]  fcsr_res,
   output logic [31:0] res,
   output logic stall     //flag for stall the pipeline
   );
@@ -41,25 +43,27 @@ module FPU
   logic enable_add,enable_mul,enable_div,enable_mul_add,enable_f2i,enable_i2f,enable_f2ui,enable_ui2f,enable_sqrt;
   logic clk_add,clk_mul,clk_div,clk_mul_add,clk_f2i,clk_i2f,clk_f2ui,clk_ui2f,clk_sqrt;
   logic out_stb_add,out_stb_mul,out_stb_div,out_stb_mul_add,out_stb_f2i,out_stb_f2ui,out_stb_i2f,out_stb_ui2f,out_stb_sqrt;
+  logic [4:0] flag_add,flag_mul,flag_div,flag_mul_add,flag_f2i,flag_i2f,flag_f2ui,flag_ui2f,flag_sqrt;
   logic [3:0]enable_sel;
   logic [1:0] fsign_sel,fma_sel;
-  logic stall_flag;
   logic [2:0] rm;
+  logic stall_flag,nv,dz,of,uf,nx;
   
+  assign sys_rm = fcsr[7:5];
   assign rm = (sys_rm[0] & sys_rm[1] & sys_rm[2]) ? frm : sys_rm;
   
   //impermented using finate state machine.
-  adder a1(input_a,input_b,rm,clk_add,enable_add,output_add,out_stb_add);
-  fdivider a2(input_a,input_b,rm,clk_div,enable_div,output_div,out_stb_div);
-  fmultiplier a3(input_a,input_b,rm,clk_mul,enable_mul,output_mul,out_stb_mul);
+  adder a1(input_a,input_b,rm,clk_add,enable_add,output_add,out_stb_add,flag_add);
+  fdivider a2(input_a,input_b,rm,clk_div,enable_div,output_div,out_stb_div,flag_div);
+  fmultiplier a3(input_a,input_b,rm,clk_mul,enable_mul,output_mul,out_stb_mul,flag_mul);
 
-  float_to_int a4(input_a,rm,clk_f2i,enable_f2i,output_f2i,out_stb_f2i);
-  float_to_unsig_int a5(input_a,rm,clk_f2ui,enable_f2ui,output_f2ui,out_stb_f2ui);
-  int_to_float a6(input_a,rm,clk_i2f,enable_i2f,output_i2f,out_stb_i2f);
-  unsig_int_to_float a7(input_a,rm,clk_ui2f,enable_ui2f,output_ui2f,out_stb_i2uf);
+  float_to_int a4(input_a,rm,clk_f2i,enable_f2i,output_f2i,out_stb_f2i,flag_f2i);
+  float_to_unsig_int a5(input_a,rm,clk_f2ui,enable_f2ui,output_f2ui,out_stb_f2ui,flag_f2ui);
+  int_to_float a6(input_a,rm,clk_i2f,enable_i2f,output_i2f,out_stb_i2f,flag_i2f);
+  unsig_int_to_float a7(input_a,rm,clk_ui2f,enable_ui2f,output_ui2f,out_stb_i2uf,flag_ui2f);
   
-  mul_adder a8 (input_a,input_b,input_c,fma_sel,rm,clk_mul_add,enable_mul_add,output_mul_add,out_stb_mul_add);
-  fsqrt a9(input_a,rm,clk_sqrt,enable_sqrt,output_sqrt,out_stb_sqrt);
+  mul_adder a8 (input_a,input_b,input_c,fma_sel,rm,clk_mul_add,enable_mul_add,output_mul_add,out_stb_mul_add,flag_mul_add);
+  fsqrt a9(input_a,rm,clk_sqrt,enable_sqrt,output_sqrt,out_stb_sqrt,flag_sqrt);
   
   //impermented using combanatinal logic
   fsign_inject c1(input_a,input_b,fsign_sel,output_fsgnj);
@@ -85,7 +89,7 @@ begin
 		end
 		input_c = c;
 	end;
-
+    //clock gating for the FSM modules.
     if((g_rst == 0) & (fp_enable == 1))begin
 	  enable_add = 1;
 	  enable_mul = 1;
@@ -142,7 +146,7 @@ assign 	 stall = stall_flag;
 //getting the inputs from the id stage and select the logic to perform
 always_ff @(posedge g_clk)
 begin //fpu instuction selction
-
+    nv <=0;
 
     case(fpusel_s)
       5'b00000 : begin //fp fadd
@@ -198,6 +202,7 @@ begin //fpu instuction selction
       default: begin
 		enable_sel <= 0;
 		fsign_sel <= 0;
+		nv <=1;
 		end
     endcase
   end
@@ -205,6 +210,7 @@ begin //fpu instuction selction
 always_ff @(negedge g_clk)
 begin
     stall_flag <= 0;
+    fcsr_res <= {fcsr[7:5],nv,dz,of,uf,nx};
    case(fpusel_s)
       5'b00000 : //fp fadd
 		if(out_stb_add ==0) stall_flag <= 1;

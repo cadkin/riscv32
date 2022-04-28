@@ -11,7 +11,8 @@ module fsqrt(
   input logic [2:0] rm,
   input logic  clk,rst,
   output logic [31:0] output_z,
-  output logic output_z_stb);
+  output logic output_z_stb,
+  output logic [4:0] flag);
   
   parameter WIDTH=26;  // width of radicand
   parameter FBITS=26;   // fractional bits (for fixed point)

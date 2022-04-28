@@ -9,7 +9,8 @@ module int_to_float(
     input logic [2:0] rm,
 	input logic clk,rst,
 	output logic [31:0] output_z,
-	output logic output_z_stb);
+	output logic output_z_stb,
+  output logic [4:0] flag);
 		
 	logic [31:0] a, z, value,s_output_z;
 	logic [7:0]  z_r,z_e;
